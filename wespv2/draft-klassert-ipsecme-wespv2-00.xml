@@ -22,7 +22,16 @@
     <keyword>WESPv2</keyword>
     <abstract>
       <t>
-      Anstract goes here ...
+      This document describes the Wrapped Encapsulating Security Payload v2
+      (WESPv2) protocol, which builds on the Encapsulating Security Payload
+      (ESP) RFC 4303. It is designed to overcome limitations of the ESP
+      protocol to expose flow information to the network in a transparent way
+      and to align the cipher text to the needs of the sender and receiver.
+      To do so, it defines an optional Flow Identifyer where flow speciffic information
+      can be stored. It also defines a Crypto Offset to allow intermediate
+      devices to read some header bytes at the beginning of the inner packet.
+      In particular, this preserves the original usecase of WESP <xref target="RFC5840"/>.
+      Optional padding is added for cipher text alignment.
     </t>
     </abstract>
   </front>
@@ -30,8 +39,30 @@
     <section numbered="true" toc="default">
       <name>Introduction</name>
       <t>
-      Introduction goes here ...
-   The current IPsec WESP specification <xref target="RFC4303"/> defines two
+      WESPv2 is a wrapper for the ESP protocol. Due to the absence of a version
+      number in the ESP protocol, it can't be updated in a transparent way.
+      Any updates to ESP must be negotiated by IKEv2 and for that, invisible to
+      intermediate devices. In the recent past, several attempts were taken to
+      introduce a Flow Identifyer for certain useceses. Examples are
+      <xref target="I-D.ponchon-ipsecme-anti-replay-subspaces"/> and
+      <xref target="I-D.he-ipsecme-vpn-shared-ipsecsa"/>. Additionally to that,
+      there exists a specification oif the PSP [PSP (add reference!)] protocol
+      that has the need of a Flow Identifyer. PSP also defines a Crypto Offset
+      to expose parts of the headers of the inner packet. Showing headers
+      on the inner packet was also the original usecase for the WESP protocol.
+      WESPv2 provides a solution for all the aforementioned usecases.
+      </t>
+      <t>
+      The 32 bit Flow Identifyer field introduced by WESPv2 is considered to
+      be opaque to this document. Future documents can define the meaning
+      of this field for their particular usecase. With his, all existing
+      and potential new usecases for a Flow Identifyer can be covered.
+      For instance it can be used for the case of
+      <xref target="I-D.ponchon-ipsecme-anti-replay-subspaces"/>  or
+      <xref target="I-D.he-ipsecme-vpn-shared-ipsecsa"/> etc., or combinations
+      thereof if fit into the 32 bit field. A detailed discussion about
+      the problems of the ESP protocol can be found in
+      <xref target="I-D.mrossberg-ipsecme-multiple-sequence-counters"/>.
       </t>
       <section numbered="true" toc="default">
         <name>Requirements Language</name>
@@ -40,6 +71,8 @@
        document are to be interpreted as described in
 			 <xref target="RFC2119" format="default">RFC 2119</xref>.</t>
       </section>
+
+      <!--
       <section numbered="true" toc="default">
         <name>Terminology</name>
         <t>
@@ -55,16 +88,8 @@
 	</li>
         </ul>
       </section>
+      -->
     </section>
-
-
-
-
-
-
-
-
-
 
     <section anchor="Protocol-definition" numbered="true" toc="default">
       <name>Protocol Definition</name>
@@ -484,9 +509,21 @@
     </references>
     <references>
       <name>Informative References</name>
+      <xi:include href="https://bib.ietf.org/public/rfc/bibxml3/reference.I-D.pwouters-ipsecme-multi-sa-performance.xml"/>
+      <xi:include href="https://bib.ietf.org/public/rfc/bibxml3/reference.I-D.mrossberg-ipsecme-multiple-sequence-counters.xml"/>
+      <xi:include href="https://bib.ietf.org/public/rfc/bibxml3/reference.I-D.ponchon-ipsecme-anti-replay-subspaces.xml"/>
+      <xi:include href="https://bib.ietf.org/public/rfc/bibxml3/reference.I-D.he-ipsecme-vpn-shared-ipsecsa.xml"/>
       <xi:include href="http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.3552.xml"/>
       <xi:include href="http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.6982.xml"/>
       <xi:include href="http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.7942.xml"/>
+
+<!--
+    <reference anchor="PSP" target="https://github.com/google/psp/blob/main/doc/PSP_Arch_Spec.pdf">
+    <front>
+    <title>PSP Architecture Specification</title>
+    </front>
+    </reference>
+-->
     </references>
     <section anchor="app-additional" numbered="true" toc="default">
       <name>Additional Stuff</name>
