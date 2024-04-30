@@ -24,7 +24,7 @@
       <t>
       This document describes the Wrapped Encapsulating Security Payload v2
       (WESPv2) protocol, which builds on the Encapsulating Security Payload
-      (ESP) RFC 4303. It is designed to overcome limitations of the ESP
+      (ESP) <xref target="RFC4303"/>. It is designed to overcome limitations of the ESP
       protocol to expose flow information to the network in a transparent way
       and to align the cipher text to the needs of the sender and receiver.
       To do so, it defines an optional Flow Identifyer where flow speciffic information
@@ -254,23 +254,21 @@
 		</li>
           <li>
 		Padding - optional: Used to ensure proper alignment of the
-		following fields.
-		If padding is present, the padding must
-		be chosen in a way that the ICV (if present) and the IV is aligned
-		on a minimum of 16 bytes for IPv4 and on a minimum of 32 bytes on IPv6.
+		ciphertext. Implementations can choose alignment based
+		on their needs. If padding is present, it SHOULD align
+		the cipertext by a minimum of 16 bytes respective to the
+		start of the IP/IPv6 header.
           </li>
           <li>
 		Flow Identifyer (FID) - optional: Authenticated field with
-		additional flow informations. The meaning of this field can be
-		negotiated by IKEv2. The definition of this field is out
-		of scope for this document.
-		(Sub-Child SAs could be encoded here, for
-		example.) If present, MUST be 8 byte if the ESP header carries
-		only the lower 32 bit of the sequence number. It MUST be 4 byte
-		if the full 64 bit sequence number is transmitted in the ESP header.
-		The choice of the size is to ensure proper alignment of the
-		following fields. [FIXME: Maybe just 4 byte and integrate into
-		the IV by xor with the noonce ('unique IV' if used for seq subspaces)]
+		additional flow informations. If present, this field MUST carry caracteristic
+		information of the inner flow. The value of that field MUST (or SHOULD)
+		represent characteristics of the inner flow, i.e. SHOULD NOT
+		change on per packet basis.
+		The meaning of this field is opaque to this document, it can be
+		negotiated by IKEv2. Future documents can define the meaning of this field
+		as needed. (Sub-Child SAs could be encoded here, for
+		example.) If present, MUST be 8 byte.
 		</li>
         </ul>
         <t>
@@ -278,6 +276,12 @@
    </t>
       </section>
 
+      <section anchor="UDP-Encapsulation" numbered="true" toc="default">
+      <name>UDP Encapsulation</name>
+      <t>
+      UDP Encapsulation is done as in <xref target="RFC5840"/>.
+      </t>
+      </section>
 
       <section anchor="Packet-format" numbered="true" toc="default">
         <name>Packet format</name>
@@ -500,20 +504,26 @@
       <name>Normative References</name>
       <xi:include href="http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.2119.xml"/>
       <xi:include href="http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.3948.xml"/>
-      <xi:include href="http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.4301.xml"/>
       <xi:include href="http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.4303.xml"/>
       <xi:include href="http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.5840.xml"/>
       <xi:include href="http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.7296.xml"/>
+      <!--
+      <xi:include href="http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.4301.xml"/>
       <xi:include href="http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.791.xml"/>
       <xi:include href="http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.8200.xml"/>
+
+      -->
+
     </references>
     <references>
       <name>Informative References</name>
+      <!--
       <xi:include href="https://bib.ietf.org/public/rfc/bibxml3/reference.I-D.pwouters-ipsecme-multi-sa-performance.xml"/>
+      <xi:include href="http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.3552.xml"/>
+      -->
       <xi:include href="https://bib.ietf.org/public/rfc/bibxml3/reference.I-D.mrossberg-ipsecme-multiple-sequence-counters.xml"/>
       <xi:include href="https://bib.ietf.org/public/rfc/bibxml3/reference.I-D.ponchon-ipsecme-anti-replay-subspaces.xml"/>
       <xi:include href="https://bib.ietf.org/public/rfc/bibxml3/reference.I-D.he-ipsecme-vpn-shared-ipsecsa.xml"/>
-      <xi:include href="http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.3552.xml"/>
       <xi:include href="http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.6982.xml"/>
       <xi:include href="http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.7942.xml"/>
 
