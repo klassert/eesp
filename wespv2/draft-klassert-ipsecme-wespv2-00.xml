@@ -27,8 +27,8 @@
       (ESP) <xref target="RFC4303"/>. It is designed to overcome limitations of the ESP
       protocol to expose flow information to the network in a transparent way
       and to align the cipher text to the needs of the sender and receiver.
-      To do so, it defines an optional Flow Identifyer where flow speciffic information
-      can be stored. It also defines a Crypto Offset to allow intermediate
+      To do so, it defines an optional Flow Identifier where flow specific information
+      can be stored. It also defines a Crypt Offset to allow intermediate
       devices to read some header bytes at the beginning of the inner packet.
       In particular, this preserves the original usecase of WESP <xref target="RFC5840"/>.
       Optional padding is added for cipher text alignment.
@@ -40,24 +40,27 @@
       <name>Introduction</name>
       <t>
       WESPv2 is a wrapper for the ESP protocol. Due to the absence of a version
-      number in the ESP protocol, it can't be updated in a transparent way.
+      number in the ESP protocol, in the packet header, ESP can't be updated in
+			transparentlay.
+
       Any updates to ESP must be negotiated by IKEv2 and for that, invisible to
-      intermediate devices. In the recent past, several attempts were taken to
-      introduce a Flow Identifyer for certain useceses. Examples are
+      intermediate devices such as routers and firewalls. In the recent past,
+			several attempts were taken to introduce a Flow Identifier for certain useceses. Examples are
       <xref target="I-D.ponchon-ipsecme-anti-replay-subspaces"/> and
       <xref target="I-D.he-ipsecme-vpn-shared-ipsecsa"/>. The Flow Identifyer could
       also be used to do ECMP based on the inner flows. Additionally to that,
-      there exists a specification of the PSP [PSP (add reference!)] protocol
-      that has the need of a Flow Identifyer. PSP also defines a Crypto Offset
+      there exists a specification of the <xref target="PSP"/>  protocol
+      that has the need of a Flow Identifyer, Network Identifier (VNI).
+			PSP also defines a Crypto Offset
       to expose parts of the headers of the inner packet. Showing headers
       on the inner packet was also the original usecase for the WESP protocol.
       WESPv2 provides a solution for all the aforementioned usecases.
       </t>
       <t>
-      The 32 bit Flow Identifyer field introduced by WESPv2 is considered to
+      The 32 bit Flow Identifier field introduced by WESPv2 is considered to
       be opaque to this document. Future documents can define the meaning
-      of this field for their particular usecase. With his, all existing
-      and potential new usecases for a Flow Identifyer can be covered.
+      of this field for their particular usecase. With this, all existing
+      and potential new usecases for a Flow Identifier can be covered.
       For instance it can be used for the case of
       <xref target="I-D.ponchon-ipsecme-anti-replay-subspaces"/>  or
       <xref target="I-D.he-ipsecme-vpn-shared-ipsecsa"/> etc., or combinations
@@ -73,31 +76,20 @@
 			 <xref target="RFC2119" format="default">RFC 2119</xref>.</t>
       </section>
 
-      <!--
       <section numbered="true" toc="default">
         <name>Terminology</name>
         <t>
-       In this section we define the terms specific to this document.  This
-   section is normative.
-	</t>
-        <ul>
-          <li>
-	Terminology ...
-	</li>
-          <li>
-	Terminology ...
-	</li>
-        </ul>
+				This document uses the following terms defined in <xref target="PSP"/>:
+				Network Identifier (VNI), "crypt offset”
+	      </t>
       </section>
-      -->
     </section>
 
     <section anchor="Protocol-definition" numbered="true" toc="default">
       <name>Protocol Definition</name>
       <t>
-   In this section we define the exact protocol formats and operations. This section is normative.
-   </t>
-
+      In this section we define the exact protocol formats and operations. This section is normative.
+      </t>
 
       <section anchor="WESPv2-header-format" numbered="true" toc="default">
         <name>WESPv2 header format</name>
@@ -120,11 +112,10 @@
 	for a given Child SA. (Authors note: Should the padding size be negotiated?)
 	Like WESPv1,
 	this extension essentially acts as a wrapper to the existing ESP
-        protocol. The value of the new protocol version used to identify
+  protocol. The value of the new protocol version used to identify
 	this new header is not changed. Instead, the version number
 	in the Flags field is incremented to identify this new protocol
 	version. Further details are shown below:
-
    </t>
    <t>
    FIXME: Remove this block before publishing.
@@ -148,7 +139,7 @@
     0                   1                   2                   3
     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |  Next Header  |    Hdr Len    |CryptOffset| R |     Flags     |
+   |  Next Header  |    HdrLen     |CryptOffset| R |     Flags     |
    +---------------+---------------+-------------------------------+
    |                        Padding (optional)                     |
    +---------------------------------------------------------------+
@@ -164,8 +155,8 @@
         <ul>
           <li>
 		Next Header - 8 bits: This field MUST be the same as the Next Header
-		field in the ESP trailer whenever the CryptOffset field is nonzero.
-		If the CryptOffset field is zero, the Next Header MUST be set 
+		field in the ESP trailer whenever the Crypt Offset field is nonzero.
+		If the Crypt Offset field is zero, the Next Header MUST be set
 		to zero too.
 		The receiver MUST do
 		some sanity checks before the WESPv2 packet is accepted.  The receiver
@@ -174,13 +165,13 @@
 		is nonzero.  The packet MUST be dropped if the two do not
 		match.  Similarly, the receiver MUST ensure that the Next Header
 		field in the WESPv2 header is an empty field initialized to zero if
-		the CryptOffset field is zero.
+		the Crypt Offset field is zero.
 		</li>
           <li>
 		HdrLen - 8 bits: Offset from the beginning of the WESPv2 header to the
 		beginning of the Rest of Payload Data (i.e., past the IV, if present
 		and any other WESPv2 options defined in the future) within the
-		encapsulated ESP header, in octets. The following HdrLen values are
+		encapsulated ESP header, in octet. The following HdrLen values are
 		invalid: any value less than 12; any value that is not a multiple
 		of 4; any value that is not a multiple of 8 when using IPv6. The
 		receiver MUST ensure that this field matches with the header offset
@@ -188,7 +179,7 @@
 		drop the packet in case it does not match.
 		</li>
           <li>
-		CryptOffset - 6 bits: The offset from the end of the IV to the start
+		Crypt Offset - 6 bits: The offset from the end of the IV to the start
 		of the encrypted portion of the packet, mesured in 4 octet units.
 		The resulting value MUST NOT be larger than the size of the inner
 		packet. A zero CryptOffset means that the complete packet is
@@ -256,7 +247,7 @@
 		the FID is absent.
 		</li>
           <li>
-		R - 4 bits: Reserved for future versions, MUST be set to 0,
+		R - 3 bits: Reserved for future versions, MUST be set to 0,
 		and ignored by the receiver.
 		</li>
           <li>
@@ -300,7 +291,7 @@
 	MUST be inserted before the cryptographic operations.
 	After inserting the WESPv2 header, the crypto operations
 	are performed. The optional Flow Identifyer (FID) MUST
-	be included into the integrity prtoected part of the packet,
+	be included into the integrity protected part of the packet,
 	if present.
    </t>
       </section>
@@ -359,13 +350,9 @@
     <section anchor="IKENegotiation" numbered="true" toc="default">
       <name>IKEv2 Negotiation</name>
       <t>
-	The IKEv2 negotiation follows exatcly the way it is done in
+	The IKEv2 negotiation follows exactly the way it is done in
 	WESP <xref target="RFC5840"/>, with the difference that a new notification
 	USE_WESPv2_MODE is used.
-	</t>
-	<t>
-	The following text is from WESP <xref target="RFC5840"/> and adjusted to
-	match the WESPv2 version.
 	</t>
       <t>
 	This document assumes that WESPv2 negotiation is performed using IKEv2.
@@ -375,24 +362,22 @@
 	USE_TRANSPORT_MODE, defined in <xref target="RFC7296"/>.
 </t>
 <t>
-
-	The notification, USE_WESPv2_MODE (value TBD) MUST be included in a
-	request message that also includes an SA payload requesting a
-	CHILD_SA using ESP.  It signals that the sender supports the WESPv2
+	When negotationg a WESPv2 Child SA, USE_WESPv2_MODE MUST be included in a
+	either in an IKE_AUTH exchange or CREATE_CHILD_SA.
+	and the rest of SA payload necessary for a
+	Child SA using ESP. It signals that the sender supports the WESPv2
 	version defined in the current document and requests that the
-	CHILD_SA use WESPv2 mode rather than ESP for the SA created.  If the
+	Child SA use WESPv2 mode rather than ESP for the SA created.  If the
 	request is accepted, the response MUST also include a notification of
 	type USE_WESP_MODE.  If the responder declines the request, the
-	CHILD_SA will be established using ESP, as per <xref target="RFC7296"/>. 
-	If this is unacceptable to the initiator, the initiator MUST delete the SA.
+	Child SA should be established using ESP, as per <xref target="RFC7296"/>.
+	If this is unacceptable to the initiator, the initiator MUST delete the Child SA.
 </t>
 <t>
-
 	Note: Except when using the options to negotiate WESPv1 or WESPv2 mode,
 	all CHILD_SAs will use standard ESP.
 </t>
 <t>
-
 	Negotiation of WESPv2 in this manner preserves all other negotiation
 	parameters, including NAT-T <xref target="RFC3948"/>.  NAT-T is wholly
 	compatible with this wrapped format and can be used as-is, without any
@@ -400,13 +385,41 @@
 	taken into account.
 </t>
 <t>
-
-	WESPv2 version negotiation is not introduced as part of this
-	specification.  If the WESP version is updated in a future
+	WESPv2 version negotiation is not specified here.
+	If the WESP version is updated in a future
 	specification, then that document MUST specify how the WESP version
 	is negotiated.
 	 </t>
+ <section title="USE_WESPv2_MODE Payload Format" anchor="payload_formats">
+		<t>
+      All multi-octet fields representing integers are laid out in big
+      endian order (also known as "most significant byte first", or
+      "network byte order").
+     </t>
+        <figure align="center">
+          <artwork align="left"><![CDATA[
+                    1                   2                   3
+0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
++-+-----------------------------+-------------------------------+
+! Next Payload  !C!  RESERVED   !         Payload Length        !
++---------------+---------------+-------------------------------+
+!  Protocol ID  !   SPI Size    !      Notify Message Type      !
++---------------+---------------+-------------------------------+
+!0|F|Crypt Offset!                                              !
++-------------------------------+-------------------------------+
+            ]]></artwork>
+        </figure>
+			<ul>
+				 <li>Protocol ID (1 octet) - MUST be 0. MUST be ignored if not 0.</li>
+         <li>SPI Size (1 octet) - MUST be 0. MUST be ignored if not 0.</li>
+         <li>Notify Status Message Type value (2 octets) - set to [TBD].</li>
+         <li>Notify Payload: bit 0 reserved. bit 1 Flow ID supported. Bits 2-7 Crypt Offset len in 4 octets</li>
+		  </ul>
+</section>
+
     </section>
+
+
     <section anchor="IANA" title="IANA Considerations">
       <t>
         This document defines a new IKEv2 Notify Message Type payloads for the IANA "IKEv2 Notify Message Types - Status Types" registry.
@@ -524,23 +537,30 @@
     </references>
     <references>
       <name>Informative References</name>
-      <!--
-      <xi:include href="https://bib.ietf.org/public/rfc/bibxml3/reference.I-D.pwouters-ipsecme-multi-sa-performance.xml"/>
-      <xi:include href="http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.3552.xml"/>
-      -->
+      <xi:include href="https://bib.ietf.org/public/rfc/bibxml3/reference.I-D.ietf-ipsecme-multi-sa-performance.xml"/>
       <xi:include href="https://bib.ietf.org/public/rfc/bibxml3/reference.I-D.mrossberg-ipsecme-multiple-sequence-counters.xml"/>
       <xi:include href="https://bib.ietf.org/public/rfc/bibxml3/reference.I-D.ponchon-ipsecme-anti-replay-subspaces.xml"/>
       <xi:include href="https://bib.ietf.org/public/rfc/bibxml3/reference.I-D.he-ipsecme-vpn-shared-ipsecsa.xml"/>
       <xi:include href="http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.6982.xml"/>
       <xi:include href="http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.7942.xml"/>
 
-<!--
-    <reference anchor="PSP" target="https://github.com/google/psp/blob/main/doc/PSP_Arch_Spec.pdf">
-    <front>
-    <title>PSP Architecture Specification</title>
-    </front>
-    </reference>
--->
+      <reference anchor="PSP" target="https://github.com/google/psp/blob/main/doc/PSP_Arch_Spec.pdf" quoteTitle="true">
+        <front>
+          <title>PSP Architecture Specification</title>
+          <author>
+						<organization showOnFrontPage="true">Google</organization>
+          </author>
+		    </front>
+      </reference>
+      <reference anchor="PSP-Implementation" target="https://docs.nvidia.com/doca/sdk/nvidia+doca+psp+gateway+application+guide/index.html" quoteTitle="true">
+        <front>
+          <title>NVIDIA DOCA PSP Gateway Application Guide</title>
+          <author>
+						<organization showOnFrontPage="true">NVIDIA</organization>
+          </author>
+		    </front>
+      </reference>
+
     </references>
     <section anchor="app-additional" numbered="true" toc="default">
       <name>Additional Stuff</name>
