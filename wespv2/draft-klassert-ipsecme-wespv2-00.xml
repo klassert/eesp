@@ -45,8 +45,9 @@
       intermediate devices. In the recent past, several attempts were taken to
       introduce a Flow Identifyer for certain useceses. Examples are
       <xref target="I-D.ponchon-ipsecme-anti-replay-subspaces"/> and
-      <xref target="I-D.he-ipsecme-vpn-shared-ipsecsa"/>. Additionally to that,
-      there exists a specification oif the PSP [PSP (add reference!)] protocol
+      <xref target="I-D.he-ipsecme-vpn-shared-ipsecsa"/>. The Flow Identifyer could
+      also be used to do ECMP based on the inner flows. Additionally to that,
+      there exists a specification of the PSP [PSP (add reference!)] protocol
       that has the need of a Flow Identifyer. PSP also defines a Crypto Offset
       to expose parts of the headers of the inner packet. Showing headers
       on the inner packet was also the original usecase for the WESP protocol.
@@ -111,9 +112,12 @@
    </t>
     <t>
 	The header is constructed in a way that the start
-	of the ciphertext is aligned on a 16 byte boundary respective
+	of the ciphertext is aligned on a 8 byte boundary respective
 	the start of the IPv4/IPv6 header. Any IPv4 options and optional
-	IPv6 extension Headers are not taken into account here.
+	IPv6 extension Headers are not taken into account here. If the sender has
+	different alignment requirements, optional padding can be used
+	to align the cipertext. The choosen padding size SHOULD NOT change
+	for a given Child SA. (Authors note: Should the padding size be negotiated?)
 	Like WESPv1,
 	this extension essentially acts as a wrapper to the existing ESP
         protocol. The value of the new protocol version used to identify
@@ -193,6 +197,9 @@
 		to the AAD but are not encrypted. In this case the Next Header
 		field MUST be the same as the Next Header field in the ESP trailer,
 		so that the Header can be parsed by intermideate devices.
+		(Authors note: This is to preserve the original WESP usecase and
+		because PSP uses this too. In case the Flow Identifyer can carry
+		enough information about inner flows, we can remove the cryptoffset.)
 		</li>
           <li>
 		Reserved - 2 bits: Set to zero on transmit, ignored on receive.
