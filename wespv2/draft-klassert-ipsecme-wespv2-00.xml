@@ -16,6 +16,12 @@
         <email>steffen.klassert@secunet.com</email>
       </address>
     </author>
+		 <author initials="A." surname="Antony" fullname="Antony Antony">
+      <organization abbrev="secunet">secunet Security Networks AG</organization>
+      <address>
+        <email>antony.antony@secunet.com</email>
+      </address>
+    </author>
     <area>sec</area>
     <workgroup>IPSECME Working Group</workgroup>
     <keyword>IKEv2</keyword>
@@ -43,18 +49,19 @@
       number in the ESP protocol, in the packet header, ESP can't be updated in
       a transparent way.
 
-      Any updates to ESP must be negotiated by IKEv2 and for that, invisible to
+      Any updates to ESP must be negotiated by IKEv2 and for that, indiscernible to
       intermediate devices such as routers and firewalls. In the recent past,
 			several attempts were taken to introduce a Flow Identifier for certain useceses. Examples are
       <xref target="I-D.ponchon-ipsecme-anti-replay-subspaces"/> and
-      <xref target="I-D.he-ipsecme-vpn-shared-ipsecsa"/>. Such a Flow Identifier could
-      also be used to do ECMP based on the inner flows. Additionally to that,
-      there exists a specification of the <xref target="PSP"/>  protocol
-      that has the need of a Flow Identifier, Network Identifier (VNI).
+      <xref target="I-D.he-ipsecme-vpn-shared-ipsecsa"/>. Such a Flow Identifier
+			could also be used to perform ECMP based on the inner flows at intermediate
+			devices or endpoints.  Additionally to that,
+      there exists a specification of the <xref target="PSP"/> protocol
+      that has the need of a Flow Identifier Network Identifier (VNI).
 			PSP also defines a Crypto Offset
-      to expose parts of the headers of the inner packet. Showing headers
-      on the inner packet was also the original usecase for the WESP protocol.
-      WESPv2 provides a solution for all the aforementioned usecases.
+      to expose parts of the headers of the inner packet; <xref target="NVIDIA-PSP"/>.
+			Showing headers on the inner packet was also the original usecase for the
+			WESP protocol. WESPv2 provides a solution for all the aforementioned usecases.
       </t>
       <t>
       The 64 bit Flow Identifier field introduced by WESPv2 is considered to
@@ -68,20 +75,47 @@
       the problems of the ESP protocol can be found in
       <xref target="I-D.mrossberg-ipsecme-multiple-sequence-counters"/>.
       </t>
+      <t>
+      Though this document specifies IKEv2 as a negotiation protocol, WESPv2 may
+      use other protocols for negotiation and key derivation. The packet
+      specification is portable to other key protocol use cases,
+      such as <xref target="PSP"/>, and offers versioning at the packet level.
+      </t>
       <section numbered="true" toc="default">
         <name>Requirements Language</name>
         <t>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
        "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
        document are to be interpreted as described in
-			 <xref target="RFC2119" format="default">RFC 2119</xref>.</t>
+       <xref target="RFC2119" format="default">RFC 2119</xref>.</t>
       </section>
 
       <section numbered="true" toc="default">
         <name>Terminology</name>
+				<t>This document uses the following terms defined in IKEv2 <xref target="RFC7296"/>:
+          Child SA, CREATE_CHILD_SA, IKE_AUTH exchange, USE_TRANSPORT_MODE
+       </t>
+
         <t>
 				This document uses the following terms defined in <xref target="PSP"/>:
-				Network Identifier (VNI), "crypt offset”
+				PSP (a recursive acronym for PSP Security Protocol), Network Identifier
+				(VNI), Crypt Offset”.
 	      </t>
+
+				<t>This document uses the following terms defined in <xref target="RFC5840"/>:
+				Wrapped Encapsulating Security Payload (WESP), USE_WESP_MODE.
+				</t>
+
+				<t>This document uses the following terms defined in <xref target="RFC2992"/>:
+				Equal-cost multi-path (ECMP)
+				</t>
+
+				<t>This document uses the following terms defined in <xref target="RFC4303"/>:
+				Encapsulating Security Payload (ESP).
+				</t>
+
+				<t>This document uses the following terms defined in <xref target="I-D.mrossberg-ipsecme-multiple-sequence-counters"/>: Sub-Child SA.
+				</t>
+
       </section>
     </section>
 
@@ -247,6 +281,11 @@
 		FID (F) - 1 bit: If set (value 1), the FID is
 		present behind the WESPv2 trader.  If not set (value 0),
 		the FID is absent.
+
+		The detailed specification of the FID field MUST be provided in subsequent documents.
+		This field is opaque to intermediate
+		devices; however, intermediate routers MAY use it for identifying flows
+		for ECMP or similar purposes.
 		</li>
           <li>
 		R - 3 bits: Reserved for future versions, MUST be set to 0,
@@ -256,7 +295,7 @@
 		Padding - optional: Used to ensure proper alignment of the
 		ciphertext. Implementations can choose alignment based
 		on their needs. If padding is present, it SHOULD align
-		the cipertext by a minimum of 16 bytes respective to the
+		the ciphertext by a minimum of 16 bytes relative to the
 		start of the IP/IPv6 header.
           </li>
           <li>
@@ -265,11 +304,12 @@
 		information of the inner flow. The value of that field MUST (or SHOULD)
 		represent characteristics of the inner flow, i.e. SHOULD NOT
 		change on per packet basis.
-		The meaning of this field is opaque to this document, it can be
-		negotiated by IKEv2. Future documents can define the meaning of this field
-		as needed. (Sub-Child SAs could be encoded here, for
-		example.) If present, MUST be 8 byte.
-		</li>
+
+		The detailed specification of the FID field MUST be provided in subsequent documents.
+    This field is opaque to intermediate devices; however, intermediate routers
+		MAY use it for identifying flows for ECMP or similar purposes.
+	  e.g. Sub-Child SAs, in <xref target="I-D.mrossberg-ipsecme-multiple-sequence-counters"/> could be encoded here. If present, MUST be 8 byte.,
+			</li>
         </ul>
 	<!--
         <t>
@@ -371,7 +411,7 @@
 	and the rest of SA payload necessary for a
 	Child SA using ESP. It signals that the sender supports the WESPv2
 	version defined in the current document and requests that the
-	Child SA use WESPv2 mode rather than ESP for the SA created.  If the
+	Child SA use WESPv2 mode rather than ESP for the SA created. If the
 	request is accepted, the response MUST also include a notification of
 	type USE_WESP_MODE.  If the responder declines the request, the
 	Child SA should be established using ESP, as per <xref target="RFC7296"/>.
@@ -409,7 +449,7 @@
 +---------------+---------------+-------------------------------+
 !  Protocol ID  !   SPI Size    !      Notify Message Type      !
 +---------------+---------------+-------------------------------+
-!0|F|CryptOffset!                                              !
+!0|F|CryptOffset!                                               !
 +-------------------------------+-------------------------------+
             ]]></artwork>
         </figure>
@@ -533,13 +573,12 @@
       <xi:include href="http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.4303.xml"/>
       <xi:include href="http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.5840.xml"/>
       <xi:include href="http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.7296.xml"/>
+      <xi:include href="http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.2992.xml"/>
       <!--
       <xi:include href="http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.4301.xml"/>
       <xi:include href="http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.791.xml"/>
       <xi:include href="http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.8200.xml"/>
-
       -->
-
     </references>
     <references>
       <name>Informative References</name>
@@ -552,7 +591,7 @@
       <xi:include href="http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.6982.xml"/>
       <xi:include href="http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.7942.xml"/>
 
-      <reference anchor="PSP" target="https://github.com/google/psp/blob/main/doc/PSP_Arch_Spec.pdf" quoteTitle="true">
+    <reference anchor="PSP" target="https://github.com/google/psp/blob/main/doc/PSP_Arch_Spec.pdf" quoteTitle="true">
         <front>
           <title>PSP Architecture Specification</title>
           <author>
@@ -560,7 +599,7 @@
           </author>
 		    </front>
       </reference>
-      <reference anchor="PSP-Implementation" target="https://docs.nvidia.com/doca/sdk/nvidia+doca+psp+gateway+application+guide/index.html" quoteTitle="true">
+      <reference anchor="NVIDIA-PSP" target="https://docs.nvidia.com/doca/sdk/nvidia+doca+psp+gateway+application+guide/index.html" quoteTitle="true">
         <front>
           <title>NVIDIA DOCA PSP Gateway Application Guide</title>
           <author>
@@ -568,7 +607,16 @@
           </author>
 		    </front>
       </reference>
-
+			<!--
+      <reference anchor="Google-PSPS-Support" target="https://cloud.google.com/blog/products/identity-security/announcing-psp-security-protocol-is-now-open-source" quoteTitle="true">
+        <front>
+          <title>NVIDIA DOCA PSP Gateway Application Guide</title>
+          <author>
+						<organization showOnFrontPage="true">NVIDIA</organization>
+          </author>
+		    </front>
+      </reference>
+			-->
     </references>
     <section anchor="app-additional" numbered="true" toc="default">
       <name>Additional Stuff</name>
