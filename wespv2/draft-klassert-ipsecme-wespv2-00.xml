@@ -31,7 +31,7 @@
       can be stored. It also defines a Crypt Offset to allow intermediate
       devices to read some header bytes at the beginning of the inner packet.
       In particular, this preserves the original usecase of WESP <xref target="RFC5840"/>.
-      Optional padding is added for cipher text alignment.
+      Optional padding can be added for cipher text alignment.
     </t>
     </abstract>
   </front>
@@ -41,30 +41,30 @@
       <t>
       WESPv2 is a wrapper for the ESP protocol. Due to the absence of a version
       number in the ESP protocol, in the packet header, ESP can't be updated in
-			transparentlay.
+      a transparent way.
 
       Any updates to ESP must be negotiated by IKEv2 and for that, invisible to
       intermediate devices such as routers and firewalls. In the recent past,
 			several attempts were taken to introduce a Flow Identifier for certain useceses. Examples are
       <xref target="I-D.ponchon-ipsecme-anti-replay-subspaces"/> and
-      <xref target="I-D.he-ipsecme-vpn-shared-ipsecsa"/>. The Flow Identifyer could
+      <xref target="I-D.he-ipsecme-vpn-shared-ipsecsa"/>. Such a Flow Identifier could
       also be used to do ECMP based on the inner flows. Additionally to that,
       there exists a specification of the <xref target="PSP"/>  protocol
-      that has the need of a Flow Identifyer, Network Identifier (VNI).
+      that has the need of a Flow Identifier, Network Identifier (VNI).
 			PSP also defines a Crypto Offset
       to expose parts of the headers of the inner packet. Showing headers
       on the inner packet was also the original usecase for the WESP protocol.
       WESPv2 provides a solution for all the aforementioned usecases.
       </t>
       <t>
-      The 32 bit Flow Identifier field introduced by WESPv2 is considered to
+      The 64 bit Flow Identifier field introduced by WESPv2 is considered to
       be opaque to this document. Future documents can define the meaning
       of this field for their particular usecase. With this, all existing
       and potential new usecases for a Flow Identifier can be covered.
       For instance it can be used for the case of
       <xref target="I-D.ponchon-ipsecme-anti-replay-subspaces"/>  or
       <xref target="I-D.he-ipsecme-vpn-shared-ipsecsa"/> etc., or combinations
-      thereof if fit into the 32 bit field. A detailed discussion about
+      thereof if fit into the 64 bit field. A detailed discussion about
       the problems of the ESP protocol can be found in
       <xref target="I-D.mrossberg-ipsecme-multiple-sequence-counters"/>.
       </t>
@@ -117,9 +117,9 @@
 	in the Flags field is incremented to identify this new protocol
 	version. Further details are shown below:
    </t>
+   <!--
    <t>
    FIXME: Remove this block before publishing.
-   -----------------------------------------------------------------
        IPv4:
 	   NET_IP_ALIGN(2) + ethernet_header(14) + IP_header(20) + wesp_base_header(4)
 	   + padding(8) + FID(8) + ESP(8)
@@ -128,8 +128,8 @@
         IPv6:
 	   NET_IP_ALIGN(2) + ethernet_header(14) + IP_header(40) + wesp_base_header(4)
 	   + padding(4) + FID(8) + ESP(8)
-   -----------------------------------------------------------------
    </t>
+   -->
 
         <figure align="center" anchor="wespv2-header">
           <name> WESPv2  header format </name>
@@ -189,7 +189,7 @@
 		field MUST be the same as the Next Header field in the ESP trailer,
 		so that the Header can be parsed by intermideate devices.
 		(Authors note: This is to preserve the original WESP usecase and
-		because PSP uses this too. In case the Flow Identifyer can carry
+		because PSP uses this too. In case the Flow Identifier can carry
 		enough information about inner flows, we can remove the cryptoffset.)
 		</li>
           <li>
@@ -258,7 +258,7 @@
 		start of the IP/IPv6 header.
           </li>
           <li>
-		Flow Identifyer (FID) - optional: Authenticated field with
+		Flow Identifier (FID) - optional: Authenticated field with
 		additional flow informations. If present, this field MUST carry caracteristic
 		information of the inner flow. The value of that field MUST (or SHOULD)
 		represent characteristics of the inner flow, i.e. SHOULD NOT
@@ -269,9 +269,11 @@
 		example.) If present, MUST be 8 byte.
 		</li>
         </ul>
+	<!--
         <t>
    Some text here...
    </t>
+   -->
       </section>
 
       <section anchor="UDP-Encapsulation" numbered="true" toc="default">
@@ -290,9 +292,9 @@
 	outer IPv4/IPv6 header and the ESP header. The WESPv2 header
 	MUST be inserted before the cryptographic operations.
 	After inserting the WESPv2 header, the crypto operations
-	are performed. The optional Flow Identifyer (FID) MUST
-	be included into the integrity protected part of the packet,
-	if present.
+	are performed. The full WESPv2 header, including optional padding
+	and Flow Identifier (FID) MUST be included into the integrity protected part
+	of the packet.
    </t>
       </section>
       <section anchor="IPv4" numbered="true" toc="default">
@@ -300,22 +302,22 @@
         <figure anchor="ipv4before" align="center">
           <name>IPv4 DATAGRAM BEFORE APPLYING WESP</name>
           <artwork align="left"><![CDATA[
-            -----------------------------------------------
-            | outer IP hdr  | ESP | ESP Payload |   ESP   |
-            | (any options) | Hdr |    Data     | Trailer |
-            -----------------------------------------------
+            ---------------------------------------------------
+            | outer IP hdr  | ESP | ESP Payload |   ESP   |ESP|
+            | (any options) | Hdr |    Data     | Trailer |ICV|
+            ---------------------------------------------------
 		     ]]></artwork>
         </figure>
         <figure align="center" anchor="ipv4after">
           <name> IPv4 DATAGRAM AFTER APPLYING WESP </name>
           <artwork align="left"><![CDATA[
                       |<- WESPv2 Hdr ->|
-        -----------------------------------------------------
-        |outer IP hdr |WESP| PAD | FID |ESP|Pyld|  ESP  |ICV|
-        |(any options)|BHdr|(opt)|(opt)|Hdr|Data|Trailer|   |
-        -----------------------------------------------------
-                                       |<- encryption ->|
-                                 |<---- integrity ----->|
+        -------------------------------------------------------
+        |outer IP hdr |WESP| PAD | FID |ESP| Pyld |  ESP  |ESP|
+        |(any options)|BHdr|(opt)|(opt)|Hdr| Data |Trailer|ICV|
+        -------------------------------------------------------
+                                           |<-encryption->|
+                      |<----------- integrity ----------->|
 
 				]]></artwork>
         </figure>
@@ -325,22 +327,22 @@
         <figure anchor="ipv6before" align="center">
           <name>IPv6 DATAGRAM BEFORE APPLYING WESP</name>
           <artwork align="left"><![CDATA[
-            -------------------------------------------------
-            |  outer   | ext. | ESP | ESP Payload |   ESP   |
-            | IPv6 Hdr | Hdrs | Hdr |    Data     | Trailer |
-            -------------------------------------------------
+            -----------------------------------------------------
+            |  outer   | ext. | ESP | ESP Payload |   ESP   |ESP|
+            | IPv6 Hdr | Hdrs | Hdr |    Data     | Trailer |ICV|
+            -----------------------------------------------------
 		     ]]></artwork>
         </figure>
         <figure align="center" anchor="ipv6after">
           <name> IPv6 DATAGRAM AFTER APPLYING WESP </name>
           <artwork align="left"><![CDATA[
                       |<- WESPv2 Hdr ->|
-        -----------------------------------------------------
-        |  outer |ext.|WESP| PAD | FID |ESP|Pyld|  ESP  |ICV|
-        |IPv6 Hdr|Hdrs|BHdr|(opt)|(opt)|Hdr|Data|Trailer|   |
-        -----------------------------------------------------
-                                       |<- encryption ->|
-                                 |<---- integrity ----->|
+        -------------------------------------------------------
+        |  outer |ext.|WESP| PAD | FID |ESP| Pyld |  ESP  |ESP|
+        |IPv6 Hdr|Hdrs|BHdr|(opt)|(opt)|Hdr| Data |Trailer|ICV|
+        -------------------------------------------------------
+                                           |<-encryption->|
+                      |<----------- integrity ----------->|
 
 				]]></artwork>
         </figure>
@@ -405,7 +407,7 @@
 +---------------+---------------+-------------------------------+
 !  Protocol ID  !   SPI Size    !      Notify Message Type      !
 +---------------+---------------+-------------------------------+
-!0|F|Crypt Offset!                                              !
+!0|F|CryptOffset!                                              !
 +-------------------------------+-------------------------------+
             ]]></artwork>
         </figure>
@@ -510,9 +512,11 @@
       <t>
       In this section we discuss the security properties of WESPv2: TBD
 	</t>
+	<!--
       <t>
       Some text ...
    </t>
+   -->
     </section>
     <section anchor="Acknowledgements" numbered="true" toc="default">
       <name>Acknowledgments</name>
@@ -537,7 +541,9 @@
     </references>
     <references>
       <name>Informative References</name>
+      <!--
       <xi:include href="https://bib.ietf.org/public/rfc/bibxml3/reference.I-D.ietf-ipsecme-multi-sa-performance.xml"/>
+      -->
       <xi:include href="https://bib.ietf.org/public/rfc/bibxml3/reference.I-D.mrossberg-ipsecme-multiple-sequence-counters.xml"/>
       <xi:include href="https://bib.ietf.org/public/rfc/bibxml3/reference.I-D.ponchon-ipsecme-anti-replay-subspaces.xml"/>
       <xi:include href="https://bib.ietf.org/public/rfc/bibxml3/reference.I-D.he-ipsecme-vpn-shared-ipsecsa.xml"/>
