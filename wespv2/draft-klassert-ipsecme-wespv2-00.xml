@@ -235,11 +235,13 @@
 		Padding header (P) - 1 bit: If set (value 1), the padding is
 		present.  If not set (value 0), the padding is absent.
 
+		<!--
 		[FIXME: "If WESPv2 is being used with UDP encapsulation (see Section
 		2.1 below) and IPv6, the Protocol Identifier (0x00000002) occupies 4
 		octets so the IPv6 padding is not needed, as the header is already on
 		an 8-octet boundary.  This padding MUST NOT be used with IPv4, as it
 		is not needed to guarantee 4-octet IPv4 alignment."]
+		-->
 		</li>
           <li>
 		FID (F) - 1 bit: If set (value 1), the FID is
