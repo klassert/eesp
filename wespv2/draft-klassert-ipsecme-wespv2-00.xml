@@ -4,7 +4,7 @@
 <xi:compact="yes" ?>
 <xi:subcompact="no" ?>  -->
 <rfc xmlns:xi="http://www.w3.org/2001/XInclude" category="std"
-docName="draft-klassert-wespv2-00" ipr="trust200902" obsoletes="" updates=""
+docName="draft-klassert-ipsecme-wespv2-00" ipr="trust200902" obsoletes="" updates=""
 submissionType="IETF" xml:lang="en" tocInclude="true" tocDepth="4"
 symRefs="true" sortRefs="true" version="3" consensus="true">
   <front>
@@ -14,15 +14,13 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
     <!-- add 'role="editor"' below for the editors if appropriate -->
     <!-- Another author who claims to be an editor -->
     <author fullname="Steffen Klassert" initials="S." surname="Klassert">
-      <organization abbrev="secunet">secunet Security Networks
-      AG</organization>
+      <organization abbrev="secunet">secunet Security Networks AG</organization>
       <address>
         <email>steffen.klassert@secunet.com</email>
       </address>
     </author>
     <author initials="A." surname="Antony" fullname="Antony Antony">
-      <organization abbrev="secunet">secunet Security Networks
-      AG</organization>
+      <organization abbrev="secunet">secunet Security Networks AG</organization>
       <address>
         <email>antony.antony@secunet.com</email>
       </address>
