@@ -36,7 +36,7 @@
       To do so, it defines an optional Flow Identifier where flow specific information
       can be stored. It also defines a Crypt Offset to allow intermediate
       devices to read some header bytes at the beginning of the inner packet.
-      In particular, this preserves the original usecase of WESP <xref target="RFC5840"/>.
+      In particular, this preserves the original use-case of WESP <xref target="RFC5840"/>.
       Optional padding can be added for cipher text alignment.
     </t>
     </abstract>
@@ -51,7 +51,7 @@
 
       Any updates to ESP must be negotiated by IKEv2 and for that, indiscernible to
       intermediate devices such as routers and firewalls. In the recent past,
-			several attempts were taken to introduce a Flow Identifier for certain useceses. Examples are
+			several attempts were taken to introduce a Flow Identifier for certain use-cases. Examples are
       <xref target="I-D.ponchon-ipsecme-anti-replay-subspaces"/> and
       <xref target="I-D.he-ipsecme-vpn-shared-ipsecsa"/>. Such a Flow Identifier
 			could also be used to perform ECMP based on the inner flows at intermediate
@@ -61,13 +61,13 @@
 			PSP also defines a Crypto Offset
       to expose parts of the headers of the inner packet; <xref target="NVIDIA-PSP"/>.
 			Showing headers on the inner packet was also the original usecase for the
-			WESP protocol. WESPv2 provides a solution for all the aforementioned usecases.
+			WESP protocol. WESPv2 provides a solution for all the aforementioned use-cases.
       </t>
       <t>
       The 64 bit Flow Identifier field introduced by WESPv2 is considered to
       be opaque to this document. Future documents can define the meaning
-      of this field for their particular usecase. With this, all existing
-      and potential new usecases for a Flow Identifier can be covered.
+      of this field for their particular use-case. With this, all existing
+      and potential new use-cases for a Flow Identifier can be covered.
       For instance it can be used for the case of
       <xref target="I-D.ponchon-ipsecme-anti-replay-subspaces"/>  or
       <xref target="I-D.he-ipsecme-vpn-shared-ipsecsa"/> etc., or combinations
@@ -98,7 +98,7 @@
         <t>
 				This document uses the following terms defined in <xref target="PSP"/>:
 				PSP (a recursive acronym for PSP Security Protocol), Network Identifier
-				(VNI), Crypt Offset”.
+				(VNI), Crypt Offset.
 	      </t>
 
 				<t>This document uses the following terms defined in <xref target="RFC5840"/>:
@@ -138,11 +138,11 @@
    </t>
     <t>
 	The header is constructed in a way that the start
-	of the ciphertext is aligned on a 8 byte boundary respective
+	of the cipher-text is aligned on a 8 byte boundary respective
 	the start of the IPv4/IPv6 header. Any IPv4 options and optional
 	IPv6 extension Headers are not taken into account here. If the sender has
 	different alignment requirements, optional padding can be used
-	to align the cipertext. The choosen padding size SHOULD NOT change
+	to align the cipher-text. The chosen padding size SHOULD NOT change
 	for a given Child SA. (Authors note: Should the padding size be negotiated?)
 	Like WESPv1,
 	this extension essentially acts as a wrapper to the existing ESP
@@ -214,15 +214,15 @@
 		</li>
           <li>
 		Crypt Offset - 6 bits: The offset from the end of the IV to the start
-		of the encrypted portion of the packet, mesured in 4 octet units.
+		of the encrypted portion of the packet, measured in 4 octet units.
 		The resulting value MUST NOT be larger than the size of the inner
 		packet. A zero CryptOffset means that the complete packet is
 		authenticated and encrypted. A positive CryptOffset means that
 		the first 'CryptOffset * 4' octets of the inner packet belong
 		to the AAD but are not encrypted. In this case the Next Header
 		field MUST be the same as the Next Header field in the ESP trailer,
-		so that the Header can be parsed by intermideate devices.
-		(Authors note: This is to preserve the original WESP usecase and
+		so that the Header can be parsed by intermediate devices.
+		(Authors note: This is to preserve the original WESP use-case and
 		because PSP uses this too. In case the Flow Identifier can carry
 		enough information about inner flows, we can remove the cryptoffset.)
 		</li>
@@ -253,7 +253,7 @@
 		by the receiver.  Future modifications to the WESPv2 header require a
 		new version number.  In particular, the version of WESPv2 defined in
 		this document does not allow for any extensions.  However, old
-		implementations will still be able to find the encapsulated cleartext
+		implementations will still be able to find the encapsulated clear-text
 		packet using the HdrLen field from the WESPv2 header, when the 'E' bit
 		is not set.  Intermediate nodes dealing with unknown versions are not
 		necessarily able to parse the packet correctly.  Intermediate
@@ -293,9 +293,9 @@
 		</li>
           <li>
 		Padding - optional: Used to ensure proper alignment of the
-		ciphertext. Implementations can choose alignment based
+		cipher-text. Implementations can choose alignment based
 		on their needs. If padding is present, it SHOULD align
-		the ciphertext by a minimum of 16 bytes relative to the
+		the cipher-text by a minimum of 16 bytes relative to the
 		start of the IP/IPv6 header.
           </li>
           <li>
@@ -406,7 +406,7 @@
 	USE_TRANSPORT_MODE, defined in <xref target="RFC7296"/>.
 </t>
 <t>
-	When negotationg a WESPv2 Child SA, USE_WESPv2_MODE MUST be included in a
+	When negotiating a WESPv2 Child SA, USE_WESPv2_MODE MUST be included in a
 	either in an IKE_AUTH exchange or CREATE_CHILD_SA.
 	and the rest of SA payload necessary for a
 	Child SA using ESP. It signals that the sender supports the WESPv2
