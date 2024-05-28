@@ -243,11 +243,8 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
                 is not needed to guarantee 4-octet IPv4 alignment."]
                 --></li>
           <li>FID (F) - 1 bit: If set (value 1), the FID is present behind the
-          WESPv2 trader. If not set (value 0), the FID is absent. The detailed
-          specification of the FID field MUST be provided in subsequent
-          documents. This field is opaque to intermediate devices; however,
-          intermediate routers MAY use it for identifying flows for ECMP or
-          similar purposes.</li>
+          WESPv2 trader. If not set (value 0), the FID is absent.</li>
+
           <li>R - 3 bits: Reserved for future versions, MUST be set to 0, and
           ignored by the receiver.</li>
           <li>Padding - optional: Used to ensure proper alignment of the
@@ -256,9 +253,8 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
           minimum of 16 bytes relative to the start of the IP/IPv6 header.</li>
           <li>Flow Identifier (FID) - optional: Authenticated field with
           additional flow informations. If present, this field MUST carry
-          caracteristic information of the inner flow. The value of that field
-          MUST (or SHOULD) represent characteristics of the inner flow, i.e.
-          SHOULD NOT change on per packet basis. The detailed specification of
+          characteristic information of the inner flow, i.e.
+          it SHOULD NOT change on per packet basis. The detailed specification of
           the FID field MUST be provided in subsequent documents. This field is
           opaque to intermediate devices; however, intermediate routers MAY use
           it for identifying flows for ECMP or similar purposes. e.g. Sub-Child
