@@ -59,12 +59,12 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
       Identifier could also be used to perform ECMP based on the inner flows at
       intermediate devices or endpoints. Additionally to that, there exists a
       specification of the
-      <xref target="PSP"/> protocol that has the need of a Flow Identifier
-      Network Identifier (VNI). PSP also defines a Crypto Offset to expose
-      parts of the headers of the inner packet;
-      <xref target="NVIDIA-PSP"/>. Showing headers on the inner packet was
-      also the original usecase for the WESP protocol. WESPv2 provides a
-      solution for all the aforementioned use-cases.</t>
+      <xref target="PSP"/> protocol that has the need of a Flow Identifier,
+      called 
+      Network Identifier (VNI) there. PSP also defines a Crypto Offset to expose
+      parts of the headers of the inner packet. Showing headers on the inner
+      packet was also the original usecase for the WESP protocol. WESPv2
+      provides a solution for all the aforementioned use-cases.</t>
       <t>The 64 bit Flow Identifier field introduced by WESPv2 is considered to
       be opaque to this document. Future documents can define the meaning of
       this field for their particular use-case. With this, all existing and
@@ -116,7 +116,7 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
         present and an optional part directly following the base header. The
         base header essentially describes how to treat the packet. The optional
         part of the header ensure proper alignment of the ESP cipher text. It
-        also has an option to store an integrity protected flow identifyter
+        also has an option to store an integrity protected flow identifier
         that can be used for flow classification.</t>
         <t>The header is constructed in a way that the start of the cipher-text
         is aligned on a 8 byte boundary respective the start of the IPv4/IPv6
@@ -535,6 +535,7 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
           </author>
         </front>
       </reference>
+      <!--
       <reference anchor="NVIDIA-PSP"
       target="https://docs.nvidia.com/doca/sdk/nvidia+doca+psp+gateway+application+guide/index.html"
       quoteTitle="true">
@@ -545,6 +546,7 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
           </author>
         </front>
       </reference>
+      -->
       <!--
       <reference anchor="Google-PSPS-Support" target="https://cloud.google.com/blog/products/identity-security/announcing-psp-security-protocol-is-now-open-source" quoteTitle="true">
         <front>
@@ -558,7 +560,7 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
     </references>
     <section anchor="app-additional" numbered="true" toc="default">
       <name>Additional Stuff</name>
-      <t>This becomes an Appendix.</t>
+      <t>TBD</t>
     </section>
   </back>
 </rfc>
