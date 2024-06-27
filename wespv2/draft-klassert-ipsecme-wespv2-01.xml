@@ -65,7 +65,7 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
       parts of the headers of the inner packet. Showing headers on the inner
       packet was also the original usecase for the WESP protocol. WESPv2
       provides a solution for all the aforementioned use-cases.</t>
-      <t>The WESPv2 Options introduced by WESPv2 is considered to
+      <t>The WESPv2 Options introduced by WESPv2 are considered to
       be opaque to this document. Future documents can define the meaning of
       these fields for their particular use-case. With this, all existing and
       potential new use-cases for Flow Identifiers can be covered. For
@@ -117,7 +117,7 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
         base header essentially describes how to treat the packet. The optional
         part of the header defines Options to store a integrity protected flow
 	identifiers that can be used for flow classification.</t>
-        <t>The header is constructed in a way that the start of the next header
+        <t>The header is constructed in a way that the start of the following next header
         is aligned on a 4 byte boundary on IPv4 and on a  8 byte boundary on IPv6
 	respective the start of the IPv4/IPv6 header. Like WESPv1,
         this extension essentially acts as a wrapper to the existing ESP
@@ -191,7 +191,7 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
           same as the Next Header field in the ESP trailer, so that the Header
           can be parsed by intermediate devices. (Authors note: This is to
           preserve the original WESP use-case and because PSP uses this too. In
-          case the Flow Identifier can carry enough information about inner
+          case the Flow Identifier Options can carry enough information about inner
           flows, we can remove the cryptoffset.)</li>
           <li>Reserved - 2 bits: Set to zero on transmit, ignored on
           receive.</li>
@@ -316,7 +316,7 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
       Address, pointing to the unrecognized Option Type.</li>
 	</ul>
 
-	<t>Option from the private range MUST set the two
+	<t>Options from the private range MUST set the two
 	highest-order bit to 00.</t>
 
     <t>The third-highest-order bit of the Option Type specifies
