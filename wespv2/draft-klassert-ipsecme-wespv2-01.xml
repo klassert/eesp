@@ -230,10 +230,10 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
         <name>Options</name>
 	<t>WESPv2 options carry a variable number of "options" that are
 	type-length- value (TLV) encoded in the same format as done in
-	RFC 8200 Section 4.2 for IPv6 extension headers.
-	This document defines two different option classes, padding and
-	flow identifiers.</t>
-	<t>Padding MUST be used to align the start of the next
+	<xref target="RFC8200"/> Section 4.2 for IPv6 extension headers.
+	This document defines three different option classes, Padding Options,
+	Flow Identifier Options and Private Options.</t>
+	<t>Padding Options MUST be used to align the start of the next
 	header to the natural alignment of the protocol, i.e. 4 byte for IPv4
 	and 8 byte for IPv6. Other padding, like padding for cipher text alignment,
 	is out of the scope of this document. Future documents can define this
@@ -241,33 +241,47 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
 	negotiated by IKEv2 or any other suitable protocol.</t>
 
 	<t>
-	Flow Identifiers MUST carry characteristic information of the inner flow, i.e.
+	Flow Identifier Options MUST carry characteristic information of the inner flow, i.e.
 	MUST NOT change on per packet basis. It MUST be negotiated by
 	IKEv2 or any other suitable protocol.
 
 	The detailed specification of
-	Flow Identifiers MUST be provided in subsequent documents. This field is
+	Flow Identifiers MUST be provided in subsequent documents. These Options are
 	opaque to intermediate devices; however, intermediate routers MAY use
 	it for identifying flows for ECMP or similar purposes. e.g. Sub-Child
 	SAs, in <xref target="I-D.mrossberg-ipsecme-multiple-sequence-counters"/>could
-	be encoded here. Flow Identifiers MUST have the format of options
-	as defind in RFC 8200 Section 4.2.
+	be encoded here. Flow Identifiers MUST have the format of Options
+	as defind in <xref target="Adapt-Options"/>.
 	</t>
-	<t>The only WESPv2 options defined in this document are the Pad1 and
-	   PadN options specified in RFC 8200 Section 4.2.</t>
 
+	<t>Private Options comming from a reserved Option Type Range and
+	can be used for any purposes that are out of scope for standardization.
+	For example it can be used to encode hardware specific information,
+	such as used encryption/authentication algorithms as done in <xref target="PSP"/>.</t>
 
-
-
-
-
-
+	<t>The only WESPv2 Option Types defined in this document are the Pad1 and
+	   PadN options specified in <xref target="Adapt-Options"/>.</t>
 
   <section title=" Adapting IPv6 Extension header options" anchor="Adapt-Options">
 
-    <t>Two of the currently-defined extension headers defined in this
-    document -- the Hop-by-Hop Options header and the Destination Options
-    header -- carry a variable number of type-length-value (TLV) encoded
+	<t>WESPv2 extension header Options are adapted from IPv6 extension header Options as
+	   defined in Section 4.2 of <xref target="RFC8200"/>, with the following modifications:</t>
+
+	<ul>
+	<li>References to the IPv6 header are removed. </li>
+	<li>The two highest-order bits of the Option Type MUST be set to 00, if the Option
+	Type comes from the private range. </li>
+	<li>The third-highest-order bit of the Option Type MUST be set to 0. </li>
+	<li>References to the Hop-by-Hop
+	   Options header and the Destination Options header are removed.</li>
+	</ul>
+
+	</section>
+
+  <section title=" WESPv2 Extension header options" anchor="WESPv2-Options">
+
+    <t>WESPv2 Options
+     carry a variable number of type-length-value (TLV) encoded
     "options", of the following format:</t>
 
     <figure><artwork align="left"><![CDATA[
@@ -377,7 +391,7 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
     Opt Data Len field contains the value N-2, and the Option Data
     consists of N-2 zero-valued octets.</t>
 
-	<t>Appendix A of [RFC8200] contains applicable formatting guidelines for
+	<t>Appendix A of <xref target="RFC8200"/> contains applicable formatting guidelines for
 	   designing new options.</t>
       </section>
       </section>
@@ -623,6 +637,7 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
       <xi:include href="http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.5840.xml"/>
       <xi:include href="http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.7296.xml"/>
       <xi:include href="http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.2992.xml"/>
+      <xi:include href="http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.8200.xml"/>
       <!--
       <xi:include href="http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.4301.xml"/>
       <xi:include href="http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.791.xml"/>
