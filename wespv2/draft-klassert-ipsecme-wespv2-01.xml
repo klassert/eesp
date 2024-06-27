@@ -255,8 +255,94 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
 	</t>
 	<t>The only WESPv2 options defined in this document are the Pad1 and
 	   PadN options specified in RFC 8200 Section 4.2.</t>
-	   <t>For the sake of completeness
-	   we cite the definition text of Pad1 and PadN from RFC 8200:</t>
+
+
+
+
+
+
+
+
+  <section title=" Adapting IPv6 Extension header options" anchor="Adapt-Options">
+
+    <t>Two of the currently-defined extension headers defined in this
+    document -- the Hop-by-Hop Options header and the Destination Options
+    header -- carry a variable number of type-length-value (TLV) encoded
+    "options", of the following format:</t>
+
+    <figure><artwork align="left"><![CDATA[
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+- - - - - - - - -
+   |  Option Type  |  Opt Data Len |  Option Data
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+- - - - - - - - -
+   ]]></artwork></figure>
+
+      <t hangText="Option Type">8-bit identifier of the type of
+      option.</t>
+      <t hangText="Opt Data Len">8-bit unsigned integer.  Length of
+      the Option Data field of this option, in octets.</t>
+      <t hangText="Option Data">Variable-length field.
+      Option-Type-specific data.</t>
+
+    <t>The sequence of options within a header must be processed
+    strictly in the order they appear in the header; a receiver must
+    not, for example, scan through the header looking for a particular
+    kind of option and process that option prior to processing all
+    preceding ones.</t>
+
+    <t>The Option Type identifiers are internally encoded such that
+    their highest-order two bits specify the action that must be taken
+    if the processing IPv6 node does not recognize the Option Type:</t>
+
+      <t hangText="00 -">skip over this option and continue processing
+      the header.</t>
+      <t hangText="01 -">discard the packet.</t>
+      <t hangText="10 -">discard the packet and, regardless of whether
+      or not the packet's Destination Address was a multicast address,
+      send an ICMP Parameter Problem, Code 2, message to the packet's
+      Source Address, pointing to the unrecognized Option Type.</t>
+      <t hangText="11 -">discard the packet and, only if the packet's
+      Destination Address was not a multicast address, send an ICMP
+      Parameter Problem, Code 2, message to the packet's Source
+      Address, pointing to the unrecognized Option Type.</t>
+
+    <t>The third-highest-order bit of the Option Type specifies
+    whether or not the Option Data of that option can change en-route
+    to the packet's final destination.  When an Authentication header
+    is present in the packet, for any option whose data may change
+    en-route, its entire Option Data field must be treated as
+    zero-valued octets when computing or verifying the packet's
+    authenticating value.</t>
+
+      <t hangText="0 -">Option Data does not change en-route</t>
+      <t hangText="1 -">Option Data may change en-route</t>
+
+    <t>The three high-order bits described above are to be treated as
+    part of the Option Type, not independent of the Option Type.  That
+    is, a particular option is identified by a full 8-bit Option Type,
+    not just the low-order 5 bits of an Option Type.</t>
+
+    <t>The same Option Type numbering space is used for both the
+    Hop-by-Hop Options header and the Destination Options header.
+    However, the specification of a particular option may restrict its
+    use to only one of those two headers.</t>
+
+    <t>Individual options may have specific alignment requirements, to
+    ensure that multi-octet values within Option Data fields fall on
+    natural boundaries.  The alignment requirement of an option is
+    specified using the notation xn+y, meaning the Option Type must
+    appear at an integer multiple of x octets from the start of the
+    header, plus y octets.  For example:</t>
+
+      <?rfc subcompact="yes" ?>
+      <t hangText="2n">means any 2-octet offset from the start of the header.</t>
+      <t hangText="8n+2">means any 8-octet offset from the start of the header,
+      plus 2 octets.</t>
+    <?rfc subcompact="no" ?>
+
+    <t>There are two padding options which are used when necessary to
+    align subsequent options and to pad out the containing header to a
+    multiple of 8 octets in length.  These padding options must be
+    recognized by all IPv6 implementations:</t>
 
     <t>Pad1 option (alignment requirement: none)</t>
 
@@ -287,6 +373,7 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
     Opt Data Len field contains the value N-2, and the Option Data
     consists of N-2 zero-valued octets.</t>
 
+      </section>
       </section>
 
       <section anchor="UDP-Encapsulation" numbered="true" toc="default">
