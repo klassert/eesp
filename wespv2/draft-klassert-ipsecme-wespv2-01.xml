@@ -34,15 +34,15 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
       (WESPv2) protocol, which builds on the Encapsulating Security Payload
       (ESP)
       <xref target="RFC4303"/>. It is designed to overcome limitations of the
-      ESP protocol to expose flow information to the network in a transparent
-      way and to align the cipher text to the needs of the sender and receiver.
-      To do so, it defines an optional Flow Identifier where flow specific
-      information can be stored. It also defines a Crypt Offset to allow
+      ESP protocol to expose inner flow information to the network in a transparent
+      way. To do so, it adapts IPv6 Extension header options to WESPv2
+      where flow identitiers can be stored.
+      It also defines a Crypt Offset to allow
       intermediate devices to read some header bytes at the beginning of the
       inner packet. In particular, this preserves the original use-case of WESP
 
-      <xref target="RFC5840"/>. Optional padding can be added for cipher text
-      alignment.</t>
+      <xref target="RFC5840"/>.
+      </t>
     </abstract>
   </front>
   <middle>
@@ -65,14 +65,14 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
       parts of the headers of the inner packet. Showing headers on the inner
       packet was also the original usecase for the WESP protocol. WESPv2
       provides a solution for all the aforementioned use-cases.</t>
-      <t>The 64 bit Flow Identifier field introduced by WESPv2 is considered to
+      <t>The WESPv2 Options introduced by WESPv2 is considered to
       be opaque to this document. Future documents can define the meaning of
-      this field for their particular use-case. With this, all existing and
-      potential new use-cases for a Flow Identifier can be covered. For
+      these fields for their particular use-case. With this, all existing and
+      potential new use-cases for Flow Identifiers can be covered. For
       instance it can be used for the case of
       <xref target="I-D.ponchon-ipsecme-anti-replay-subspaces"/> or
       <xref target="I-D.he-ipsecme-vpn-shared-ipsecsa"/> etc., or combinations
-      thereof if fit into the 64 bit field. A detailed discussion about the
+      thereof. A detailed discussion about the
       problems of the ESP protocol can be found in
       <xref target="I-D.mrossberg-ipsecme-multiple-sequence-counters"/>.</t>
       <t>Though this document specifies IKEv2 as a negotiation protocol, WESPv2
@@ -115,16 +115,11 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
         <t>The WESPv2 header is split into a 4 byte base header that is always
         present and an optional part directly following the base header. The
         base header essentially describes how to treat the packet. The optional
-        part of the header ensure proper alignment of the ESP cipher text. It
-        also has an option to store an integrity protected flow identifier
-        that can be used for flow classification.</t>
-        <t>The header is constructed in a way that the start of the cipher-text
-        is aligned on a 8 byte boundary respective the start of the IPv4/IPv6
-        header. Any IPv4 options and optional IPv6 extension Headers are not
-        taken into account here. If the sender has different alignment
-        requirements, optional padding can be used to align the cipher-text.
-        The chosen padding size SHOULD NOT change for a given Child SA.
-        (Authors note: Should the padding size be negotiated?) Like WESPv1,
+        part of the header defines Options to store a integrity protected flow
+	identifiers that can be used for flow classification.</t>
+        <t>The header is constructed in a way that the start of the next header
+        is aligned on a 4 byte boundary on IPv4 and on a  8 byte boundary on IPv6
+	respective the start of the IPv4/IPv6 header. Like WESPv1,
         this extension essentially acts as a wrapper to the existing ESP
         protocol. The value of the new protocol version used to identify this
         new header is not changed. Instead, the version number in the Flags
@@ -200,7 +195,7 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
           flows, we can remove the cryptoffset.)</li>
           <li>Reserved - 2 bits: Set to zero on transmit, ignored on
           receive.</li>
-          <li>Version (V) - 2 bits: MUST be sent to 1 and checked by the
+          <li>Version (V) - 2 bits: MUST be sent to 01 and checked by the
           receiver. If the version is different than an expected version number
           (e.g., negotiated via the control channel), then the packet MUST be
           dropped by the receiver. Future modifications to the WESPv2 header
@@ -212,8 +207,8 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
           versions are not necessarily able to parse the packet correctly.
           Intermediate treatment of such packets is policy dependent (e.g., it
           may dictate dropping such packets).</li>
-          <li>OptLen - 6 bit: Total lenght of all options included in the WESPv2
-	  header, in octets.
+          <li>OptLen - 6 bit: Total length of all options included in the WESPv2
+	  header Options, in octets.
           </li>
           <li>Options - variable: Authenticated field with
           additional flow informations and padding. 
@@ -409,7 +404,7 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
         outer IPv4/IPv6 header and the ESP header. The WESPv2 header MUST be
         inserted before the cryptographic operations. After inserting the
         WESPv2 header, the crypto operations are performed. The full WESPv2
-        header, including optional padding and Flow Identifier (FID) MUST be
+        header, including all header Options MUST be
         included into the integrity protected part of the packet.</t>
       </section>
       <section anchor="IPv4" numbered="true" toc="default">
@@ -429,10 +424,10 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
           <name>IPv4 DATAGRAM AFTER APPLYING WESP</name>
           <artwork align="left">
             <![CDATA[
-                      |<- WESPv2 Hdr ->|
+                      |<-WESPv2 Hdr->|
         -------------------------------------------------------
-        |outer IP hdr |WESP| PAD | FID |ESP| Pyld |  ESP  |ESP|
-        |(any options)|BHdr|(opt)|(opt)|Hdr| Data |Trailer|ICV|
+        |outer IP hdr | WESP |  OPT  | ESP | Pyld |  ESP  |ESP|
+        |(any options)| BHdr | (var) | Hdr | Data |Trailer|ICV|
         -------------------------------------------------------
                                            |<-encryption->|
                       |<----------- integrity ----------->|
@@ -458,10 +453,10 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
           <name>IPv6 DATAGRAM AFTER APPLYING WESP</name>
           <artwork align="left">
             <![CDATA[
-                      |<- WESPv2 Hdr ->|
+                      |<-WESPv2 Hdr->|
         -------------------------------------------------------
-        |  outer |ext.|WESP| PAD | FID |ESP| Pyld |  ESP  |ESP|
-        |IPv6 Hdr|Hdrs|BHdr|(opt)|(opt)|Hdr| Data |Trailer|ICV|
+        |  outer |ext.| WESP |  OPT  | ESP | Pyld |  ESP  |ESP|
+        |IPv6 Hdr|Hdrs| BHdr | (var) | Hdr | Data |Trailer|ICV|
         -------------------------------------------------------
                                            |<-encryption->|
                       |<----------- integrity ----------->|
@@ -539,10 +534,28 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
           <![CDATA[
       Value   Notify Type Messages - Status Types    Reference
       -----   ------------------------------    ---------------
-      [TBD1]   USE_WESPv2_MODE                      [this document]
+      [TBD1]   USE_WESPv2_MODE                  [this document]
             ]]>
 </artwork>
       </figure>
+
+
+
+      <t>This document requests IANA to create a registry called
+      "WESP_OPTIONS Type Registry" under a new category named
+      "WESP_OPTIONS Parameters". This initial content for this registry is as follows:</t>
+      <figure align="center" anchor="iana_requests_reg">
+        <artwork align="left">
+          <![CDATA[
+      Value   WESP Header Options Types          Reference
+      -----   ------------------------------    ---------------
+          0   Pad1                              [this document]
+          1   PadN                              [this document]
+      27-31   Private                           [this document]
+            ]]>
+</artwork>
+      </figure>
+
     </section>
     <section anchor="Implementation" numbered="true" toc="default">
       <name>Implementation Status</name>
