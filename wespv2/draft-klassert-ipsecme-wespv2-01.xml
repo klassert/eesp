@@ -60,7 +60,7 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
       intermediate devices or endpoints. Additionally to that, there exists a
       specification of the
       <xref target="PSP"/> protocol that has the need of a Flow Identifier,
-      called 
+      called
       Network Identifier (VNI) there. PSP also defines a Crypto Offset to expose
       parts of the headers of the inner packet. Showing headers on the inner
       packet was also the original usecase for the WESP protocol. WESPv2
@@ -163,14 +163,15 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
         <ul>
           <li>Next Header - 8 bits: This field MUST be the same as the Next
           Header field in the ESP trailer whenever the Crypt Offset field is
-          nonzero. If the Crypt Offset field is zero, the Next Header MUST be
-          set to zero too. The receiver MUST do some sanity checks before the
-          WESPv2 packet is accepted. The receiver MUST ensure that the Next
+          nonzero. When the Crypt Offset field is zero, the Next Header MUST be
+          set to 59, <xref target="RFC8200"/> Section 4.7. The receiver MUST
+          do some sanity checks before the WESPv2 packet is accepted. The
+          receiver MUST ensure that the Next
           Header field in the WESPv2 header and the Next Header field in the
           ESP trailer match whenever the Next Header field is nonzero. The
           packet MUST be dropped if the two do not match. Similarly, the
           receiver MUST ensure that the Next Header field in the WESPv2 header
-          is an empty field initialized to zero if the Crypt Offset field is
+          is an empty field initialized to 59 if the Crypt Offset field is
           zero.</li>
           <li>HdrLen - 8 bits: Offset from the beginning of the WESPv2 header
           to the beginning of the Rest of Payload Data (i.e., past the IV, if
@@ -211,7 +212,7 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
 	  header Options, in octets.
           </li>
           <li>Options - variable: Authenticated field with
-          additional flow informations and padding. 
+          additional flow informations and padding.
           </li>
         </ul>
         <!--
@@ -368,7 +369,7 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
      <t>Note! the format of the Pad1 option is a special case -- it
      does not have length and value fields.
    </t>
-  
+
     <t>The Pad1 option is used to insert one octet of padding into the
     Options area of a header.  If more than one octet of padding is
     required, the PadN option, described next, should be used, rather
