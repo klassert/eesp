@@ -1,6 +1,6 @@
-NEW_FILE?=draft-klassert-ipsecme-wespv2-00
-OLD_FILE?=draft-klassert-ipsecme-wespv2-00.
-TMP_FILE?=draft-klassert-ipsecme-wespv2-00-tmp
+NEW_FILE?=draft-klassert-ipsecme-wespv2-01
+OLD_FILE?=draft-klassert-ipsecme-wespv2-01.
+TMP_FILE?=draft-klassert-ipsecme-wespv2-01-tmp
 
 XML2RFC?=/Users/antony/Library/Python/3.11/bin/xml2rfc
 
