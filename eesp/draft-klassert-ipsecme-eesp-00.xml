@@ -198,7 +198,23 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
         to as being part of the ciphertext. Unlike ESP, the IV is not considered
 	to be a part of the payload data in EESP.
 	</t>
-        <figure align="center" anchor="eesp-packet-sepatate-algos">
+
+	<t>
+   If a combined algorithm mode is employed, the explicit ICV shown in
+   Figures 1 and 2 may be omitted (see Section ?! below).  Because
+   algorithms and modes are fixed when an SA is established, the
+   detailed format of ESP packets for a given SA (including the Payload
+   Data substructure) is fixed, for all traffic on the SA.
+   </t>
+
+     <t>
+   The tables below refer to the fields in the preceding figures and
+   illustrate how several categories of algorithmic options, each with a
+   different processing model, affect the fields noted above.  The
+   processing details are described in later sections.
+	</t>
+
+        <figure align="center" anchor="eesp-packet-separate-algos">
           <name>Separate Encryption and Integrity Algorithms</name>
           <artwork align="left">
             <![CDATA[
@@ -257,6 +273,7 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
 
             [1] M = mandatory; O = optional; D = dummy
             [2] If tunnel mode -> IP datagram
+                If beet mode -> IP datagram
                 If transport mode -> next header and data
             [3] The algorithm choices determines whether these are
                 transmitted, but in either case, the result is invisible
@@ -267,72 +284,52 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
 </artwork>
         </figure>
 
+        <t>
+         The following subsections describe the fields in the header format.
+         "Optional" means that the field is omitted if the option is not
+         selected, i.e., it is present in neither the packet as transmitted
+         nor as formatted for computation of an ICV (see Section 2.7).
+         Whether or not an option is selected is determined as part of
+         Security Association (SA) establishment.  Thus, the format of EESP
+         packets for a given SA is fixed, for the duration of the SA.  In
+         contrast, "mandatory" fields are always present in the EESP packet
+         format, for all SAs.
+	</t>
 
+      </section>
 
-	<!--
+      <section anchor="Base-Header" numbered="true" toc="default">
+        <name>Base Header</name>
         <ul>
-          <li>Next Header - 8 bits: This field MUST be the same as the Next
-          Header field in the ESP trailer whenever the Crypt Offset field is
-          nonzero. When the Crypt Offset field is zero, the Next Header MUST be
-          set to 59, <xref target="RFC8200"/> Section 4.7. The receiver MUST
-          do some sanity checks before the WESPv2 packet is accepted. The
-          receiver MUST ensure that the Next
-          Header field in the WESPv2 header and the Next Header field in the
-          ESP trailer match whenever the Next Header field is nonzero. The
-          packet MUST be dropped if the two do not match. Similarly, the
-          receiver MUST ensure that the Next Header field in the WESPv2 header
-          is an empty field initialized to 59 if the Crypt Offset field is
-          zero.</li>
-          <li>HdrLen - 8 bits: Offset from the beginning of the WESPv2 header
-          to the beginning of the Rest of Payload Data (i.e., past the IV, if
-          present and any other WESPv2 options defined in the future) within
-          the encapsulated ESP header, in octet. The following HdrLen values
-          are invalid: any value less than 12; any value that is not a multiple
+          <li>Reserved - 8 bits: Set to zero on transmit, ignored on
+          receive.
+          </li>
+          <li>HdrLen - 8 bits: Offset from the beginning of the EESP header
+          to the beginning of the Payload Data (i.e., past the IV, if
+          present) within, in octet. The following HdrLen values
+          are invalid: any value less than 16; any value that is not a multiple
           of 4; any value that is not a multiple of 8 when using IPv6. The
           receiver MUST ensure that this field matches with the header offset
           computed from using the negotiated Security Association (SA) and MUST
           drop the packet in case it does not match.</li>
-          <li>Crypt Offset - 6 bits: The offset from the end of the IV to the
-          start of the encrypted portion of the packet, measured in 4 octet
-          units. The resulting value MUST NOT be larger than the size of the
-          inner packet. A zero CryptOffset means that the complete packet is
-          authenticated and encrypted. A positive CryptOffset means that the
-          first 'CryptOffset * 4' octets of the inner packet belong to the AAD
-          but are not encrypted. In this case the Next Header field MUST be the
-          same as the Next Header field in the ESP trailer, so that the Header
-          can be parsed by intermediate devices. (Authors note: This is to
-          preserve the original WESP use-case and because PSP uses this too. In
-          case the Flow Identifier Options can carry enough information about inner
-          flows, we can remove the cryptoffset.)</li>
-          <li>Reserved - 2 bits: Set to zero on transmit, ignored on
-          receive.</li>
-          <li>Version (V) - 2 bits: MUST be sent to 01 and checked by the
-          receiver. If the version is different than an expected version number
-          (e.g., negotiated via the control channel), then the packet MUST be
-          dropped by the receiver. Future modifications to the WESPv2 header
-          require a new version number. In particular, the version of WESPv2
-          defined in this document does not allow for any extensions. However,
-          old implementations will still be able to find the encapsulated
-          clear-text packet using the HdrLen field from the WESPv2 header, when
-          the 'E' bit is not set. Intermediate nodes dealing with unknown
-          versions are not necessarily able to parse the packet correctly.
-          Intermediate treatment of such packets is policy dependent (e.g., it
-          may dictate dropping such packets).</li>
           <li>OptLen - 6 bit: Total length of all options included in the WESPv2
 	  header Options, in octets.
           </li>
-          <li>Options - variable: Authenticated field with
-          additional flow informations and padding.
-          </li>
+          <li>Reserved - 4 bits: Set to zero on transmit, ignored on
+          receive.</li>
+          <li>Version (V) - 6 bits: MUST be sent to zero and checked by the
+          receiver. If the version is different than an expected version number
+          (e.g., negotiated via the control channel), then the packet MUST be
+          dropped by the receiver. Future modifications to the EESP header
+          require a new version number. In particular, the version of EESP
+          defined in this document does not allow for any extensions.
+          Intermediate nodes dealing with unknown
+          versions are not necessarily able to parse the packet correctly.
+          Intermediate treatment of such packets is policy dependent (e.g., it
+          may dictate dropping such packets).</li>
         </ul>
-	-->
 
-        <!--
-        <t>
-   Some text here...
-   </t>
-   -->
-      </section>
+	</section>
 
       <section anchor="Options" numbered="true" toc="default">
         <name>Options</name>
@@ -503,6 +500,125 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
 	   designing new options.</t>
       </section>
       </section>
+
+      <section anchor="SPI" numbered="true" toc="default">
+        <name>Security Parameters Index (SPI)</name>
+        <t>The Security Parameters Index (SPI) is handled as in
+        <xref target="RFC4303"/>.</t>
+      </section>
+
+      <section anchor="Sequence-Number" numbered="true" toc="default">
+        <name>Sequence Number</name>
+
+	<t>
+        FIXME: This section is not yet correct!!!
+	</t>
+        <t>
+   This unsigned 64-bit field contains a counter value that increases by
+   one for each packet sent, i.e., a per-SA packet sequence number.  For
+   a unicast SA or a single-sender multicast SA, the sender MUST
+   increment this field for every transmitted packet.  Sharing an SA
+   among multiple senders is permitted, though generally not
+   recommended.  ESP provides no means of synchronizing packet counters
+   among multiple senders or meaningfully managing a receiver packet
+   counter and window in the context of multiple senders.  Thus, for a
+   multi-sender SA, the anti-replay features of ESP are not available
+   (see Sections 3.3.3 and 3.4.3.)
+    </t>
+
+      <t>
+   The field is mandatory and MUST always be present even if the
+   receiver does not elect to enable the anti-replay service for a
+   specific SA.  Processing of the Sequence Number field is at the
+   discretion of the receiver, but all ESP implementations MUST be
+   capable of performing the processing described in Sections 3.3.3 and
+   3.4.3. Thus, the sender MUST always transmit this field, but the
+   receiver need not act upon it (see the discussion of Sequence Number
+   Verification in the "Inbound Packet Processing" section (3.4.3)
+   below).
+    </t>
+
+    <t>
+   The sender's counter and the receiver's counter are initialized to 0
+   when an SA is established.  (The first packet sent using a given SA
+   will have a sequence number of 1; see Section 3.3.3 for more details
+   on how the sequence number is generated.)  If anti-replay is enabled
+   (the default), the transmitted sequence number must never be allowed
+   to cycle.  Thus, the sender's counter and the receiver's counter MUST
+   be reset (by establishing a new SA and thus a new key) prior to the
+   transmission of the 2^32nd packet on an SA.
+       </t>
+      </section>
+
+      <section anchor="IV" numbered="true" toc="default">
+        <name>Initialization Vector</name>
+        <t>
+   If the algorithm used to encrypt the payload requires cryptographic
+   synchronization data, e.g., an Initialization Vector (IV), then this
+   data is carried explicitly in front of the encrypted part of the packet.
+   but it is not called. Any encryption algorithm
+   that requires such explicit, per-packet synchronization data MUST
+   indicate the length, any structure for such data, and the location of
+   this data as part of an RFC specifying how the algorithm is used with
+   EESP.  (Typically, the IV immediately precedes the ciphertext.  See
+   Figure ?!.)  If such synchronization data is implicit, the algorithm
+   for deriving the data MUST be part of the algorithm definition RFC.
+   (If included, cryptographic synchronization
+   data, e.g., an Initialization Vector (IV), usually is not encrypted
+   per se (see Tables 1 and 2), although it sometimes is referred to as
+   being part of the ciphertext.)
+      </t>
+
+      <t>
+      Counter mode algorithms MAY encode the Initialization Vector (IV)
+      on the Sequence number Field.
+         Whether or not this option is selected is determined as part of
+         Security Association (SA) establishment.
+      </t>
+      </section>
+
+      <section anchor="Next-Header" numbered="true" toc="default">
+        <name>Next Header</name>
+        <t>
+   The Next Header is a mandatory, 8-bit field that identifies the type
+   of data contained in the Payload Data field, e.g., an IPv4 or IPv6
+   packet, or a next layer header and data.  The value of this field is
+   chosen from the set of IP Protocol Numbers defined on the web page of
+   the IANA, e.g., a value of 4 indicates IPv4, a value of 41 indicates
+   IPv6, and a value of 6 indicates TCP.
+	</t>
+      </section>
+
+      <section anchor="Pad-Length" numbered="true" toc="default">
+        <name>Pad Length</name>
+        <t>
+   The Pad Length field indicates the number of pad bytes immediately
+   preceding it in the Padding field.  The range of valid values is 0 to
+   255, where a value of zero indicates that no Padding bytes are
+   present. The Pad Length field is mandatory.
+        </t>
+      </section>
+
+
+      <section anchor="Payload-Data" numbered="true" toc="default">
+        <name>Payload Data</name>
+        <t>UDP Encapsulation is done as in
+        <xref target="RFC5840"/>.</t>
+      </section>
+
+      <section anchor="Padding" numbered="true" toc="default">
+        <name>Padding (for Encryption)</name>
+        <t>
+
+      </t>
+      </section>
+
+      <section anchor="ICV" numbered="true" toc="default">
+        <name>Integrity Check Value (ICV)</name>
+        <t>Integrity Check Value is handled as in
+        <xref target="RFC4303"/>.</t>
+      </section>
+
 
 <!-- Everyting below here is not yet converted! -->
 
