@@ -138,7 +138,7 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
 	integrity protected flow identifiers that can be used for flow classification. </t>
         <t>The header is constructed in a way that the start of the following next header
         is aligned on a 4 byte boundary on IPv4 and on a  8 byte boundary on IPv6
-	respective the start of the IPv4/IPv6 header.
+	respective the start of the IPv4/IPv6 header.</t>
 
 
         <!--
@@ -154,7 +154,7 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
            + padding(4) + FID(8) + ESP(8)
    </t>
    -->
-        <figure align="center" anchor="wespv2-header">
+        <figure align="center" anchor="eesp-packet-format">
           <name>EESP packet format</name>
           <artwork align="left">
             <![CDATA[
@@ -198,6 +198,77 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
         to as being part of the ciphertext. Unlike ESP, the IV is not considered
 	to be a part of the payload data in EESP.
 	</t>
+        <figure align="center" anchor="eesp-packet-sepatate-algos">
+          <name>Separate Encryption and Integrity Algorithms</name>
+          <artwork align="left">
+            <![CDATA[
+                                            What    What    What
+                          # of     Requ'd  Encrypt Integ    is
+                          bytes      [1]   Covers  Covers  Xmtd
+                          ------   ------  ------  ------  ------
+   Base Header               4        M              Y     plain
+   Options                variable    O              Y     plain
+   SPI                       4        M              Y     plain
+   Seq#                      8        M              Y     plain       p
+   IV                     variable    O              Y     plain       y
+   Next Header               1        M       Y      Y     cipher[3]
+   Pad Length                1        M       Y      Y     cipher[3]
+   Reserved                  2        M       Y      Y     cipher[3]
+                                                                ------
+   IP datagram [2]        variable  M or D    Y      Y     cipher[3] |-l
+                                                                ------ a
+   Padding                 0-255      M       Y      Y     cipher[3]   d
+   ICV Padding            variable if need           Y     not xmtd
+   ICV                    variable   M [4]                 plain
+
+           [1] M = mandatory; O = optional; D = dummy
+           [2] If tunnel mode -> IP datagram
+               If beet mode -> IP datagram
+               If transport mode -> next header and data
+           [3] ciphertext if encryption has been selected
+           [4] mandatory if a separate integrity algorithm is used
+        ]]>
+</artwork>
+        </figure>
+
+
+        <figure align="center" anchor="eesp-packet-combined-algos">
+          <name>Combined Mode Algorithms</name>
+          <artwork align="left">
+            <![CDATA[
+                                             What    What    What
+                          # of     Requ'd  Encrypt Integ    is
+                          bytes      [1]   Covers  Covers  Xmtd
+                          ------   ------  ------  ------  ------
+   Base Header               4        M              Y     plain
+   Options                variable    O              Y     plain
+   SPI                       4        M              Y     plain
+   Seq#                      8        M              Y     plain       p
+   IV                     variable    O              Y     plain       y
+   Next Header               1        M       Y      Y     cipher
+   Pad Length                1        M       Y      Y     cipher
+   Reserved                  2        M       Y      Y     cipher
+                                                                ------
+   IP datagram [2]        variable  M or D    Y      Y     cipher    |-l
+                                                                ------ a
+   Padding                 0-255      M       Y      Y     cipher      d
+   ICV Padding            variable if need           Y     [3]
+   ICV                    variable   O [4]                 plain
+
+            [1] M = mandatory; O = optional; D = dummy
+            [2] If tunnel mode -> IP datagram
+                If transport mode -> next header and data
+            [3] The algorithm choices determines whether these are
+                transmitted, but in either case, the result is invisible
+                to ESP
+            [4] The algorithm spec determines whether this field is
+                present
+        ]]>
+</artwork>
+        </figure>
+
+
+
 	<!--
         <ul>
           <li>Next Header - 8 bits: This field MUST be the same as the Next
