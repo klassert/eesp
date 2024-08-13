@@ -36,7 +36,7 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
       <xref target="RFC4303"/>. It is designed to overcome limitations of the
       ESP protocol to expose inner flow information to the network in a transparent
       way. To do so, it adapts IPv6 Extension header options to EESP
-      where flow identitiers can be stored. 
+      where flow identitiers can be stored.
       </t>
     </abstract>
   </front>
@@ -122,7 +122,7 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
        (SPI) and Sequence Number.
         Unlike ESP, EESP does not have
 	a trailer. Instead, the next header and pad length fields directly follow
-	the header, or the IV if present. 
+	the header, or the IV if present.
 
 
        Following these fields is the Payload Data, which has
@@ -213,7 +213,6 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
    different processing model, affect the fields noted above.  The
    processing details are described in later sections.
 	</t>
-
         <figure align="center" anchor="eesp-packet-separate-algos">
           <name>Separate Encryption and Integrity Algorithms</name>
           <artwork align="left">
@@ -568,13 +567,122 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
    per se (see Tables 1 and 2), although it sometimes is referred to as
    being part of the ciphertext.)
       </t>
-
       <t>
       Counter mode algorithms MAY encode the Initialization Vector (IV)
       on the Sequence number Field.
          Whether or not this option is selected is determined as part of
          Security Association (SA) establishment.
       </t>
+
+            <table>
+                <name>Table 1. Separate Encryption and Integrity Algorithms</name>
+                <thead>
+                    <tr>
+                        <th align="left"></th>
+                        <th align="center"># of bytes</th>
+                        <th align="center">Requ'd <xref target="note1" format="none">[1]</xref></th>
+                        <th align="center">Encrypt Covers</th>
+                        <th align="center">Integ Covers</th>
+                        <th align="center">What is Xmtd</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>SPI</td>
+                        <td align="center">4</td>
+                        <td align="center">M</td>
+                        <td align="center"></td>
+                        <td align="center">Y</td>
+                        <td align="center">plain</td>
+                    </tr>
+                    <tr>
+                        <td>Seq# (low-order bits)</td>
+                        <td align="center">4</td>
+                        <td align="center">M</td>
+                        <td align="center"></td>
+                        <td align="center">Y</td>
+                        <td align="center">plain</td>
+                    </tr>
+                    <tr>
+                        <td>IV</td>
+                        <td align="center">variable</td>
+                        <td align="center">O</td>
+                        <td align="center"></td>
+                        <td align="center">Y</td>
+                        <td align="center">plain</td>
+                    </tr>
+                    <tr>
+                        <td>IP datagram <xref target="note2" format="none">[2]</xref></td>
+                        <td align="center">variable</td>
+                        <td align="center">M or D</td>
+                        <td align="center">Y</td>
+                        <td align="center">Y</td>
+                        <td align="center">cipher <xref target="note3" format="none">[3]</xref></td>
+                    </tr>
+                    <tr>
+                        <td>TFC padding <xref target="note4" format="none">[4] </xref></td>
+                        <td align="center">variable</td>
+                        <td align="center">O</td>
+                        <td align="center">Y</td>
+                        <td align="center">Y</td>
+                        <td align="center">cipher <xref target="note3" format="none">[4]</xref></td>
+                    </tr>
+                    <tr>
+                        <td>Padding</td>
+                        <td align="center">0-255</td>
+                        <td align="center">M</td>
+                        <td align="center">Y</td>
+                        <td align="center">Y</td>
+                        <td align="center">cipher <xref target="note3" format="none">[3]</xref></td>
+                    </tr>
+                    <tr>
+                        <td>Pad Length</td>
+                        <td align="center">1</td>
+                        <td align="center">M</td>
+                        <td align="center">Y</td>
+                        <td align="center">Y</td>
+                        <td align="center">cipher <xref target="note3" format="none">[3]</xref></td>
+                    </tr>
+                    <tr>
+                        <td>Next Header</td>
+                        <td align="center">1</td>
+                        <td align="center">M</td>
+                        <td align="center">Y</td>
+                        <td align="center">Y</td>
+                        <td align="center">cipher <xref target="note3" format="none">[3]</xref></td>
+                    </tr>
+                    <tr>
+                        <td>Seq# (high-order bits)</td>
+                        <td align="center">4</td>
+                        <td align="center">if ESN <xref target="note5" format="none">[5]</xref></td>
+                        <td align="center"></td>
+                        <td align="center">Y</td>
+                        <td align="center">not xmtd</td>
+                    </tr>
+                    <tr>
+                        <td>ICV Padding</td>
+                        <td align="center">variable</td>
+                        <td align="center">if need</td>
+                        <td align="center"></td>
+                        <td align="center">Y</td>
+                        <td align="center">not xmtd</td>
+                    </tr>
+                    <tr>
+                        <td>ICV</td>
+                        <td align="center">variable</td>
+                        <td align="center">M <xref target="note6" format="none">[6]</xref></td>
+                        <td align="center"></td>
+                        <td align="center"></td>
+                        <td align="center">plain</td>
+                    </tr>
+                </tbody>
+            </table>
+	  <t anchor="note1">[1] M = mandatory; O = optional; D = dummy</t>
+    <t anchor="note2">[2] If tunnel mode -&gt; IP datagram. If transport mode -&gt; next header and data</t>
+    <t anchor="note3">[3] ciphertext if encryption has been selected</t>
+    <t anchor="note4">[4] Can be used only if payload specifies its "real" length</t>
+    <t anchor="note5">[5] See section 2.2.1</t>
+    <t anchor="note6">[6] mandatory if a separate integrity algorithm is used</t>
       </section>
 
       <section anchor="Next-Header" numbered="true" toc="default">
