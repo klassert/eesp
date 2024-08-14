@@ -114,48 +114,100 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
         page at http://www.iana.org/assignments/protocol-numbers).  Figure 1
         illustrates the top-level format of an EESP packet.
         The EESP header is split into multiple parts.
-	The packet begins
-        with a 4 byte base header that is always
-        present and an optional part directly following the base header.
-
-       This follows the two, from ESP well known, 4-byte fields Security Parameters Index
-       (SPI) and Sequence Number.
-        Unlike ESP, EESP does not have
-	a trailer. Instead, the next header and pad length fields directly follow
-	the header, or the IV if present. 
+	</t>
 
 
-       Following these fields is the Payload Data, which has
-       substructure that depends on the choice of encryption algorithm and
-       mode.  Following the Payload Data is the optional Integrity Check Value (ICV)
-        field that completes the packet.
+        <figure align="center" anchor="eesp-top-level-packet-format">
+          <name>Top-Level Format of an EESP Packet</name>
+          <artwork align="left">
+            <![CDATA[
 
+
+    0                   1                   2                   3
+    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                                                               |
+   ~                      Base Header (variable)                   ~
+   |                                                               |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                                                               |
+   ~                   Crypto Header (variable)                    ~
+   |                                                               |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                     Transtport Mode Header                    |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                      Payload Data (variable)                  |
+   ~                                                               ~
+   |               +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |               |          Padding (0-255 bytes)                |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                                                               |
+   ~              Integrity Check Value-ICV (variable)             ~
+   |                                                               |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+        ]]>
+</artwork>
+        </figure>
+
+
+        <t>
+        The packet starts with a Base Header that is used by protocol
+	parsing engines of middleboxes such as routers or firewalls
+	and the end host. 
+        The Base Header consits of a 4-byte field that is always
+        present and an optional part directly following this field.
 	The
         base header essentially defines the total length of the EESP header
 	and the length of potential present options as well as the EESP version number.
 	The optional
-        part of the header defines Options to store additional information, like
+        part of the Base Header defines Options to store additional information, like
 	integrity protected flow identifiers that can be used for flow classification. </t>
-        <t>The header is constructed in a way that the start of the following next header
+
+        <t>
+	This Base Header follows the Crypto Header, used to
+	route the packet to the correct Crypto context.
+       The Crypto Header consists of two, from ESP well known, 4-byte fields Security Parameters Index
+       (SPI) and Sequence Number and an optional Initialization Vector.
+        </t>
+
+        <t>
+        Unlike ESP, EESP does not have
+	a trailer. Instead, is has an optional Transport Mode
+	Header which consists of the the next header and pad length fields directly following
+	the Crypto Header. This part of the header is present only in transport and BEET Mode.
+	On tunnel mode, the inner packet always start with an IPv4 or IPv6
+	header. These headers are constructed in a way that they always
+	start with a Version field at the first nibble. So it is possible to
+	identify IPv4 and IPv6 by reading the first nibble of the inner packet.
+	This means that there is no Next Header field needed on tunnel mode.
+	Additionally IPv4 and IPv6 headers have a field describing the
+	overall size of the inner packet, so a pad length fields is
+	also not needed for tunnel mode. Transport and BEET mode are
+	encoded with a 0x0 at the first nibble. In that case the
+	Transport Mode Header is present.
+	</t>
+
+        <t>The EESP header is constructed in a way that the start of the following next header
         is aligned on a 4 byte boundary on IPv4 and on a  8 byte boundary on IPv6
 	respective the start of the IPv4/IPv6 header.</t>
 
 
-        <!--
+       <t>
+       Following these header fields is the Payload Data, which has
+       substructure that depends on the choice of encryption algorithm and
+       mode.  Following the Payload Data is variable cipher block padding and
+       the optional Integrity Check Value (ICV)
+        field that completes the packet.
+	</t>
+
+
    <t>
-   FIXME: Remove this block before publishing.
-       IPv4:
-           NET_IP_ALIGN(2) + ethernet_header(14) + IP_header(20) + wesp_base_header(4)
-           + padding(8) + FID(8) + ESP(8)
+   Figure ?? illustrates the resulting packet format for Tunnel Mode
+   and Figure ?? for Transport and BEET Mode.
    </t>
-   <t>
-        IPv6:
-           NET_IP_ALIGN(2) + ethernet_header(14) + IP_header(40) + wesp_base_header(4)
-           + padding(4) + FID(8) + ESP(8)
-   </t>
-   -->
-        <figure align="center" anchor="eesp-packet-format">
-          <name>EESP packet format</name>
+
+        <figure align="center" anchor="eesp-tunnel-packet-format">
+          <name>Tunnel Mode EESP packet format</name>
           <artwork align="left">
             <![CDATA[
 
@@ -177,9 +229,11 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
    |                          IV* (optional)                       |
    |                                                               |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   | Next Header   | Pad Length    |             R                 |
+   |                                                               ~
+   ~                     IPv4/IPv6 Header                          ~ 
+   |                                                               |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |                      Payload Data (variable)                  |
+   |                   L4 Payload Data (variable)                  |
    ~                                                               ~
    |               +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    |               |          Padding (0-255 bytes)                |
@@ -191,6 +245,48 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
         ]]>
 </artwork>
         </figure>
+
+
+        <figure align="center" anchor="eesp-transport-packet-format">
+          <name>Transport/BEET Mode EESP packet format</name>
+          <artwork align="left">
+            <![CDATA[
+
+
+    0                   1                   2                   3
+    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |        R      |    HdrLen     |   Optlen  |   R   | Version   |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                                                               |
+   ~                             Options                           ~
+   |                                                               |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                              SPI                              |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                        Sequence Number                        |
+   |                                                               |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                          IV* (optional)                       |
+   |                                                               |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |  0x0  |        Reserved       | Next Header   | Pad Length    |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                   L4 Payload Data (variable)                  |
+   ~                                                               ~
+   |               +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |               |          Padding (0-255 bytes)                |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                                                               |
+   ~              Integrity Check Value-ICV (variable)             ~
+   |                                                               |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+        ]]>
+</artwork>
+        </figure>
+
+
+
 	<t>
 	* If included, cryptographic synchronization
         data, e.g., an Initialization Vector (IV, see Section ?!),
