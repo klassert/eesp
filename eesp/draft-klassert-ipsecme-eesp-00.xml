@@ -213,39 +213,123 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
    different processing model, affect the fields noted above.  The
    processing details are described in later sections.
 	</t>
-        <figure align="center" anchor="eesp-packet-separate-algos">
-          <name>Separate Encryption and Integrity Algorithms</name>
-          <artwork align="left">
-            <![CDATA[
-                                            What    What    What
-                          # of     Requ'd  Encrypt Integ    is
-                          bytes      [1]   Covers  Covers  Xmtd
-                          ------   ------  ------  ------  ------
-   Base Header               4        M              Y     plain
-   Options                variable    O              Y     plain
-   SPI                       4        M              Y     plain
-   Seq#                      8        M              Y     plain       p
-   IV                     variable    O              Y     plain       y
-   Next Header               1        M       Y      Y     cipher[3]
-   Pad Length                1        M       Y      Y     cipher[3]
-   Reserved                  2        M       Y      Y     cipher[3]
-                                                                ------
-   IP datagram [2]        variable  M or D    Y      Y     cipher[3] |-l
-                                                                ------ a
-   Padding                 0-255      M       Y      Y     cipher[3]   d
-   ICV Padding            variable if need           Y     not xmtd
-   ICV                    variable   M [4]                 plain
-
-           [1] M = mandatory; O = optional; D = dummy
-           [2] If tunnel mode -> IP datagram
-               If beet mode -> IP datagram
-               If transport mode -> next header and data
-           [3] ciphertext if encryption has been selected
-           [4] mandatory if a separate integrity algorithm is used
-        ]]>
-</artwork>
-        </figure>
-
+  <t>The following table represents the separate encryption and integrity algorithms:</t>
+    <table anchor="eesp-packet-separate-algos" align="center">
+        <name>Separate Encryption and Integrity Algorithms</name>
+        <thead>
+            <tr>
+                <th align="left">Field</th>
+                <th align="center"># of bytes</th>
+                <th align="center">Requ'd <xref target="note1_1" format="none">[1]</xref></th>
+                <th align="center">What Encrypt Covers</th>
+                <th align="center">What Integ Covers</th>
+                <th align="center">What is Xmtd</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td align="left">Base Header</td>
+                <td align="center">4</td>
+                <td align="center">M</td>
+                <td align="center"></td>
+                <td align="center">Y</td>
+                <td align="center">plain</td>
+            </tr>
+            <tr>
+                <td align="left">Options</td>
+                <td align="center">variable</td>
+                <td align="center">O</td>
+                <td align="center"></td>
+                <td align="center">Y</td>
+                <td align="center">plain</td>
+            </tr>
+            <tr>
+                <td align="left">SPI</td>
+                <td align="center">4</td>
+                <td align="center">M</td>
+                <td align="center"></td>
+                <td align="center">Y</td>
+                <td align="center">plain</td>
+            </tr>
+            <tr>
+                <td align="left">Seq#</td>
+                <td align="center">8</td>
+                <td align="center">M</td>
+                <td align="center"></td>
+                <td align="center">Y</td>
+                <td align="center">plain</td>
+            </tr>
+            <tr>
+                <td align="left">IV</td>
+                <td align="center">variable</td>
+                <td align="center">O</td>
+                <td align="center"></td>
+                <td align="center">Y</td>
+                <td align="center">plain</td>
+            </tr>
+            <tr>
+                <td align="left">Next Header</td>
+                <td align="center">1</td>
+                <td align="center">M</td>
+                <td align="center">Y</td>
+                <td align="center">Y</td>
+                <td align="center">cipher <xref target="note1_3" format="none">[3]</xref></td>
+            </tr>
+            <tr>
+                <td align="left">Pad Length</td>
+                <td align="center">1</td>
+                <td align="center">M</td>
+                <td align="center">Y</td>
+                <td align="center">Y</td>
+                <td align="center">cipher <xref target="note1_3" format="none">[3]</xref></td>
+            </tr>
+            <tr>
+                <td align="left">Reserved</td>
+                <td align="center">2</td>
+                <td align="center">M</td>
+                <td align="center">Y</td>
+                <td align="center">Y</td>
+                <td align="center">cipher <xref target="note1_3" format="none">[3]</xref></td>
+            </tr>
+            <tr>
+                <td align="left">IP datagram <xref target="note1_2" format="none">[2]</xref></td>
+                <td align="center">variable</td>
+                <td align="center">M or D</td>
+                <td align="center">Y</td>
+                <td align="center">Y</td>
+                <td align="center">cipher <xref target="note1_3" format="none">[3]</xref></td>
+            </tr>
+            <tr>
+                <td align="left">Padding</td>
+                <td align="center">0-255</td>
+                <td align="center">M</td>
+                <td align="center">Y</td>
+                <td align="center">Y</td>
+                <td align="center">cipher <xref target="note1_3" format="none">[3]</xref></td>
+            </tr>
+            <tr>
+                <td align="left">ICV Padding</td>
+                <td align="center">variable</td>
+                <td align="center">if need</td>
+                <td align="center"></td>
+                <td align="center">Y</td>
+                <td align="center">not xmtd</td>
+            </tr>
+            <tr>
+                <td align="left">ICV</td>
+                <td align="center">variable</td>
+                <td align="center">M <xref target="note1_4" format="none">[4]</xref></td>
+                <td align="center"></td>
+                <td align="center"></td>
+                <td align="center">plain</td>
+            </tr>
+        </tbody>
+    </table>
+    <!-- Notes with anchor attributes -->
+    <t anchor="note1_1">[1] M = mandatory; O = optional; D = dummy</t>
+    <t anchor="note1_2">[2] If tunnel mode -&gt; IP datagram. If beet mode -&gt; IP datagram. If transport mode -&gt; next header and data</t>
+    <t anchor="note1_3">[3] ciphertext if encryption has been selected</t>
+    <t anchor="note1_4">[4] mandatory if a separate integrity algorithm is used</t>
 
         <figure align="center" anchor="eesp-packet-combined-algos">
           <name>Combined Mode Algorithms</name>
@@ -575,7 +659,7 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
       </t>
 
             <table>
-                <name>Table 1. Separate Encryption and Integrity Algorithms</name>
+                <name>Separate Encryption and Integrity Algorithms</name>
                 <thead>
                     <tr>
                         <th align="left"></th>
