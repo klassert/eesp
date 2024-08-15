@@ -52,7 +52,9 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
       <xref target="I-D.ponchon-ipsecme-anti-replay-subspaces"/> and
       <xref target="I-D.he-ipsecme-vpn-shared-ipsecsa"/>. Such a Flow
       Identifier could also be used to perform ECMP based on the inner flows at
-      intermediate devices or endpoints. Additionally to that, there exists a
+      intermediate devices or endpoints. 
+
+      Additionally to that, there exists a
       specification of the
       <xref target="PSP"/> protocol that has the need of a Flow Identifier,
       called
@@ -67,7 +69,13 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
       instance it can be used for the case of
       <xref target="I-D.ponchon-ipsecme-anti-replay-subspaces"/> or
       <xref target="I-D.he-ipsecme-vpn-shared-ipsecsa"/> etc., or combinations
-      thereof. A detailed discussion about the
+      thereof.
+      EESP does not have a trailer as ESP had, instead the Next Header an Pad Length
+      fields are placed in front for Transport and BEET Mode. For Tunnel mode,
+      the Next Header and Pad Length fields are removed. The needed information
+      can be found in the IPv4 or IPv6 header, respectively. EESP also does not
+      define TFC padding, IP-TFS SHOULD be used instead.
+      A detailed discussion about the
       problems of the ESP protocol can be found in
       <xref target="I-D.mrossberg-ipsecme-multiple-sequence-counters"/>.</t>
       <t>Though this document specifies IKEv2 as a negotiation protocol, EESP
@@ -396,6 +404,9 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
 
       <section anchor="Base-Header" numbered="true" toc="default">
         <name>Base Header</name>
+      <section anchor="Fixed-Base-Header" numbered="true" toc="default">
+        <name>Fixed Base Header</name>
+
         <ul>
           <li>Reserved - 8 bits: Set to zero on transmit, ignored on
           receive.
@@ -428,7 +439,7 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
 	</section>
 
       <section anchor="Options" numbered="true" toc="default">
-        <name>Options</name>
+        <name>Base Header Options</name>
 	<t>EESP options carry a variable number of "options" that are
 	type-length- value (TLV) encoded in the same format as done in
 	<xref target="RFC8200"/> Section 4.2 for IPv6 extension headers.
@@ -597,29 +608,43 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
       </section>
       </section>
 
+      <section anchor="Crypto-Header" numbered="true" toc="default">
+        <name>Crypto Header</name>
+
       <section anchor="SPI" numbered="true" toc="default">
         <name>Security Parameters Index (SPI)</name>
-        <t>The Security Parameters Index (SPI) is handled as in
+        <t>The Security Parameters Index (SPI) is handled as in ESP
         <xref target="RFC4303"/>.</t>
       </section>
+	</section>
 
       <section anchor="Sequence-Number" numbered="true" toc="default">
         <name>Sequence Number</name>
 
-	<t>
-        FIXME: This section is not yet correct!!!
-	</t>
         <t>
    This unsigned 64-bit field contains a counter value that increases by
-   one for each packet sent, i.e., a per-SA packet sequence number.  For
-   a unicast SA or a single-sender multicast SA, the sender MUST
-   increment this field for every transmitted packet.  Sharing an SA
+   for each packet sent, i.e., a per-SA packet sequence number.
+   For a unicast SA or a single-sender multicast SA, the sender MUST
+    increment this field for every transmitted packet.  
+   The sequence number MUST strictly monotonic increase, sequence numbers
+   MUST not repead and MUST not cycle for any given SA.
+   Thus, the sender's counter and the receiver's counter MUST
+   be reset (by establishing a new SA and thus a new key) prior to the
+   transmission of the 2^64nd packet on an SA.
+   Implementations that do replay
+   protection SHOULD increase the sequence number by one for each send packet.
+   Even if recommended to increase the sequence number by one, implementatins
+   MAY employ other methods to increase the sequence number, as long
+   as the aforementioned requirements are met.
+
+   Sharing an SA
    among multiple senders is permitted, though generally not
-   recommended.  ESP provides no means of synchronizing packet counters
+   recommended.  EESP provides no means of synchronizing packet counters
    among multiple senders or meaningfully managing a receiver packet
-   counter and window in the context of multiple senders.  Thus, for a
-   multi-sender SA, the anti-replay features of ESP are not available
-   (see Sections 3.3.3 and 3.4.3.)
+   counter and window in the context of multiple senders.
+   Unless any future Option defining this for a
+   multi-sender SA, the anti-replay features of ESP are not available.
+   (This is from ESP: see Sections 3.3.3 and 3.4.3.)
     </t>
 
       <t>
@@ -637,12 +662,8 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
     <t>
    The sender's counter and the receiver's counter are initialized to 0
    when an SA is established.  (The first packet sent using a given SA
-   will have a sequence number of 1; see Section 3.3.3 for more details
-   on how the sequence number is generated.)  If anti-replay is enabled
-   (the default), the transmitted sequence number must never be allowed
-   to cycle.  Thus, the sender's counter and the receiver's counter MUST
-   be reset (by establishing a new SA and thus a new key) prior to the
-   transmission of the 2^32nd packet on an SA.
+   should have a sequence number of 1; see Section 3.3.3 for more details
+   on how the sequence number is generated.)
        </t>
       </section>
 
@@ -651,8 +672,9 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
         <t>
    If the algorithm used to encrypt the payload requires cryptographic
    synchronization data, e.g., an Initialization Vector (IV), then this
-   data is carried explicitly in front of the encrypted part of the packet.
-   but it is not called. Any encryption algorithm
+   data is carried explicitly in front of the encrypted part of the packet
+   in the Crypto Header.
+   Any encryption algorithm
    that requires such explicit, per-packet synchronization data MUST
    indicate the length, any structure for such data, and the location of
    this data as part of an RFC specifying how the algorithm is used with
@@ -666,12 +688,17 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
       </t>
 
       <t>
-      Counter mode algorithms MAY encode the Initialization Vector (IV)
-      on the Sequence number Field.
+      Counter mode algorithms SHOULD encode the 64-bit counter ofthe
+      Initialization Vector (IV) on the Sequence number Field. This option
+      saves 8 header bytes on each packet.
          Whether or not this option is selected is determined as part of
          Security Association (SA) establishment.
       </t>
       </section>
+      </section>
+
+      <section anchor="Transport-Header" numbered="true" toc="default">
+        <name>Transport Mode Header</name>
 
       <section anchor="Next-Header" numbered="true" toc="default">
         <name>Next Header</name>
@@ -694,7 +721,7 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
    present. The Pad Length field is mandatory.
         </t>
       </section>
-
+      </section>
 
       <section anchor="Payload-Data" numbered="true" toc="default">
         <name>Payload Data</name>
