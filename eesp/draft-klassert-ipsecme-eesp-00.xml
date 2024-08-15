@@ -130,6 +130,7 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
         immediately precedes the ESP header SHALL contain the value TBD in its
         Protocol (IPv4) or Next Header (IPv6, Extension) field (see IANA web
         page at http://www.iana.org/assignments/protocol-numbers).  Figure 1
+	<xref target="eesp-top-level-packet-format"/>
         illustrates the top-level format of an EESP packet.
         The EESP header is split into multiple parts.
 	</t>
