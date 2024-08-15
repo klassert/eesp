@@ -78,6 +78,16 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
       A detailed discussion about the
       problems of the ESP protocol can be found in
       <xref target="I-D.mrossberg-ipsecme-multiple-sequence-counters"/>.</t>
+
+      <t>
+       EESP follows the Security Architecture for the Internet Protocol
+       <xref target="RFC4301"/> and uses ESP as of <xref target="RFC4303"/>
+       as reference. That means this document is seen as an modern version of ESP
+       (with new protocol number), it follows the design principles
+       of ESP. Protocol parts that are not mentioned here, MUST be handled
+       exaclty the way as specified in <xref target="RFC4303"/>.
+       EESP neither updates nor obsoletes <xref target="RFC4303"/>.
+      </t>
       <t>Though this document specifies IKEv2 as a negotiation protocol, EESP
       may use other protocols for negotiation and key derivation. The packet
       specification is portable to other key protocol use cases, such as
@@ -741,176 +751,32 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
         <t>Integrity Check Value is handled as in
         <xref target="RFC4303"/>.</t>
       </section>
+      </section>
 
 
 <!-- Everyting below here is not yet converted! -->
 
       <section anchor="UDP-Encapsulation" numbered="true" toc="default">
         <name>UDP Encapsulation</name>
-        <t>UDP Encapsulation is done as in
-        <xref target="RFC5840"/>.</t>
+        <t>
+	TBD
+        </t>
       </section>
       <section anchor="Packet-format" numbered="true" toc="default">
-        <name>Packet format</name>
-        <t>The following section defines the resulting packet format. Tunnel
-        and Transport Modes are handled exactly the same way as in WESP
-        <xref target="RFC5840"/>. The WESPv2 headers are inserted between the
-        outer IPv4/IPv6 header and the ESP header. The WESPv2 header MUST be
-        inserted before the cryptographic operations. After inserting the
-        WESPv2 header, the crypto operations are performed. The full WESPv2
-        header, including all header Options MUST be
-        included into the integrity protected part of the packet.</t>
-      </section>
-      <section anchor="IPv4" numbered="true" toc="default">
-        <name>IPv4 Datagram</name>
-        <figure anchor="ipv4before" align="center">
-          <name>IPv4 DATAGRAM BEFORE APPLYING WESP</name>
-          <artwork align="left">
-            <![CDATA[
-            ---------------------------------------------------
-            | outer IP hdr  | ESP | ESP Payload |   ESP   |ESP|
-            | (any options) | Hdr |    Data     | Trailer |ICV|
-            ---------------------------------------------------
-                     ]]>
-</artwork>
-        </figure>
-        <figure align="center" anchor="ipv4after">
-          <name>IPv4 DATAGRAM AFTER APPLYING WESP</name>
-          <artwork align="left">
-            <![CDATA[
-                      |<-WESPv2 Hdr->|
-        -------------------------------------------------------
-        |outer IP hdr | WESP |  OPT  | ESP | Pyld |  ESP  |ESP|
-        |(any options)| BHdr | (var) | Hdr | Data |Trailer|ICV|
-        -------------------------------------------------------
-                                           |<-encryption->|
-                      |<----------- integrity ----------->|
+        <name>Enhanced Encapsulating Security Protocol Processing
+	</name>
+	<t>
+        TBD
+	</t>
 
-                                ]]>
-</artwork>
-        </figure>
       </section>
-      <section anchor="IPv6" numbered="true" toc="default">
-        <name>IPv6 Datagram</name>
-        <figure anchor="ipv6before" align="center">
-          <name>IPv6 DATAGRAM BEFORE APPLYING WESP</name>
-          <artwork align="left">
-            <![CDATA[
-            -----------------------------------------------------
-            |  outer   | ext. | ESP | ESP Payload |   ESP   |ESP|
-            | IPv6 Hdr | Hdrs | Hdr |    Data     | Trailer |ICV|
-            -----------------------------------------------------
-                     ]]>
-</artwork>
-        </figure>
-        <figure align="center" anchor="ipv6after">
-          <name>IPv6 DATAGRAM AFTER APPLYING WESP</name>
-          <artwork align="left">
-            <![CDATA[
-                      |<-WESPv2 Hdr->|
-        -------------------------------------------------------
-        |  outer |ext.| WESP |  OPT  | ESP | Pyld |  ESP  |ESP|
-        |IPv6 Hdr|Hdrs| BHdr | (var) | Hdr | Data |Trailer|ICV|
-        -------------------------------------------------------
-                                           |<-encryption->|
-                      |<----------- integrity ----------->|
-
-                                ]]>
-</artwork>
-        </figure>
-      </section>
-    </section>
     <section anchor="IKENegotiation" numbered="true" toc="default">
       <name>IKEv2 Negotiation</name>
-      <t>The IKEv2 negotiation follows exactly the way it is done in WESP
-      <xref target="RFC5840"/>, with the difference that a new notification
-      USE_WESPv2_MODE is used.</t>
-      <t>This document assumes that WESPv2 negotiation is performed using
-      IKEv2. In order to negotiate the new format of ESP encapsulation via
-      IKEv2
-      <xref target="RFC7296"/>, both parties need to agree to use the new
-      packet format. This can be achieved using a notification method similar
-      to USE_TRANSPORT_MODE, defined in
-      <xref target="RFC7296"/>.</t>
-      <t>When negotiating a WESPv2 Child SA, USE_WESPv2_MODE MUST be included
-      in a either in an IKE_AUTH exchange or CREATE_CHILD_SA. and the rest of
-      SA payload necessary for a Child SA using ESP. It signals that the sender
-      supports the WESPv2 version defined in the current document and requests
-      that the Child SA use WESPv2 mode rather than ESP for the SA created. If
-      the request is accepted, the response MUST also include a notification of
-      type USE_WESP_MODE. If the responder declines the request, the Child SA
-      should be established using ESP, as per
-      <xref target="RFC7296"/>. If this is unacceptable to the initiator, the
-      initiator MUST delete the Child SA.</t>
-      <t>Note: Except when using the options to negotiate WESPv1 or WESPv2
-      mode, all CHILD_SAs will use standard ESP.</t>
-      <t>Negotiation of WESPv2 in this manner preserves all other negotiation
-      parameters, including NAT-T
-      <xref target="RFC3948"/>. NAT-T is wholly compatible with this wrapped
-      format and can be used as-is, without any modifications, in environments
-      where NAT is present and needs to be taken into account.</t>
-      <t>WESPv2 version negotiation is not specified here. If the WESP version
-      is updated in a future specification, then that document MUST specify how
-      the WESP version is negotiated.</t>
-      <section title="USE_WESPv2_MODE Payload Format" anchor="payload_formats">
-        <t>All multi-octet fields representing integers are laid out in big
-        endian order (also known as "most significant byte first", or "network
-        byte order").</t>
-        <figure align="center">
-          <artwork align="left">
-            <![CDATA[
-                    1                   2                   3
-0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
-+-+-----------------------------+-------------------------------+
-! Next Payload  !C!  RESERVED   !         Payload Length        !
-+---------------+---------------+-------------------------------+
-!  Protocol ID  !   SPI Size    !      Notify Message Type      !
-+---------------+---------------+-------------------------------+
-!0|F|CryptOffset!                                               !
-+-------------------------------+-------------------------------+
-            ]]>
-</artwork>
-        </figure>
-        <ul>
-          <li>Protocol ID (1 octet) - MUST be 0. MUST be ignored if not 0.</li>
-          <li>SPI Size (1 octet) - MUST be 0. MUST be ignored if not 0.</li>
-          <li>Notify Status Message Type value (2 octets) - set to [TBD].</li>
-          <li>Notify Payload: bit 0 reserved. bit 1 Flow ID supported. Bits 2-7
-          Crypt Offset len in 4 octets</li>
-        </ul>
+      <t>
+      TBD
+      </t>
       </section>
-    </section>
-    <section anchor="IANA" title="IANA Considerations">
-      <t>This document defines a new IKEv2 Notify Message Type payloads for the
-      IANA "IKEv2 Notify Message Types - Status Types" registry.</t>
-      <figure align="center" anchor="iana_requests_i">
-        <artwork align="left">
-          <![CDATA[
-      Value   Notify Type Messages - Status Types    Reference
-      -----   ------------------------------    ---------------
-      [TBD1]   USE_WESPv2_MODE                  [this document]
-            ]]>
-</artwork>
-      </figure>
 
-
-
-      <t>This document requests IANA to create a registry called
-      "WESP_OPTIONS Type Registry" under a new category named
-      "WESP_OPTIONS Parameters". This initial content for this registry is as follows:</t>
-      <figure align="center" anchor="iana_requests_reg">
-        <artwork align="left">
-          <![CDATA[
-      Value   WESP Header Options Types          Reference
-      -----   ------------------------------    ---------------
-          0   Pad1                              [this document]
-          1   PadN                              [this document]
-      27-31   Private                           [this document]
-            ]]>
-</artwork>
-      </figure>
-
-    </section>
     <section anchor="Implementation" numbered="true" toc="default">
       <name>Implementation Status</name>
       <t>[Note to RFC Editor: Please remove this section and the reference to
@@ -1000,6 +866,7 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
       <name>Normative References</name>
       <xi:include href="http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.2119.xml"/>
       <xi:include href="http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.3948.xml"/>
+      <xi:include href="http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.4301.xml"/>
       <xi:include href="http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.4303.xml"/>
       <xi:include href="http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.5840.xml"/>
       <xi:include href="http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.7296.xml"/>
