@@ -129,7 +129,7 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
         The (outer) protocol header (IPv4, IPv6, or Extension) that
         immediately precedes the ESP header SHALL contain the value TBD in its
         Protocol (IPv4) or Next Header (IPv6, Extension) field (see IANA web
-        page at http://www.iana.org/assignments/protocol-numbers).  Figure 1
+        page at http://www.iana.org/assignments/protocol-numbers).
 	<xref target="eesp-top-level-packet-format"/>
         illustrates the top-level format of an EESP packet.
         The EESP header is split into multiple parts.
@@ -221,8 +221,8 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
 
 
    <t>
-   Figure ?? illustrates the resulting packet format for Tunnel Mode
-   and Figure ?? for Transport and BEET Mode.
+   <xref target="eesp-tunnel-packet-format"/> illustrates the resulting packet format for Tunnel Mode
+   and <xref target="eesp-transport-packet-format"/> for Transport and BEET Mode.
    </t>
 
         <figure align="center" anchor="eesp-tunnel-packet-format">
