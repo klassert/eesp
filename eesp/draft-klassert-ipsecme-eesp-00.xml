@@ -215,7 +215,7 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
     0                   1                   2                   3
     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |        R      |    HdrLen     |   Optlen  |   R   | Version   |
+   |  Next Header  |    HdrLen     |   Optlen  |   R   | Version   |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    |                                                               |
    ~                             Options                           ~
@@ -256,7 +256,7 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
     0                   1                   2                   3
     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |        R      |    HdrLen     |   Optlen  |   R   | Version   |
+   |  Next Header  |    HdrLen     |   Optlen  |   R   | Version   |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    |                                                               |
    ~                             Options                           ~
@@ -298,7 +298,7 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
 	<t>
    If a combined algorithm mode is employed, the explicit ICV shown in
    Figures 1 and 2 may be omitted (see Section ?! below).  Because
-   algorithms and modes are fixed when an SA is established, the
+   algorithms, modes and options are fixed when an SA is established, the
    detailed format of ESP packets for a given SA (including the Payload
    Data substructure) is fixed, for all traffic on the SA.
    </t>
