@@ -10,7 +10,7 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
   <front>
     <!-- The abbreviated title is used in the page header - it is only necessary if the
         full title is longer than 39 characters -->
-    <title abbrev="EESP">Enhanced ESP</title>
+    <title abbrev="EESP">Enhanced Encapsulating Security Payload (EESP)</title>
     <!-- add 'role="editor"' below for the editors if appropriate -->
     <!-- Another author who claims to be an editor -->
     <author fullname="Steffen Klassert" initials="S." surname="Klassert">
@@ -123,7 +123,7 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
       <name>Protocol Definition</name>
       <t>In this section we define the exact protocol formats and operations.
       This section is normative.</t>
-      <section anchor="WESPv2-header-format" numbered="true" toc="default">
+      <section anchor="EESP-header-format" numbered="true" toc="default">
         <name>EESP packet format</name>
         <t>
         The (outer) protocol header (IPv4, IPv6, or Extension) that
@@ -308,7 +308,7 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
 
 	<t>
 	* If included, cryptographic synchronization
-        data, e.g., an Initialization Vector (IV, see Section ?!),
+        data, e.g., an Initialization Vector (IV),
         usually is not encrypted per se, although it often is referred
         to as being part of the ciphertext. Unlike ESP, the IV is not considered
 	to be a part of the payload data in EESP.
@@ -316,7 +316,7 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
 
 	<t>
    If a combined algorithm mode is employed, the explicit ICV shown in
-   Figures 1 and 2 may be omitted (see Section ?! below).  Because
+   <xref target="eesp-packet-separate-algos"/> may be omitted.  Because
    algorithms, modes and options are fixed when an SA is established, the
    detailed format of ESP packets for a given SA (including the Payload
    Data substructure) is fixed, for all traffic on the SA.
@@ -328,7 +328,6 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
    different processing model, affect the fields noted above.  The
    processing details are described in later sections.
 	</t>
-  <t>The following table represents the separate encryption and integrity algorithms:</t>
     <table anchor="eesp-packet-separate-algos" align="center">
         <name>Separate Encryption and Integrity Algorithms</name>
         <thead>
@@ -383,13 +382,14 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
                 <td align="center">plain</td>
             </tr>
             <tr>
-                <td align="left">Next Header</td>
-                <td align="center">1</td>
-                <td align="center">M</td>
+                <td align="left">Transport mode Header <xref target="note1_5" format="none">[5]</xref></td>
+                <td align="center">4</td>
+                <td align="center">O</td>
                 <td align="center">Y</td>
                 <td align="center">Y</td>
                 <td align="center">cipher <xref target="note1_3" format="none">[3]</xref></td>
             </tr>
+	    <!--
             <tr>
                 <td align="left">Pad Length</td>
                 <td align="center">1</td>
@@ -406,6 +406,7 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
                 <td align="center">Y</td>
                 <td align="center">cipher <xref target="note1_3" format="none">[3]</xref></td>
             </tr>
+	    -->
             <tr>
                 <td align="left">IP datagram <xref target="note1_2" format="none">[2]</xref></td>
                 <td align="center">variable</td>
@@ -445,55 +446,16 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
     <t anchor="note1_2">[2] If tunnel mode -&gt; IP datagram. If beet mode -&gt; IP datagram. If transport mode -&gt; next header and data</t>
     <t anchor="note1_3">[3] ciphertext if encryption has been selected</t>
     <t anchor="note1_4">[4] mandatory if a separate integrity algorithm is used</t>
+    <t anchor="note1_5">[5] mandatory if transport or BEET mode is used, not present on tunnel mode</t>
 
 
 
-
-
-
-
-
-        <figure align="center" anchor="eesp-packet-combined-algos">
-          <name>Combined Mode Algorithms</name>
-          <artwork align="left">
-            <![CDATA[
-                                             What    What    What
-                          # of     Requ'd  Encrypt Integ    is
-                          bytes      [1]   Covers  Covers  Xmtd
-                          ------   ------  ------  ------  ------
-   Base Header               4        M              Y     plain
-   Options                variable    O              Y     plain
-   SPI                       4        M              Y     plain
-   Seq#                      8        M              Y     plain       p
-   IV                     variable    O              Y     plain       y
-   Next Header               1        M       Y      Y     cipher
-   Pad Length                1        M       Y      Y     cipher
-   Reserved                  2        M       Y      Y     cipher
-                                                                ------
-   IP datagram [2]        variable  M or D    Y      Y     cipher    |-l
-                                                                ------ a
-   Padding                 0-255      M       Y      Y     cipher      d
-   ICV Padding            variable if need           Y     [3]
-   ICV                    variable   O [4]                 plain
-
-            [1] M = mandatory; O = optional; D = dummy
-            [2] If tunnel mode -> IP datagram
-                If beet mode -> IP datagram
-                If transport mode -> next header and data
-            [3] The algorithm choices determines whether these are
-                transmitted, but in either case, the result is invisible
-                to ESP
-            [4] The algorithm spec determines whether this field is
-                present
-        ]]>
-</artwork>
-        </figure>
 
         <t>
          The following subsections describe the fields in the header format.
          "Optional" means that the field is omitted if the option is not
          selected, i.e., it is present in neither the packet as transmitted
-         nor as formatted for computation of an ICV (see Section 2.7).
+         nor as formatted for computation of an ICV.
          Whether or not an option is selected is determined as part of
          Security Association (SA) establishment.  Thus, the format of EESP
          packets for a given SA is fixed, for the duration of the SA.  In
@@ -509,8 +471,10 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
         <name>Fixed Base Header</name>
 
         <ul>
-          <li>Reserved - 8 bits: Set to zero on transmit, ignored on
-          receive.
+          <li>Next Header - 8 bits:
+          MUST be set to 59, <xref target="RFC8200"/> Section 4.7. if encryption has
+	  been selected. MUST be set to the Next Header value of the inner packet
+	  encryption has not been selected.
           </li>
           <li>HdrLen - 8 bits: Offset from the beginning of the EESP header
           to the beginning of the Payload Data (i.e., past the IV, if
@@ -520,7 +484,7 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
           receiver MUST ensure that this field matches with the header offset
           computed from using the negotiated Security Association (SA) and MUST
           drop the packet in case it does not match.</li>
-          <li>OptLen - 6 bit: Total length of all options included in the WESPv2
+          <li>OptLen - 6 bit: Total length of all options included in the EESP
 	  header Options, in octets.
           </li>
           <li>Reserved - 4 bits: Set to zero on transmit, ignored on
@@ -654,6 +618,168 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
     is, a particular option is identified by a full 8-bit Option Type,
     not just the low-order 5 bits of an Option Type.</t>
 
+      </section>
+      </section>
+
+      <section anchor="Crypto-Header" numbered="true" toc="default">
+        <name>Crypto Header</name>
+
+      <section anchor="SPI" numbered="true" toc="default">
+        <name>Security Parameters Index (SPI)</name>
+        <t>The Security Parameters Index (SPI) is handled as in ESP
+        <xref target="RFC4303"/>.</t>
+      </section>
+	</section>
+
+      <section anchor="Sequence-Number" numbered="true" toc="default">
+        <name>Sequence Number</name>
+
+        <t>
+   This unsigned 64-bit field contains a counter value that increases by
+   for each packet sent, i.e., a per-SA packet sequence number.
+   For a unicast SA or a single-sender multicast SA, the sender MUST
+    increment this field for every transmitted packet.  
+   The sequence number MUST strictly monotonic increase, sequence numbers
+   MUST not repead and MUST not cycle for any given SA.
+   Thus, the sender's counter and the receiver's counter MUST
+   be reset (by establishing a new SA and thus a new key) prior to the
+   transmission of the 2^64nd packet on an SA.
+   Implementations that do replay
+   protection SHOULD increase the sequence number by one for each send packet.
+   Even if recommended to increase the sequence number by one, implementatins
+   MAY employ other methods to increase the sequence number, as long
+   as the aforementioned requirements are met.
+
+   Sharing an SA
+   among multiple senders is permitted, though generally not
+   recommended.  EESP provides no means of synchronizing packet counters
+   among multiple senders or meaningfully managing a receiver packet
+   counter and window in the context of multiple senders.
+   Unless any future Option defining this for a
+   multi-sender SA, the anti-replay features of ESP are not available.
+    </t>
+
+      <t>
+   The field is mandatory and MUST always be present even if the
+   receiver does not elect to enable the anti-replay service for a
+   specific SA.  Processing of the Sequence Number field is at the
+   discretion of the receiver, but all ESP implementations MUST be
+   capable of performing the processing described in Sections 3.3.3 and
+   3.4.3. Thus, the sender MUST always transmit this field, but the
+   receiver need not act upon it.
+    </t>
+
+    <t>
+   The sender's counter and the receiver's counter are initialized to 0
+   when an SA is established.  (The first packet sent using a given SA
+   should have a sequence number of 1).
+       </t>
+      </section>
+
+      <section anchor="IV" numbered="true" toc="default">
+        <name>Initialization Vector</name>
+        <t>
+   If the algorithm used to encrypt the payload requires cryptographic
+   synchronization data, e.g., an Initialization Vector (IV), then this
+   data is carried explicitly in front of the encrypted part of the packet
+   in the Crypto Header.
+   Any encryption algorithm
+   that requires such explicit, per-packet synchronization data MUST
+   indicate the length, any structure for such data, and the location of
+   this data as part of an RFC specifying how the algorithm is used with
+   EESP.  (Typically, the IV immediately precedes the ciphertext.  See
+   <xref target="eesp-packet-separate-algos"/>)  If such synchronization data is implicit, the algorithm
+   for deriving the data MUST be part of the algorithm definition RFC.
+   (If included, cryptographic synchronization
+   data, e.g., an Initialization Vector (IV), usually is not encrypted
+   per se (see <xref target="eesp-packet-separate-algos"/>), although it sometimes is referred to as
+   being part of the ciphertext.)
+      </t>
+      <t>
+      Counter mode algorithms SHOULD encode the 64-bit counter ofthe
+      Initialization Vector (IV) on the Sequence number Field. This option
+      saves 8 header bytes on each packet.
+         Whether or not this option is selected is determined as part of
+         Security Association (SA) establishment.
+      </t>
+      </section>
+      </section>
+
+      <section anchor="Transport-Header" numbered="true" toc="default">
+        <name>Transport Mode Header</name>
+
+      <section anchor="Next-Header" numbered="true" toc="default">
+        <name>Next Header</name>
+        <t>
+   The Next Header is a, 8-bit field that identifies the type
+   of data contained in the Payload Data field, e.g., a next
+   layer header and data.  The value of this field is
+   chosen from the set of IP Protocol Numbers defined on the web page of
+   the IANA, e.g., a value of 6 indicates TCP and a value
+   of 17 indicates UDP.
+	</t>
+      </section>
+
+      <section anchor="Pad-Length" numbered="true" toc="default">
+        <name>Pad Length</name>
+        <t>
+   The Pad Length field indicates the number of pad bytes immediately
+   preceding it in the Padding field.  The range of valid values is 0 to
+   255, where a value of zero indicates that no Padding bytes are
+   present.
+        </t>
+      </section>
+      </section>
+
+      <section anchor="Payload-Data" numbered="true" toc="default">
+        <name>Payload Data</name>
+        <t>TBD
+        </t>
+      </section>
+
+      <section anchor="Padding" numbered="true" toc="default">
+        <name>Padding (for Encryption)</name>
+        <t>
+         TBD
+      </t>
+      </section>
+
+      <section anchor="ICV" numbered="true" toc="default">
+        <name>Integrity Check Value (ICV)</name>
+        <t>Integrity Check Value is handled as in
+        <xref target="RFC4303"/>.</t>
+      </section>
+      </section>
+
+      <section anchor="UDP-Encapsulation" numbered="true" toc="default">
+        <name>UDP Encapsulation</name>
+        <t>
+	TBD
+        </t>
+      </section>
+      <section anchor="Packet-format" numbered="true" toc="default">
+        <name>Enhanced Encapsulating Security Protocol Processing
+	</name>
+	<t>
+        TBD
+	</t>
+
+      </section>
+
+      <section anchor="Option-Types" numbered="true" toc="default">
+        <name>EESP Option Types</name>
+	<t>
+        This document defines two padding options to align following
+	headers to their natural protocol alignment and one option defining
+	the Pretty Security Protocol (PSP). Future documents can define furter options.
+	Appendix A of <xref target="RFC8200"/> contains applicable formatting guidelines for
+	   designing new options.</t>
+
+
+       <section anchor="Padding-Options" numbered="true" toc="default">
+        <name>EESP Padding Options</name>
+
+ 
     <t>Individual options may have specific alignment requirements, to
     ensure that multi-octet values within Option Data fields fall on
     natural boundaries.  The alignment requirement of an option is
@@ -703,279 +829,129 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
     into the Options area of a header.  For N octets of padding, the
     Opt Data Len field contains the value N-2, and the Option Data
     consists of N-2 zero-valued octets.</t>
+    </section>
 
-	<t>Appendix A of <xref target="RFC8200"/> contains applicable formatting guidelines for
-	   designing new options.</t>
-      </section>
-      </section>
+       <section anchor="PSP-Option" numbered="true" toc="default">
+        <name>EESP PSP Option</name>
 
-      <section anchor="Crypto-Header" numbered="true" toc="default">
-        <name>Crypto Header</name>
+        <figure align="center" anchor="psp-option">
+          <name>PSP Option</name>
+          <artwork align="left">
+            <![CDATA[
+    0                   1                   2                   3
+    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |  Option Type  | Option Length |CryptOffset| Flags |CryptoParam|
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+]]></artwork></figure>
 
-      <section anchor="SPI" numbered="true" toc="default">
-        <name>Security Parameters Index (SPI)</name>
-        <t>The Security Parameters Index (SPI) is handled as in ESP
-        <xref target="RFC4303"/>.</t>
-      </section>
 	</section>
 
-      <section anchor="Sequence-Number" numbered="true" toc="default">
-        <name>Sequence Number</name>
+     <section anchor="FID-Option" numbered="true" toc="default">
+        <name>EESP Flow Identifier Option</name>
 
-        <t>
-   This unsigned 64-bit field contains a counter value that increases by
-   for each packet sent, i.e., a per-SA packet sequence number.
-   For a unicast SA or a single-sender multicast SA, the sender MUST
-    increment this field for every transmitted packet.  
-   The sequence number MUST strictly monotonic increase, sequence numbers
-   MUST not repead and MUST not cycle for any given SA.
-   Thus, the sender's counter and the receiver's counter MUST
-   be reset (by establishing a new SA and thus a new key) prior to the
-   transmission of the 2^64nd packet on an SA.
-   Implementations that do replay
-   protection SHOULD increase the sequence number by one for each send packet.
-   Even if recommended to increase the sequence number by one, implementatins
-   MAY employ other methods to increase the sequence number, as long
-   as the aforementioned requirements are met.
+        <figure align="center" anchor="fid-option">
+          <name>Flow Identifier Option</name>
+          <artwork align="left">
+            <![CDATA[
+    0                   1                   2                   3
+    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |  Option Type  | Option Length |           Reserved            |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                                                               |
+   ~                    Flow Identifier (FID)                      ~
+   |                                                               |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+]]></artwork></figure>
 
-   Sharing an SA
-   among multiple senders is permitted, though generally not
-   recommended.  EESP provides no means of synchronizing packet counters
-   among multiple senders or meaningfully managing a receiver packet
-   counter and window in the context of multiple senders.
-   Unless any future Option defining this for a
-   multi-sender SA, the anti-replay features of ESP are not available.
-   (This is from ESP: see Sections 3.3.3 and 3.4.3.)
-    </t>
 
-      <t>
-   The field is mandatory and MUST always be present even if the
-   receiver does not elect to enable the anti-replay service for a
-   specific SA.  Processing of the Sequence Number field is at the
-   discretion of the receiver, but all ESP implementations MUST be
-   capable of performing the processing described in Sections 3.3.3 and
-   3.4.3. Thus, the sender MUST always transmit this field, but the
-   receiver need not act upon it (see the discussion of Sequence Number
-   Verification in the "Inbound Packet Processing" section (3.4.3)
-   below).
-    </t>
-
-    <t>
-   The sender's counter and the receiver's counter are initialized to 0
-   when an SA is established.  (The first packet sent using a given SA
-   should have a sequence number of 1; see Section 3.3.3 for more details
-   on how the sequence number is generated.)
-       </t>
-      </section>
-
-      <section anchor="IV" numbered="true" toc="default">
-        <name>Initialization Vector</name>
-        <t>
-   If the algorithm used to encrypt the payload requires cryptographic
-   synchronization data, e.g., an Initialization Vector (IV), then this
-   data is carried explicitly in front of the encrypted part of the packet
-   in the Crypto Header.
-   Any encryption algorithm
-   that requires such explicit, per-packet synchronization data MUST
-   indicate the length, any structure for such data, and the location of
-   this data as part of an RFC specifying how the algorithm is used with
-   EESP.  (Typically, the IV immediately precedes the ciphertext.  See
-   Figure ?!.)  If such synchronization data is implicit, the algorithm
-   for deriving the data MUST be part of the algorithm definition RFC.
-   (If included, cryptographic synchronization
-   data, e.g., an Initialization Vector (IV), usually is not encrypted
-   per se (see Tables 1 and 2), although it sometimes is referred to as
-   being part of the ciphertext.)
-      </t>
-      <t>
-      Counter mode algorithms SHOULD encode the 64-bit counter ofthe
-      Initialization Vector (IV) on the Sequence number Field. This option
-      saves 8 header bytes on each packet.
-         Whether or not this option is selected is determined as part of
-         Security Association (SA) establishment.
-      </t>
-
-            <table>
-                <name>Separate Encryption and Integrity Algorithms</name>
-                <thead>
-                    <tr>
-                        <th align="left"></th>
-                        <th align="center"># of bytes</th>
-                        <th align="center">Requ'd <xref target="note1" format="none">[1]</xref></th>
-                        <th align="center">Encrypt Covers</th>
-                        <th align="center">Integ Covers</th>
-                        <th align="center">What is Xmtd</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>SPI</td>
-                        <td align="center">4</td>
-                        <td align="center">M</td>
-                        <td align="center"></td>
-                        <td align="center">Y</td>
-                        <td align="center">plain</td>
-                    </tr>
-                    <tr>
-                        <td>Seq# (low-order bits)</td>
-                        <td align="center">4</td>
-                        <td align="center">M</td>
-                        <td align="center"></td>
-                        <td align="center">Y</td>
-                        <td align="center">plain</td>
-                    </tr>
-                    <tr>
-                        <td>IV</td>
-                        <td align="center">variable</td>
-                        <td align="center">O</td>
-                        <td align="center"></td>
-                        <td align="center">Y</td>
-                        <td align="center">plain</td>
-                    </tr>
-                    <tr>
-                        <td>IP datagram <xref target="note2" format="none">[2]</xref></td>
-                        <td align="center">variable</td>
-                        <td align="center">M or D</td>
-                        <td align="center">Y</td>
-                        <td align="center">Y</td>
-                        <td align="center">cipher <xref target="note3" format="none">[3]</xref></td>
-                    </tr>
-                    <tr>
-                        <td>TFC padding <xref target="note4" format="none">[4] </xref></td>
-                        <td align="center">variable</td>
-                        <td align="center">O</td>
-                        <td align="center">Y</td>
-                        <td align="center">Y</td>
-                        <td align="center">cipher <xref target="note3" format="none">[4]</xref></td>
-                    </tr>
-                    <tr>
-                        <td>Padding</td>
-                        <td align="center">0-255</td>
-                        <td align="center">M</td>
-                        <td align="center">Y</td>
-                        <td align="center">Y</td>
-                        <td align="center">cipher <xref target="note3" format="none">[3]</xref></td>
-                    </tr>
-                    <tr>
-                        <td>Pad Length</td>
-                        <td align="center">1</td>
-                        <td align="center">M</td>
-                        <td align="center">Y</td>
-                        <td align="center">Y</td>
-                        <td align="center">cipher <xref target="note3" format="none">[3]</xref></td>
-                    </tr>
-                    <tr>
-                        <td>Next Header</td>
-                        <td align="center">1</td>
-                        <td align="center">M</td>
-                        <td align="center">Y</td>
-                        <td align="center">Y</td>
-                        <td align="center">cipher <xref target="note3" format="none">[3]</xref></td>
-                    </tr>
-                    <tr>
-                        <td>Seq# (high-order bits)</td>
-                        <td align="center">4</td>
-                        <td align="center">if ESN <xref target="note5" format="none">[5]</xref></td>
-                        <td align="center"></td>
-                        <td align="center">Y</td>
-                        <td align="center">not xmtd</td>
-                    </tr>
-                    <tr>
-                        <td>ICV Padding</td>
-                        <td align="center">variable</td>
-                        <td align="center">if need</td>
-                        <td align="center"></td>
-                        <td align="center">Y</td>
-                        <td align="center">not xmtd</td>
-                    </tr>
-                    <tr>
-                        <td>ICV</td>
-                        <td align="center">variable</td>
-                        <td align="center">M <xref target="note6" format="none">[6]</xref></td>
-                        <td align="center"></td>
-                        <td align="center"></td>
-                        <td align="center">plain</td>
-                    </tr>
-                </tbody>
-            </table>
-	  <t anchor="note1">[1] M = mandatory; O = optional; D = dummy</t>
-    <t anchor="note2">[2] If tunnel mode -&gt; IP datagram. If transport mode -&gt; next header and data</t>
-    <t anchor="note3">[3] ciphertext if encryption has been selected</t>
-    <t anchor="note4">[4] Can be used only if payload specifies its "real" length</t>
-    <t anchor="note5">[5] See section 2.2.1</t>
-    <t anchor="note6">[6] mandatory if a separate integrity algorithm is used</t>
-      </section>
-      </section>
-
-      <section anchor="Transport-Header" numbered="true" toc="default">
-        <name>Transport Mode Header</name>
-
-      <section anchor="Next-Header" numbered="true" toc="default">
-        <name>Next Header</name>
-        <t>
-   The Next Header is a mandatory, 8-bit field that identifies the type
-   of data contained in the Payload Data field, e.g., an IPv4 or IPv6
-   packet, or a next layer header and data.  The value of this field is
-   chosen from the set of IP Protocol Numbers defined on the web page of
-   the IANA, e.g., a value of 4 indicates IPv4, a value of 41 indicates
-   IPv6, and a value of 6 indicates TCP.
-	</t>
-      </section>
-
-      <section anchor="Pad-Length" numbered="true" toc="default">
-        <name>Pad Length</name>
-        <t>
-   The Pad Length field indicates the number of pad bytes immediately
-   preceding it in the Padding field.  The range of valid values is 0 to
-   255, where a value of zero indicates that no Padding bytes are
-   present. The Pad Length field is mandatory.
-        </t>
-      </section>
-      </section>
-
-      <section anchor="Payload-Data" numbered="true" toc="default">
-        <name>Payload Data</name>
-        <t>UDP Encapsulation is done as in
-        <xref target="RFC5840"/>.</t>
-      </section>
-
-      <section anchor="Padding" numbered="true" toc="default">
-        <name>Padding (for Encryption)</name>
-        <t>
-
-      </t>
-      </section>
-
-      <section anchor="ICV" numbered="true" toc="default">
-        <name>Integrity Check Value (ICV)</name>
-        <t>Integrity Check Value is handled as in
-        <xref target="RFC4303"/>.</t>
       </section>
       </section>
 
 
-<!-- Everyting below here is not yet converted! -->
 
-      <section anchor="UDP-Encapsulation" numbered="true" toc="default">
-        <name>UDP Encapsulation</name>
-        <t>
-	TBD
-        </t>
-      </section>
-      <section anchor="Packet-format" numbered="true" toc="default">
-        <name>Enhanced Encapsulating Security Protocol Processing
-	</name>
-	<t>
-        TBD
-	</t>
-
-      </section>
     <section anchor="IKENegotiation" numbered="true" toc="default">
       <name>IKEv2 Negotiation</name>
       <t>
       TBD
       </t>
       </section>
+
+
+    <section anchor="IANA" title="IANA Considerations">
+
+    <section title="IP Protocol Number">
+    <t>This document requests IANA
+   place a reference to this document to the Reserved value 0x0
+   in the IP protocol version number space.</t>
+
+
+   <t>
+   Note: Maybe we don't need this, because we know
+   if this is transport or tunnel mode...
+   </t>
+</section>
+
+
+    <section title="EESP Protocol Number">
+    <t>This document requests IANA
+    allocate an IP protocol number from "Protocol Numbers - Assigned
+    Internet Protocol Numbers" registry</t>
+
+    <ul>
+    <li>
+    Decimal: TBD
+    </li>
+    <li>
+    Keyword: EESP
+    </li>
+    <li>
+    Protocol: Enhanced Encapsulating Security Payload
+    </li>
+    <li>
+    Reference: This document
+    </li>
+    </ul> 
+
+</section>
+
+
+<section title="EESP Options Registry">
+      <t>This document requests IANA to create a registry called
+      "EESP_OPTIONS Type Registry" under a new category named
+      "EESP_OPTIONS Parameters".</t> 
+
+    <ul>
+    <li>
+    Name: EESP Options Registry
+    </li>
+    <li>
+    Description: EESP Base Header Options
+    </li>
+    <li>
+    Reference: This document
+    </li>
+    </ul>
+
+<t>The initial content for this registry is as follows:</t>
+      <figure align="center" anchor="iana_requests_reg">
+        <artwork align="left">
+          <![CDATA[
+      Value   EESP Header Options Types          Reference
+      -----   ------------------------------    ---------------
+          0   Pad1                              [this document]
+          1   PadN                              [this document]
+          2   PSP                               [this document]
+          3   FID                               [this document]
+      27-31   Private                           [this document]
+            ]]>
+</artwork>
+      </figure>
+
+    </section>
+    </section>
+
 
     <section anchor="Implementation" numbered="true" toc="default">
       <name>Implementation Status</name>
@@ -1049,7 +1025,7 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
     </section>
     <section anchor="Security" numbered="true" toc="default">
       <name>Security Considerations</name>
-      <t>In this section we discuss the security properties of WESPv2: TBD</t>
+      <t>In this section we discuss the security properties of EESP: TBD</t>
       <!--
       <t>
       Some text ...
