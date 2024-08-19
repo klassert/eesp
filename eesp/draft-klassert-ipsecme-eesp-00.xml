@@ -831,22 +831,6 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
     consists of N-2 zero-valued octets.</t>
     </section>
 
-       <section anchor="PSP-Option" numbered="true" toc="default">
-        <name>EESP PSP Option</name>
-
-        <figure align="center" anchor="psp-option">
-          <name>PSP Option</name>
-          <artwork align="left">
-            <![CDATA[
-    0                   1                   2                   3
-    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
-   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |  Option Type  | Option Length |CryptOffset| Flags |CryptoParam|
-   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-]]></artwork></figure>
-
-	</section>
-
      <section anchor="FID-Option" numbered="true" toc="default">
         <name>EESP Flow Identifier Option</name>
 
@@ -867,6 +851,33 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
 
 
       </section>
+
+
+       <section anchor="PSP-Option" numbered="true" toc="default">
+        <name>EESP PSP Option</name>
+
+	<t>
+       The PSP Option is an extended Flow Identifier that will likely into
+       a second document using EESP with this option and
+       defining the PSP KDF.
+	</t>
+
+        <figure align="center" anchor="psp-option">
+          <name>PSP Option</name>
+          <artwork align="left">
+            <![CDATA[
+    0                   1                   2                   3
+    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |  Option Type  | Option Length |CryptOffset| Flags |CryptoParam|
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                                                               |
+   ~                    Flow Identifier (FID)                      ~
+   |                                                               |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+]]></artwork></figure>
+
+	</section>
       </section>
 
 
