@@ -52,7 +52,7 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
       <xref target="I-D.ponchon-ipsecme-anti-replay-subspaces"/> and
       <xref target="I-D.he-ipsecme-vpn-shared-ipsecsa"/>. Such a Flow
       Identifier could also be used to perform ECMP based on the inner flows at
-      intermediate devices or endpoints. 
+      intermediate devices or endpoints.
 
       Additionally to that, there exists a
       specification of the
@@ -172,7 +172,7 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
         <t>
         The packet starts with a Base Header that is used by protocol
 	parsing engines of middleboxes such as routers or firewalls
-	and the end host. 
+	and the end host.
         The Base Header consits of a 4-byte field that is always
         present and an optional part directly following this field.
 	The
@@ -191,9 +191,9 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
 
         <t>
         Unlike ESP, EESP does not have
-	a trailer. Instead, is has an optional Transport Mode
+	a trailer. Instead, it has an optional Transport Mode
 	Header which consists of the the next header and pad length fields directly following
-	the Crypto Header. This part of the header is present only in transport and BEET Mode.
+	the Crypto Header. This part of the header is present only in Transport and BEET Mode.
 	On tunnel mode, the inner packet always start with an IPv4 or IPv6
 	header. These headers are constructed in a way that they always
 	start with a Version field at the first nibble. So it is possible to
@@ -249,7 +249,7 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
    |                                                               |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    |                                                               ~
-   ~                     IPv4/IPv6 Header                          ~ 
+   ~                     IPv4/IPv6 Header                          ~
    |                                                               |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    |                   L4 Payload Data (variable)                  |
@@ -448,9 +448,6 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
     <t anchor="note1_4">[4] mandatory if a separate integrity algorithm is used</t>
     <t anchor="note1_5">[5] mandatory if transport or BEET mode is used, not present on tunnel mode</t>
 
-
-
-
         <t>
          The following subsections describe the fields in the header format.
          "Optional" means that the field is omitted if the option is not
@@ -638,7 +635,7 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
    This unsigned 64-bit field contains a counter value that increases by
    for each packet sent, i.e., a per-SA packet sequence number.
    For a unicast SA or a single-sender multicast SA, the sender MUST
-    increment this field for every transmitted packet.  
+    increment this field for every transmitted packet.
    The sequence number MUST strictly monotonic increase, sequence numbers
    MUST not repead and MUST not cycle for any given SA.
    Thus, the sender's counter and the receiver's counter MUST
@@ -779,7 +776,7 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
        <section anchor="Padding-Options" numbered="true" toc="default">
         <name>EESP Padding Options</name>
 
- 
+
     <t>Individual options may have specific alignment requirements, to
     ensure that multi-octet values within Option Data fields fall on
     natural boundaries.  The alignment requirement of an option is
@@ -985,7 +982,7 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
     <li>
     Reference: This document
     </li>
-    </ul> 
+    </ul>
 
 </section>
 
@@ -993,7 +990,7 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
 <section title="EESP Options Registry">
       <t>This document requests IANA to create a registry called
       "EESP_OPTIONS Type Registry" under a new category named
-      "EESP_OPTIONS Parameters".</t> 
+      "EESP_OPTIONS Parameters".</t>
 
     <ul>
     <li>
@@ -1017,6 +1014,7 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
           1   PadN                              [this document]
           2   PSP                               [this document]
           3   FID                               [this document]
+       4-26   Unassigned                        [this document]
       27-31   Private                           [this document]
             ]]>
 </artwork>
@@ -1024,7 +1022,6 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
 
     </section>
     </section>
-
 
     <section anchor="Implementation" numbered="true" toc="default">
       <name>Implementation Status</name>
