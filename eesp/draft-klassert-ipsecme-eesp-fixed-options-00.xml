@@ -520,7 +520,7 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
 	it for identifying flows for ECMP or similar purposes. e.g. Sub-Child
 	SAs, in <xref target="I-D.mrossberg-ipsecme-multiple-sequence-counters"/>could
 	be encoded here. Flow Identifiers MUST have the format of Options
-	as defind in <xref target="Adapt-Options"/>.
+	as defind in XXXX.
 	</t>
 
 	<t>Private Options comming from a reserved Option Type Range and
@@ -686,14 +686,14 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
         </t>
 
 
-     <section anchor="FID-Option" numbered="true" toc="default">
+     <section anchor="EESP-FID" numbered="true" toc="default">
         <name>EESP Flow Identifier Option</name>
 
     <t>
-   Flow Identifier Options are constructed as described in <xref target="EESP-Options"/>.
+   Flow Identifier Options are constructed as described in <xref target="Options"/>.
 
     </t>
-        <figure align="center" anchor="fid-option">
+        <figure align="center" anchor="fid4-option">
           <name>FID4: 4 byte Flow Identifier</name>
           <artwork align="left">
             <![CDATA[
@@ -704,7 +704,7 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 ]]></artwork></figure>
 
-        <figure align="center" anchor="fid-option">
+        <figure align="center" anchor="fid8-option">
           <name>FID8: 8 byte Flow Identifier</name>
           <artwork align="left">
             <![CDATA[
