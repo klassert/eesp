@@ -1,0 +1,1019 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?xml-stylesheet type='text/xsl' href='rfc2629.xslt' ?>
+<!-- <xi:strict="yes" ?>
+<xi:compact="yes" ?>
+<xi:subcompact="no" ?>  -->
+<rfc xmlns:xi="http://www.w3.org/2001/XInclude" category="std"
+docName="draft-klassert-ipsecme-eesp-00" ipr="trust200902" obsoletes="" updates=""
+submissionType="IETF" xml:lang="en" tocInclude="true" tocDepth="4"
+symRefs="true" sortRefs="true" version="3" consensus="true">
+  <front>
+    <!-- The abbreviated title is used in the page header - it is only necessary if the
+        full title is longer than 39 characters -->
+    <title abbrev="EESP">Enhanced Encapsulating Security Payload (EESP)</title>
+    <!-- add 'role="editor"' below for the editors if appropriate -->
+    <!-- Another author who claims to be an editor -->
+    <author fullname="Steffen Klassert" initials="S." surname="Klassert">
+      <organization abbrev="secunet">secunet Security Networks AG</organization>
+      <address>
+        <email>steffen.klassert@secunet.com</email>
+      </address>
+    </author>
+    <author initials="A." surname="Antony" fullname="Antony Antony">
+      <organization abbrev="secunet">secunet Security Networks AG</organization>
+      <address>
+        <email>antony.antony@secunet.com</email>
+      </address>
+    </author>
+    <area>sec</area>
+    <workgroup>IPSECME Working Group</workgroup>
+    <keyword>IKEv2</keyword>
+    <keyword>EESP</keyword>
+    <abstract>
+      <t>This document describes the Enhanced Encapsulating Security Payload
+      (EESP) protocol, which builds on the Encapsulating Security Payload
+      (ESP)
+      <xref target="RFC4303"/>. It is designed to overcome limitations of the
+      ESP protocol to expose inner flow information to the network in a transparent
+      way. To do so, it adapts IPv6 Extension header options to EESP
+      where flow identitiers can be stored.
+      </t>
+    </abstract>
+  </front>
+  <middle>
+    <section numbered="true" toc="default">
+      <name>Introduction</name>
+      <t>Due to the absence of a
+      version number in the ESP protocol, in the packet header, ESP can't be
+      updated in a transparent way. Any updates to ESP must be negotiated by
+      IKEv2 and for that, indiscernible to intermediate devices such as routers
+      and firewalls. In the recent past, several attempts were taken to
+      introduce a Flow Identifier for certain use-cases. Examples are
+      <xref target="I-D.ponchon-ipsecme-anti-replay-subspaces"/> and
+      <xref target="I-D.he-ipsecme-vpn-shared-ipsecsa"/>. Such a Flow
+      Identifier could also be used to perform ECMP based on the inner flows at
+      intermediate devices or endpoints. 
+
+      Additionally to that, there exists a
+      specification of the
+      <xref target="PSP"/> protocol that has the need of a Flow Identifier,
+      called
+      Network Identifier (VNI) there. PSP also defines a Crypto Offset to expose
+      parts of the headers of the inner packet.
+
+      EESP provides a solution for all the aforementioned use-cases.</t>
+      <t> This document defines Options for the PSP usecase.
+      Future documents can define the meaning of
+      additional Options for their particular use-case. With this, all existing and
+      potential new use-cases for Flow Identifiers can be covered. For
+      instance it can be used for the case of
+      <xref target="I-D.ponchon-ipsecme-anti-replay-subspaces"/> or
+      <xref target="I-D.he-ipsecme-vpn-shared-ipsecsa"/> etc., or combinations
+      thereof.
+      EESP does not have a trailer as ESP had, instead the Next Header an Pad Length
+      fields are placed in front for Transport and BEET Mode. For Tunnel mode,
+      the Next Header and Pad Length fields are removed. The needed information
+      can be found in the IPv4 or IPv6 header, respectively. EESP also does not
+      define TFC padding, IP-TFS SHOULD be used instead.
+      A detailed discussion about the
+      problems of the ESP protocol can be found in
+      <xref target="I-D.mrossberg-ipsecme-multiple-sequence-counters"/>.</t>
+
+      <t>
+       EESP follows the Security Architecture for the Internet Protocol
+       <xref target="RFC4301"/> and uses ESP as of <xref target="RFC4303"/>
+       as reference. That means this document is seen as an modern version of ESP
+       (with new protocol number), it follows the design principles
+       of ESP. Protocol parts that are not mentioned here, MUST be handled
+       exaclty the way as specified in <xref target="RFC4303"/>.
+       EESP neither updates nor obsoletes <xref target="RFC4303"/>.
+      </t>
+      <t>Though this document specifies IKEv2 as a negotiation protocol, EESP
+      may use other protocols for negotiation and key derivation. The packet
+      specification is portable to other key protocol use cases, such as
+      <xref target="PSP"/>, and offers versioning at the packet level.</t>
+      <section numbered="true" toc="default">
+        <name>Requirements Language</name>
+        <t>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+        "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
+        document are to be interpreted as described in
+        <xref target="RFC2119" format="default">RFC 2119</xref>.</t>
+      </section>
+      <section numbered="true" toc="default">
+        <name>Terminology</name>
+        <t>This document uses the following terms defined in IKEv2
+        <xref target="RFC7296"/>: Child SA, CREATE_CHILD_SA, IKE_AUTH
+        exchange, USE_TRANSPORT_MODE</t>
+        <t>This document uses the following terms defined in
+        <xref target="PSP"/>: PSP (a recursive acronym for PSP Security
+        Protocol), Network Identifier (VNI), Crypt Offset.</t>
+        <t>This document uses the following terms defined in
+        <xref target="RFC5840"/>: Wrapped Encapsulating Security Payload
+        (WESP), USE_WESP_MODE.</t>
+        <t>This document uses the following terms defined in
+        <xref target="RFC2992"/>: Equal-cost multi-path (ECMP)</t>
+        <t>This document uses the following terms defined in
+        <xref target="RFC4303"/>: Encapsulating Security Payload (ESP).</t>
+        <t>This document uses the following terms defined in
+        <xref target="I-D.mrossberg-ipsecme-multiple-sequence-counters"/>:
+        Sub-Child SA.</t>
+      </section>
+    </section>
+    <section anchor="Protocol-definition" numbered="true" toc="default">
+      <name>Protocol Definition</name>
+      <t>In this section we define the exact protocol formats and operations.
+      This section is normative.</t>
+      <section anchor="EESP-header-format" numbered="true" toc="default">
+        <name>EESP packet format</name>
+        <t>
+        The (outer) protocol header (IPv4, IPv6, or Extension) that
+        immediately precedes the ESP header SHALL contain the value TBD in its
+        Protocol (IPv4) or Next Header (IPv6, Extension) field (see IANA web
+        page at http://www.iana.org/assignments/protocol-numbers).
+	<xref target="eesp-top-level-packet-format"/>
+        illustrates the top-level format of an EESP packet.
+        The EESP header is split into multiple parts.
+	</t>
+
+
+        <figure align="center" anchor="eesp-top-level-packet-format">
+          <name>Top-Level Format of an EESP Packet</name>
+          <artwork align="left">
+            <![CDATA[
+
+
+    0                   1                   2                   3
+    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                                                               |
+   ~                      Base Header (variable)                   ~
+   |                                                               |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                                                               |
+   ~                   Crypto Header (variable)                    ~
+   |                                                               |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                     Transtport Mode Header                    |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                      Payload Data (variable)                  |
+   ~                                                               ~
+   |               +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |               |          Padding (0-255 bytes)                |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                                                               |
+   ~              Integrity Check Value-ICV (variable)             ~
+   |                                                               |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+        ]]>
+</artwork>
+        </figure>
+
+
+        <t>
+        The packet starts with a Base Header that is used by protocol
+	parsing engines of middleboxes such as routers or firewalls
+	and the end host. 
+        The Base Header consits of a 4-byte field that is always
+        present and an optional part directly following this field.
+	The
+        base header essentially defines the total length of the EESP header
+	and the length of potential present options as well as the EESP version number.
+	The optional
+        part of the Base Header defines Options to store additional information, like
+	integrity protected flow identifiers that can be used for flow classification. </t>
+
+        <t>
+	This Base Header follows the Crypto Header, used to
+	route the packet to the correct Crypto context.
+       The Crypto Header consists of two, from ESP well known, 4-byte fields Security Parameters Index
+       (SPI) and Sequence Number and an optional Initialization Vector.
+        </t>
+
+        <t>
+        Unlike ESP, EESP does not have
+	a trailer. Instead, is has an optional Transport Mode
+	Header which consists of the the next header and pad length fields directly following
+	the Crypto Header. This part of the header is present only in transport and BEET Mode.
+	On tunnel mode, the inner packet always start with an IPv4 or IPv6
+	header. These headers are constructed in a way that they always
+	start with a Version field at the first nibble. So it is possible to
+	identify IPv4 and IPv6 by reading the first nibble of the inner packet.
+	This means that there is no Next Header field needed on tunnel mode.
+	Additionally IPv4 and IPv6 headers have a field describing the
+	overall size of the inner packet, so a pad length fields is
+	also not needed for tunnel mode. Transport and BEET mode are
+	encoded with a 0x0 at the first nibble. In that case the
+	Transport Mode Header is present.
+	</t>
+
+        <t>The EESP header is constructed in a way that the start of the following next header
+        is aligned on a 4 byte boundary on IPv4 and on a  8 byte boundary on IPv6
+	respective the start of the IPv4/IPv6 header.</t>
+
+
+       <t>
+       Following these header fields is the Payload Data, which has
+       substructure that depends on the choice of encryption algorithm and
+       mode.  Following the Payload Data is variable cipher block padding and
+       the optional Integrity Check Value (ICV)
+        field that completes the packet.
+	</t>
+
+
+   <t>
+   <xref target="eesp-tunnel-packet-format"/> illustrates the resulting packet format for Tunnel Mode
+   and <xref target="eesp-transport-packet-format"/> for Transport and BEET Mode.
+   </t>
+
+        <figure align="center" anchor="eesp-tunnel-packet-format">
+          <name>Tunnel Mode EESP packet format</name>
+          <artwork align="left">
+            <![CDATA[
+
+
+    0                   1                   2                   3
+    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |    Version    |         Option Type       |     Reserved      |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                                                               |
+   ~                              Option                           ~
+   |                                                               |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                              SPI                              |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                        Sequence Number                        |
+   |                                                               |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                          IV* (optional)                       |
+   |                                                               |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                                                               ~
+   ~                     IPv4/IPv6 Header                          ~ 
+   |                                                               |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                   L4 Payload Data (variable)                  |
+   ~                                                               ~
+   |               +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |               |          Padding (0-255 bytes)                |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                                                               |
+   ~              Integrity Check Value-ICV (variable)             ~
+   |                                                               |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+        ]]>
+</artwork>
+        </figure>
+
+
+        <figure align="center" anchor="eesp-transport-packet-format">
+          <name>Transport/BEET Mode EESP packet format</name>
+          <artwork align="left">
+            <![CDATA[
+
+
+    0                   1                   2                   3
+    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |    Version    |         Option Type       |     Reserved      |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                                                               |
+   ~                             Options                           ~
+   |                                                               |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                              SPI                              |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                        Sequence Number                        |
+   |                                                               |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                          IV* (optional)                       |
+   |                                                               |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |  0x0  |        Reserved       | Next Header   | Pad Length    |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                   L4 Payload Data (variable)                  |
+   ~                                                               ~
+   |               +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |               |          Padding (0-255 bytes)                |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                                                               |
+   ~              Integrity Check Value-ICV (variable)             ~
+   |                                                               |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+        ]]>
+</artwork>
+        </figure>
+
+
+
+	<t>
+	* If included, cryptographic synchronization
+        data, e.g., an Initialization Vector (IV),
+        usually is not encrypted per se, although it often is referred
+        to as being part of the ciphertext. Unlike ESP, the IV is not considered
+	to be a part of the payload data in EESP.
+	</t>
+
+	<t>
+   If a combined algorithm mode is employed, the explicit ICV shown in
+   <xref target="eesp-packet-separate-algos"/> may be omitted.  Because
+   algorithms, modes and options are fixed when an SA is established, the
+   detailed format of ESP packets for a given SA (including the Payload
+   Data substructure) is fixed, for all traffic on the SA.
+   </t>
+
+     <t>
+   The tables below refer to the fields in the preceding figures and
+   illustrate how several categories of algorithmic options, each with a
+   different processing model, affect the fields noted above.  The
+   processing details are described in later sections.
+	</t>
+    <table anchor="eesp-packet-separate-algos" align="center">
+        <name>Separate Encryption and Integrity Algorithms</name>
+        <thead>
+            <tr>
+                <th align="left">Field</th>
+                <th align="center"># of bytes</th>
+                <th align="center">Requ'd <xref target="note1_1" format="none">[1]</xref></th>
+                <th align="center">What Encrypt Covers</th>
+                <th align="center">What Integ Covers</th>
+                <th align="center">What is Xmtd</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td align="left">Base Header</td>
+                <td align="center">4</td>
+                <td align="center">M</td>
+                <td align="center"></td>
+                <td align="center">Y</td>
+                <td align="center">plain</td>
+            </tr>
+            <tr>
+                <td align="left">Options</td>
+                <td align="center">variable</td>
+                <td align="center">O</td>
+                <td align="center"></td>
+                <td align="center">Y</td>
+                <td align="center">plain</td>
+            </tr>
+            <tr>
+                <td align="left">SPI</td>
+                <td align="center">4</td>
+                <td align="center">M</td>
+                <td align="center"></td>
+                <td align="center">Y</td>
+                <td align="center">plain</td>
+            </tr>
+            <tr>
+                <td align="left">Seq#</td>
+                <td align="center">8</td>
+                <td align="center">M</td>
+                <td align="center"></td>
+                <td align="center">Y</td>
+                <td align="center">plain</td>
+            </tr>
+            <tr>
+                <td align="left">IV</td>
+                <td align="center">variable</td>
+                <td align="center">O</td>
+                <td align="center"></td>
+                <td align="center">Y</td>
+                <td align="center">plain</td>
+            </tr>
+            <tr>
+                <td align="left">Transport mode Header <xref target="note1_5" format="none">[5]</xref></td>
+                <td align="center">4</td>
+                <td align="center">O</td>
+                <td align="center">Y</td>
+                <td align="center">Y</td>
+                <td align="center">cipher <xref target="note1_3" format="none">[3]</xref></td>
+            </tr>
+	    <!--
+            <tr>
+                <td align="left">Pad Length</td>
+                <td align="center">1</td>
+                <td align="center">M</td>
+                <td align="center">Y</td>
+                <td align="center">Y</td>
+                <td align="center">cipher <xref target="note1_3" format="none">[3]</xref></td>
+            </tr>
+            <tr>
+                <td align="left">Reserved</td>
+                <td align="center">2</td>
+                <td align="center">M</td>
+                <td align="center">Y</td>
+                <td align="center">Y</td>
+                <td align="center">cipher <xref target="note1_3" format="none">[3]</xref></td>
+            </tr>
+	    -->
+            <tr>
+                <td align="left">IP datagram <xref target="note1_2" format="none">[2]</xref></td>
+                <td align="center">variable</td>
+                <td align="center">M or D</td>
+                <td align="center">Y</td>
+                <td align="center">Y</td>
+                <td align="center">cipher <xref target="note1_3" format="none">[3]</xref></td>
+            </tr>
+            <tr>
+                <td align="left">Padding</td>
+                <td align="center">0-255</td>
+                <td align="center">M</td>
+                <td align="center">Y</td>
+                <td align="center">Y</td>
+                <td align="center">cipher <xref target="note1_3" format="none">[3]</xref></td>
+            </tr>
+            <tr>
+                <td align="left">ICV Padding</td>
+                <td align="center">variable</td>
+                <td align="center">if need</td>
+                <td align="center"></td>
+                <td align="center">Y</td>
+                <td align="center">not xmtd</td>
+            </tr>
+            <tr>
+                <td align="left">ICV</td>
+                <td align="center">variable</td>
+                <td align="center">M <xref target="note1_4" format="none">[4]</xref></td>
+                <td align="center"></td>
+                <td align="center"></td>
+                <td align="center">plain</td>
+            </tr>
+        </tbody>
+    </table>
+    <!-- Notes with anchor attributes -->
+    <t anchor="note1_1">[1] M = mandatory; O = optional; D = dummy</t>
+    <t anchor="note1_2">[2] If tunnel mode -&gt; IP datagram. If beet mode -&gt; IP datagram. If transport mode -&gt; next header and data</t>
+    <t anchor="note1_3">[3] ciphertext if encryption has been selected</t>
+    <t anchor="note1_4">[4] mandatory if a separate integrity algorithm is used</t>
+    <t anchor="note1_5">[5] mandatory if transport or BEET mode is used, not present on tunnel mode</t>
+
+
+
+
+        <t>
+         The following subsections describe the fields in the header format.
+         "Optional" means that the field is omitted if the option is not
+         selected, i.e., it is present in neither the packet as transmitted
+         nor as formatted for computation of an ICV.
+         Whether or not an option is selected is determined as part of
+         Security Association (SA) establishment.  Thus, the format of EESP
+         packets for a given SA is fixed, for the duration of the SA.  In
+         contrast, "mandatory" fields are always present in the EESP packet
+         format, for all SAs.
+	</t>
+
+      </section>
+
+      <section anchor="Base-Header" numbered="true" toc="default">
+        <name>Base Header</name>
+      <section anchor="Fixed-Base-Header" numbered="true" toc="default">
+        <name>Fixed Base Header</name>
+
+        <ul>
+          <li>Next Header - 8 bits:
+          MUST be set to 59, <xref target="RFC8200"/> Section 4.7. if encryption has
+	  been selected. MUST be set to the Next Header value of the inner packet
+	  encryption has not been selected.
+          </li>
+          <li>HdrLen - 8 bits: Offset from the beginning of the EESP header
+          to the beginning of the Payload Data (i.e., past the IV, if
+          present) within, in octet. The following HdrLen values
+          are invalid: any value less than 16; any value that is not a multiple
+          of 4; any value that is not a multiple of 8 when using IPv6. The
+          receiver MUST ensure that this field matches with the header offset
+          computed from using the negotiated Security Association (SA) and MUST
+          drop the packet in case it does not match.</li>
+          <li>OptLen - 6 bit: Total length of all options included in the EESP
+	  header Options, in octets.
+          </li>
+          <li>Reserved - 4 bits: Set to zero on transmit, ignored on
+          receive.</li>
+          <li>Version (V) - 6 bits: MUST be sent to zero and checked by the
+          receiver. If the version is different than an expected version number
+          (e.g., negotiated via the control channel), then the packet MUST be
+          dropped by the receiver. Future modifications to the EESP header
+          require a new version number. In particular, the version of EESP
+          defined in this document does not allow for any extensions.
+          Intermediate nodes dealing with unknown
+          versions are not necessarily able to parse the packet correctly.
+          Intermediate treatment of such packets is policy dependent (e.g., it
+          may dictate dropping such packets).</li>
+        </ul>
+
+	</section>
+
+      <section anchor="Options" numbered="true" toc="default">
+        <name>Base Header Options</name>
+	<t>
+	This document defines two different option classes,
+	Flow Identifier Options and Private Options.</t>
+
+	<t>
+	Flow Identifier Options MUST carry characteristic information of the inner flow, i.e.
+	MUST NOT change on per packet basis. It MUST be negotiated by
+	IKEv2 or any other suitable protocol.
+
+	The detailed specification of
+	Flow Identifiers MUST be provided in subsequent documents. These Options are
+	opaque to intermediate devices; however, intermediate routers MAY use
+	it for identifying flows for ECMP or similar purposes. e.g. Sub-Child
+	SAs, in <xref target="I-D.mrossberg-ipsecme-multiple-sequence-counters"/>could
+	be encoded here. Flow Identifiers MUST have the format of Options
+	as defind in <xref target="Adapt-Options"/>.
+	</t>
+
+	<t>Private Options comming from a reserved Option Type Range and
+	can be used for any purposes that are out of scope for standardization.
+	For example it can be used to encode hardware specific information,
+	such as used encryption/authentication algorithms as done in <xref target="PSP"/>.</t>
+
+	<t>The only EESP Option Types defined in this document are the FID4 and
+	   FID8 options specified in <xref target="EESP-FID"/>.</t>
+
+      </section>
+
+      <section anchor="Crypto-Header" numbered="true" toc="default">
+        <name>Crypto Header</name>
+
+      <section anchor="SPI" numbered="true" toc="default">
+        <name>Security Parameters Index (SPI)</name>
+        <t>The Security Parameters Index (SPI) is handled as in ESP
+        <xref target="RFC4303"/>.</t>
+      </section>
+	</section>
+
+      <section anchor="Sequence-Number" numbered="true" toc="default">
+        <name>Sequence Number</name>
+
+        <t>
+   This unsigned 64-bit field contains a counter value that increases by
+   for each packet sent, i.e., a per-SA packet sequence number.
+   For a unicast SA or a single-sender multicast SA, the sender MUST
+    increment this field for every transmitted packet.  
+   The sequence number MUST strictly monotonic increase, sequence numbers
+   MUST not repead and MUST not cycle for any given SA.
+   Thus, the sender's counter and the receiver's counter MUST
+   be reset (by establishing a new SA and thus a new key) prior to the
+   transmission of the 2^64nd packet on an SA.
+   Implementations that do replay
+   protection SHOULD increase the sequence number by one for each send packet.
+   Even if recommended to increase the sequence number by one, implementatins
+   MAY employ other methods to increase the sequence number, as long
+   as the aforementioned requirements are met.
+
+   Sharing an SA
+   among multiple senders is permitted, though generally not
+   recommended.  EESP provides no means of synchronizing packet counters
+   among multiple senders or meaningfully managing a receiver packet
+   counter and window in the context of multiple senders.
+   Unless any future Option defining this for a
+   multi-sender SA, the anti-replay features of ESP are not available.
+    </t>
+
+      <t>
+   The field is mandatory and MUST always be present even if the
+   receiver does not elect to enable the anti-replay service for a
+   specific SA.  Processing of the Sequence Number field is at the
+   discretion of the receiver, but all ESP implementations MUST be
+   capable of performing the processing described in Sections 3.3.3 and
+   3.4.3. Thus, the sender MUST always transmit this field, but the
+   receiver need not act upon it.
+    </t>
+
+    <t>
+   The sender's counter and the receiver's counter are initialized to 0
+   when an SA is established.  (The first packet sent using a given SA
+   should have a sequence number of 1).
+       </t>
+      </section>
+
+      <section anchor="IV" numbered="true" toc="default">
+        <name>Initialization Vector</name>
+        <t>
+   If the algorithm used to encrypt the payload requires cryptographic
+   synchronization data, e.g., an Initialization Vector (IV), then this
+   data is carried explicitly in front of the encrypted part of the packet
+   in the Crypto Header.
+   Any encryption algorithm
+   that requires such explicit, per-packet synchronization data MUST
+   indicate the length, any structure for such data, and the location of
+   this data as part of an RFC specifying how the algorithm is used with
+   EESP.  (Typically, the IV immediately precedes the ciphertext.  See
+   <xref target="eesp-packet-separate-algos"/>)  If such synchronization data is implicit, the algorithm
+   for deriving the data MUST be part of the algorithm definition RFC.
+   (If included, cryptographic synchronization
+   data, e.g., an Initialization Vector (IV), usually is not encrypted
+   per se (see <xref target="eesp-packet-separate-algos"/>), although it sometimes is referred to as
+   being part of the ciphertext.)
+      </t>
+      <t>
+      Counter mode algorithms SHOULD encode the 64-bit counter ofthe
+      Initialization Vector (IV) on the Sequence number Field. This option
+      saves 8 header bytes on each packet.
+         Whether or not this option is selected is determined as part of
+         Security Association (SA) establishment.
+      </t>
+      </section>
+      </section>
+
+      <section anchor="Transport-Header" numbered="true" toc="default">
+        <name>Transport Mode Header</name>
+
+      <section anchor="Next-Header" numbered="true" toc="default">
+        <name>Next Header</name>
+        <t>
+   The Next Header is a, 8-bit field that identifies the type
+   of data contained in the Payload Data field, e.g., a next
+   layer header and data.  The value of this field is
+   chosen from the set of IP Protocol Numbers defined on the web page of
+   the IANA, e.g., a value of 6 indicates TCP and a value
+   of 17 indicates UDP.
+	</t>
+      </section>
+
+      <section anchor="Pad-Length" numbered="true" toc="default">
+        <name>Pad Length</name>
+        <t>
+   The Pad Length field indicates the number of pad bytes immediately
+   preceding it in the Padding field.  The range of valid values is 0 to
+   255, where a value of zero indicates that no Padding bytes are
+   present.
+        </t>
+      </section>
+      </section>
+
+      <section anchor="Payload-Data" numbered="true" toc="default">
+        <name>Payload Data</name>
+        <t>TBD
+        </t>
+      </section>
+
+      <section anchor="Padding" numbered="true" toc="default">
+        <name>Padding (for Encryption)</name>
+        <t>
+         TBD
+      </t>
+      </section>
+
+      <section anchor="ICV" numbered="true" toc="default">
+        <name>Integrity Check Value (ICV)</name>
+        <t>Integrity Check Value is handled as in
+        <xref target="RFC4303"/>.</t>
+      </section>
+      </section>
+
+      <section anchor="UDP-Encapsulation" numbered="true" toc="default">
+        <name>UDP Encapsulation</name>
+        <t>
+	TBD
+        </t>
+      </section>
+      <section anchor="Packet-format" numbered="true" toc="default">
+        <name>Enhanced Encapsulating Security Protocol Processing
+	</name>
+	<t>
+        TBD
+	</t>
+
+      </section>
+
+      <section anchor="Option-Types" numbered="true" toc="default">
+        <name>EESP Option Types</name>
+	<t>
+        This document defines two Flow Identifier Options FID4 and FID8 and one option defining
+	the Pretty Security Protocol (PSP). Future documents can define furter options.
+        </t>
+
+
+     <section anchor="FID-Option" numbered="true" toc="default">
+        <name>EESP Flow Identifier Option</name>
+
+    <t>
+   Flow Identifier Options are constructed as described in <xref target="EESP-Options"/>.
+
+    </t>
+        <figure align="center" anchor="fid-option">
+          <name>FID4: 4 byte Flow Identifier</name>
+          <artwork align="left">
+            <![CDATA[
+    0                   1                   2                   3
+    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                    Flow Identifier (FID)                      |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+]]></artwork></figure>
+
+        <figure align="center" anchor="fid-option">
+          <name>FID8: 8 byte Flow Identifier</name>
+          <artwork align="left">
+            <![CDATA[
+    0                   1                   2                   3
+    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                    Flow Identifier (FID)                      |
+   |                                                               |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+]]></artwork></figure>
+
+
+      </section>
+
+
+       <section anchor="PSP-Option" numbered="true" toc="default">
+        <name>EESP PSP Option</name>
+
+	<t>
+       The PSP Option is an extended Flow Identifier (that will go likely into
+       a second document using EESP with this option and
+       defining the PSP KDF).
+
+	</t>
+
+        <figure align="center" anchor="psp-option">
+          <name>PSP Option</name>
+          <artwork align="left">
+            <![CDATA[
+    0                   1                   2                   3
+    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |  Netxt Header | Header Length |CryptOffset| Flags |CryptoParam|
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                         FID8 (optional)                       |
+   |                                                               |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+]]></artwork></figure>
+
+    <ul>
+    <li>
+    Next Header - 8 bits: TBD
+    </li>
+    <li>
+    Header Length - 8 bits: TBD
+    </li>
+    <li>
+    CryptOffset - 6 bits: The offset from the end of the IV to the
+      start of the encrypted portion of the packet, measured in 4 octet
+      units.  The resulting value MUST NOT be larger than the size of
+      the inner packet.  A zero CryptOffset means that the complete
+      packet is authenticated and encrypted.  A positive CryptOffset
+      means that the first 'CryptOffset * 4' octets of the inner packet
+      belong to the AAD but are not encrypted.  In this case the Next
+      Header field MUST be the same as the Next Header field in the ESP
+      trailer, so that the Header can be parsed by intermediate devices.
+      (Authors note: This is to preserve the original WESP use-case and
+      because PSP uses this too.  In case the Flow Identifier Options
+      can carry enough information about inner flows, we can remove the
+      cryptoffset.)
+ 
+    </li>
+    <li>
+    Flags - 4 bits: TBD
+    </li>
+    <li>
+    CryptoParam - 6 bits: TDB ( was Version in PSP)
+    </li>
+    <li>
+    FID8: 8 bytes, MUST carry caracteristic infromation of the inner
+    </li>
+
+    </ul>
+
+
+	</section>
+      </section>
+
+
+
+    <section anchor="IKENegotiation" numbered="true" toc="default">
+      <name>IKEv2 Negotiation</name>
+      <t>
+      TBD
+      </t>
+      </section>
+
+
+    <section anchor="IANA" title="IANA Considerations">
+
+    <section title="IP Protocol Number">
+    <t>This document requests IANA
+   place a reference to this document to the Reserved value 0x0
+   in the IP protocol version number space.</t>
+
+
+   <t>
+   Note: Maybe we don't need this, because we know
+   if this is transport or tunnel mode...
+   </t>
+</section>
+
+
+    <section title="EESP Protocol Number">
+    <t>This document requests IANA
+    allocate an IP protocol number from "Protocol Numbers - Assigned
+    Internet Protocol Numbers" registry</t>
+
+    <ul>
+    <li>
+    Decimal: TBD
+    </li>
+    <li>
+    Keyword: EESP
+    </li>
+    <li>
+    Protocol: Enhanced Encapsulating Security Payload
+    </li>
+    <li>
+    Reference: This document
+    </li>
+    </ul> 
+
+</section>
+
+
+<section title="EESP Options Registry">
+      <t>This document requests IANA to create a registry called
+      "EESP_OPTIONS Type Registry" under a new category named
+      "EESP_OPTIONS Parameters".</t> 
+
+    <ul>
+    <li>
+    Name: EESP Options Registry
+    </li>
+    <li>
+    Description: EESP Base Header Options
+    </li>
+    <li>
+    Reference: This document
+    </li>
+    </ul>
+
+<t>The initial content for this registry is as follows:</t>
+      <figure align="center" anchor="iana_requests_reg">
+        <artwork align="left">
+          <![CDATA[
+      Value   EESP Header Options Types          Reference
+      -----   ------------------------------    ---------------
+          0   Pad1                              [this document]
+          1   PadN                              [this document]
+          2   PSP                               [this document]
+          3   FID                               [this document]
+      27-31   Private                           [this document]
+            ]]>
+</artwork>
+      </figure>
+
+    </section>
+    </section>
+
+
+    <section anchor="Implementation" numbered="true" toc="default">
+      <name>Implementation Status</name>
+      <t>[Note to RFC Editor: Please remove this section and the reference to
+      <xref target="RFC6982"/>before publication.]</t>
+      <t>This section records the status of known implementations of the
+      protocol defined by this specification at the time of posting of this
+      Internet-Draft, and is based on a proposal described in
+      <xref target="RFC7942"/>. The description of implementations in this
+      section is intended to assist the IETF in its decision processes in
+      progressing drafts to RFCs. Please note that the listing of any
+      individual implementation here does not imply endorsement by the IETF.
+      Furthermore, no effort has been spent to verify the information presented
+      here that was supplied by IETF contributors. This is not intended as, and
+      must not be construed to be, a catalog of available implementations or
+      their features. Readers are advised to note that other implementations
+      may exist.</t>
+      <t>According to
+      <xref target="RFC7942"/>, "this will allow reviewers and working groups
+      to assign due consideration to documents that have the benefit of running
+      code, which may serve as evidence of valuable experimentation and
+      feedback that have made the implemented protocols more mature. It is up
+      to the individual working groups to use this information as they see
+      fit".</t>
+      <t>Authors are requested to add a note to the RFC Editor at the top of
+      this section, advising the Editor to remove the entire section before
+      publication, as well as the reference to
+      <xref target="RFC7942"/>.</t>
+      <!--
+      <section anchor="impl-status.Linux.xfrm" title="Linux XFRM">
+        <t>Linux</t>
+        <dl>
+          <dt>Organization:</dt>
+          <dd>Linux kernel Project</dd>
+          <dt>Name:</dt>
+          <dd>Linux Kernel https://www.kernel.org/</dd>
+          <dt>Description:</dt>
+          <dd>Not implemented</dd>
+          <dt>Level of maturity:</dt>
+          <dd>None</dd>
+          <dt>Licensing:</dt>
+          <dd>GPLv2</dd>
+          <dt>Implementation experience:</dt>
+          <dd>TBD</dd>
+          <dt>Contact:</dt>
+          <dd>https://lore.kernel.org/netdev/</dd>
+        </dl>
+      </section>
+      <section anchor="section.impl-status.strongswan" title="strongSwan">
+        <dl>
+          <dt>Organization:</dt>
+          <dd>The strongSwan Project</dd>
+          <dt>Name:</dt>
+          <dd>strongSwan
+          https://docs.strongswan.org/docs/5.9/swanctl/swanctlConf.html</dd>
+          <dt>Description:</dt>
+          <dd>Not implemented</dd>
+          <dt>Level of maturity:</dt>
+          <dd>None</dd>
+          <dt>Coverage:</dt>
+          <dd>TBD</dd>
+          <dt>Licensing:</dt>
+          <dd>GPLv2</dd>
+          <dt>Implementation experience</dt>
+          <dd>TBD</dd>
+          <dt>Contact</dt>
+          <dd>TBD</dd>
+        </dl>
+      </section>
+   -->
+    </section>
+    <section anchor="Security" numbered="true" toc="default">
+      <name>Security Considerations</name>
+      <t>In this section we discuss the security properties of EESP: TBD</t>
+      <!--
+      <t>
+      Some text ...
+   </t>
+   -->
+    </section>
+    <section anchor="Acknowledgements" numbered="true" toc="default">
+      <name>Acknowledgments</name>
+      <t>TBD</t>
+    </section>
+  </middle>
+  <back>
+    <references>
+      <name>Normative References</name>
+      <xi:include href="http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.2119.xml"/>
+      <xi:include href="http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.3948.xml"/>
+      <xi:include href="http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.4301.xml"/>
+      <xi:include href="http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.4303.xml"/>
+      <xi:include href="http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.5840.xml"/>
+      <xi:include href="http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.7296.xml"/>
+      <xi:include href="http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.2992.xml"/>
+      <xi:include href="http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.8200.xml"/>
+      <!--
+      <xi:include href="http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.4301.xml"/>
+      <xi:include href="http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.791.xml"/>
+      <xi:include href="http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.8200.xml"/>
+      -->
+    </references>
+    <references>
+      <name>Informative References</name>
+      <!--
+      <xi:include href="https://bib.ietf.org/public/rfc/bibxml3/reference.I-D.ietf-ipsecme-multi-sa-performance.xml"/>
+      -->
+      <xi:include href="https://bib.ietf.org/public/rfc/bibxml3/reference.I-D.mrossberg-ipsecme-multiple-sequence-counters.xml"/>
+      <xi:include href="https://bib.ietf.org/public/rfc/bibxml3/reference.I-D.ponchon-ipsecme-anti-replay-subspaces.xml"/>
+      <xi:include href="https://bib.ietf.org/public/rfc/bibxml3/reference.I-D.he-ipsecme-vpn-shared-ipsecsa.xml"/>
+      <xi:include href="http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.6982.xml"/>
+      <xi:include href="http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.7942.xml"/>
+      <reference anchor="PSP"
+      target="https://github.com/google/psp/blob/main/doc/PSP_Arch_Spec.pdf"
+      quoteTitle="true">
+        <front>
+          <title>PSP Architecture Specification</title>
+          <author>
+            <organization showOnFrontPage="true">Google</organization>
+          </author>
+        </front>
+      </reference>
+      <!--
+      <reference anchor="NVIDIA-PSP"
+      target="https://docs.nvidia.com/doca/sdk/nvidia+doca+psp+gateway+application+guide/index.html"
+      quoteTitle="true">
+        <front>
+          <title>NVIDIA DOCA PSP Gateway Application Guide</title>
+          <author>
+            <organization showOnFrontPage="true">NVIDIA</organization>
+          </author>
+        </front>
+      </reference>
+      -->
+      <!--
+      <reference anchor="Google-PSPS-Support" target="https://cloud.google.com/blog/products/identity-security/announcing-psp-security-protocol-is-now-open-source" quoteTitle="true">
+        <front>
+          <title>NVIDIA DOCA PSP Gateway Application Guide</title>
+          <author>
+                                                <organization showOnFrontPage="true">NVIDIA</organization>
+          </author>
+                    </front>
+      </reference>
+                        -->
+    </references>
+    <section anchor="app-additional" numbered="true" toc="default">
+      <name>Additional Stuff</name>
+      <t>TBD</t>
+    </section>
+  </back>
+</rfc>
