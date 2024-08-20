@@ -834,6 +834,10 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
      <section anchor="FID-Option" numbered="true" toc="default">
         <name>EESP Flow Identifier Option</name>
 
+    <t>
+   Flow Identifier Options are constructed as described in <xref target="EESP-Options"/>.
+
+    </t>
         <figure align="center" anchor="fid-option">
           <name>Flow Identifier Option</name>
           <artwork align="left">
@@ -849,6 +853,22 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 ]]></artwork></figure>
 
+    <ul>
+    <li>
+    Option Type - 8 bits: See <xref target="EESP-Options"/>
+    </li>
+    <li>
+    Option Length - 8 bits: See <xref target="EESP-Options"/>
+    </li>
+    <li>
+    Reserved: Set to zero on transmit, ignored on receive
+    </li>
+    <li>
+    FID: Variable length, MUST carry caracteristic infromation of the inner
+    flow i.e. MUST not change within a gives SA.
+    </li>
+
+    </ul>
 
       </section>
 
@@ -857,9 +877,14 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
         <name>EESP PSP Option</name>
 
 	<t>
-       The PSP Option is an extended Flow Identifier that will likely into
+       The PSP Option is an extended Flow Identifier (that will go likely into
        a second document using EESP with this option and
-       defining the PSP KDF.
+       defining the PSP KDF). The PSP Option, if present,
+       SHOULD be the only option following the fixed base header.
+       (That way PSP has a fixed header layout. Flow Identifiers
+       are not needed anyway, because the CryptOffset can show
+       these information.)
+
 	</t>
 
         <figure align="center" anchor="psp-option">
@@ -876,6 +901,43 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
    |                                                               |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 ]]></artwork></figure>
+
+    <ul>
+    <li>
+    Option Type - 8 bits: See <xref target="EESP-Options"/>
+    </li>
+    <li>
+    Option Length - 8 bits: See <xref target="EESP-Options"/>
+    </li>
+    <li>
+    CryptOffset - 6 bits: The offset from the end of the IV to the
+      start of the encrypted portion of the packet, measured in 4 octet
+      units.  The resulting value MUST NOT be larger than the size of
+      the inner packet.  A zero CryptOffset means that the complete
+      packet is authenticated and encrypted.  A positive CryptOffset
+      means that the first 'CryptOffset * 4' octets of the inner packet
+      belong to the AAD but are not encrypted.  In this case the Next
+      Header field MUST be the same as the Next Header field in the ESP
+      trailer, so that the Header can be parsed by intermediate devices.
+      (Authors note: This is to preserve the original WESP use-case and
+      because PSP uses this too.  In case the Flow Identifier Options
+      can carry enough information about inner flows, we can remove the
+      cryptoffset.)
+ 
+    </li>
+    <li>
+    Flags - 4 bits: TBD
+    </li>
+    <li>
+    CryptoParam - 6 bits: TDB ( was Version in PSP)
+    </li>
+    <li>
+    FID: Variable length, MUST carry caracteristic infromation of the inner
+    flow i.e. MUST not change within a gives SA.
+    </li>
+
+    </ul>
+
 
 	</section>
       </section>
