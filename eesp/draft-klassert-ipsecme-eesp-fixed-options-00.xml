@@ -52,7 +52,7 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
       <xref target="I-D.ponchon-ipsecme-anti-replay-subspaces"/> and
       <xref target="I-D.he-ipsecme-vpn-shared-ipsecsa"/>. Such a Flow
       Identifier could also be used to perform ECMP based on the inner flows at
-      intermediate devices or endpoints. 
+      intermediate devices or endpoints.
 
       Additionally to that, there exists a
       specification of the
@@ -172,7 +172,7 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
         <t>
         The packet starts with a Base Header that is used by protocol
 	parsing engines of middleboxes such as routers or firewalls
-	and the end host. 
+	and the end host.
         The Base Header consits of a 4-byte field that is always
         present and an optional part directly following this field.
 	The
@@ -249,7 +249,7 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
    |                                                               |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    |                                                               ~
-   ~                     IPv4/IPv6 Header                          ~ 
+   ~                     IPv4/IPv6 Header                          ~
    |                                                               |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    |                   L4 Payload Data (variable)                  |
@@ -332,121 +332,69 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
         <name>Separate Encryption and Integrity Algorithms</name>
         <thead>
             <tr>
-                <th align="left">Field</th>
-                <th align="center"># of bytes</th>
-                <th align="center">Requ'd <xref target="note1_1" format="none">[1]</xref></th>
-                <th align="center">What Encrypt Covers</th>
-                <th align="center">What Integ Covers</th>
-                <th align="center">What is Xmtd</th>
+                <th align="left">EESP ID</th>
+                <th align="center">Name </th>
+                <th align="center">IIV<xref target="note1_1" format="none">[1]</xref></th>
+                <th align="center">64bit SN <xref target="note1_2" format="none">[2]</xref> </th>
+                <th align="center">32bit SN <xref target="note1_3" format="none">[3]</xref> </th>
+                <th align="center">Stream only <xref target="note1_4" format="none">[4]</xref> </th>
+                <th align="center">Block Also  <xref target="note1_5" format="none">[5]</xref></th>
             </tr>
         </thead>
         <tbody>
             <tr>
-                <td align="left">Base Header</td>
-                <td align="center">4</td>
-                <td align="center">M</td>
-                <td align="center"></td>
-                <td align="center">Y</td>
-                <td align="center">plain</td>
-            </tr>
-            <tr>
-                <td align="left">Options</td>
-                <td align="center">variable</td>
-                <td align="center">O</td>
-                <td align="center"></td>
-                <td align="center">Y</td>
-                <td align="center">plain</td>
-            </tr>
-            <tr>
-                <td align="left">SPI</td>
-                <td align="center">4</td>
-                <td align="center">M</td>
-                <td align="center"></td>
-                <td align="center">Y</td>
-                <td align="center">plain</td>
-            </tr>
-            <tr>
-                <td align="left">Seq#</td>
-                <td align="center">8</td>
-                <td align="center">M</td>
-                <td align="center"></td>
-                <td align="center">Y</td>
-                <td align="center">plain</td>
-            </tr>
-            <tr>
-                <td align="left">IV</td>
-                <td align="center">variable</td>
-                <td align="center">O</td>
-                <td align="center"></td>
-                <td align="center">Y</td>
-                <td align="center">plain</td>
-            </tr>
-            <tr>
-                <td align="left">Transport mode Header <xref target="note1_5" format="none">[5]</xref></td>
-                <td align="center">4</td>
-                <td align="center">O</td>
-                <td align="center">Y</td>
-                <td align="center">Y</td>
-                <td align="center">cipher <xref target="note1_3" format="none">[3]</xref></td>
-            </tr>
-	    <!--
-            <tr>
-                <td align="left">Pad Length</td>
                 <td align="center">1</td>
-                <td align="center">M</td>
+                <td align="left">EESP</td>
+                <td align="center">N</td>
                 <td align="center">Y</td>
+                <td align="center">N</td>
+                <td align="center">N</td>
                 <td align="center">Y</td>
-                <td align="center">cipher <xref target="note1_3" format="none">[3]</xref></td>
             </tr>
             <tr>
-                <td align="left">Reserved</td>
                 <td align="center">2</td>
-                <td align="center">M</td>
+                <td align="left">PSP</td>
                 <td align="center">Y</td>
                 <td align="center">Y</td>
-                <td align="center">cipher <xref target="note1_3" format="none">[3]</xref></td>
-            </tr>
-	    -->
-            <tr>
-                <td align="left">IP datagram <xref target="note1_2" format="none">[2]</xref></td>
-                <td align="center">variable</td>
-                <td align="center">M or D</td>
+                <td align="center">N</td>
                 <td align="center">Y</td>
-                <td align="center">Y</td>
-                <td align="center">cipher <xref target="note1_3" format="none">[3]</xref></td>
+                <td align="center">N</td>
             </tr>
             <tr>
-                <td align="left">Padding</td>
-                <td align="center">0-255</td>
-                <td align="center">M</td>
+                <td align="center">3</td>
+                <td align="left">PSP VNI32</td>
                 <td align="center">Y</td>
                 <td align="center">Y</td>
-                <td align="center">cipher <xref target="note1_3" format="none">[3]</xref></td>
+                <td align="center">N</td>
+                <td align="center">Y</td>
+                <td align="center">N</td>
             </tr>
             <tr>
-                <td align="left">ICV Padding</td>
-                <td align="center">variable</td>
-                <td align="center">if need</td>
-                <td align="center"></td>
+                <td align="center">4</td>
+                <td align="left">PSP VNI64</td>
                 <td align="center">Y</td>
-                <td align="center">not xmtd</td>
-            </tr>
+                <td align="center">Y</td>
+                <td align="center">N</td>
+                <td align="center">Y</td>
+                <td align="center">N</td>
+           </tr>
             <tr>
-                <td align="left">ICV</td>
-                <td align="center">variable</td>
-                <td align="center">M <xref target="note1_4" format="none">[4]</xref></td>
-                <td align="center"></td>
-                <td align="center"></td>
-                <td align="center">plain</td>
+                <td align="center">5</td>
+                <td align="left">EESP Flow ID 32</td>
+                <td align="center">Y</td>
+                <td align="center">Y</td>
+                <td align="center">N</td>
+                <td align="center">Y</td>
+                <td align="center">N</td>
             </tr>
         </tbody>
     </table>
     <!-- Notes with anchor attributes -->
-    <t anchor="note1_1">[1] M = mandatory; O = optional; D = dummy</t>
-    <t anchor="note1_2">[2] If tunnel mode -&gt; IP datagram. If beet mode -&gt; IP datagram. If transport mode -&gt; next header and data</t>
-    <t anchor="note1_3">[3] ciphertext if encryption has been selected</t>
-    <t anchor="note1_4">[4] mandatory if a separate integrity algorithm is used</t>
-    <t anchor="note1_5">[5] mandatory if transport or BEET mode is used, not present on tunnel mode</t>
+    <t anchor="note1_1">[1] Implecit IV only either from 64 bit SN or 32bit</t>
+    <t anchor="note1_2">[2] 64bit SN in packet</t>
+    <t anchor="note1_3">[3] Lower 32bit SN on packet </t>
+    <t anchor="note1_4">[4] Only Stream ciphers supported</t>
+    <t anchor="note1_5">[5] Also support Block Mode Ciphers</t>
 
 
 
@@ -550,7 +498,7 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
    This unsigned 64-bit field contains a counter value that increases by
    for each packet sent, i.e., a per-SA packet sequence number.
    For a unicast SA or a single-sender multicast SA, the sender MUST
-    increment this field for every transmitted packet.  
+    increment this field for every transmitted packet.
    The sequence number MUST strictly monotonic increase, sequence numbers
    MUST not repead and MUST not cycle for any given SA.
    Thus, the sender's counter and the receiver's counter MUST
@@ -765,7 +713,7 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
       because PSP uses this too.  In case the Flow Identifier Options
       can carry enough information about inner flows, we can remove the
       cryptoffset.)
- 
+
     </li>
     <li>
     Flags - 4 bits: TBD
@@ -826,7 +774,7 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
     <li>
     Reference: This document
     </li>
-    </ul> 
+    </ul>
 
 </section>
 
@@ -834,7 +782,7 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
 <section title="EESP Options Registry">
       <t>This document requests IANA to create a registry called
       "EESP_OPTIONS Type Registry" under a new category named
-      "EESP_OPTIONS Parameters".</t> 
+      "EESP_OPTIONS Parameters".</t>
 
     <ul>
     <li>
