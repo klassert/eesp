@@ -854,10 +854,10 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
           <![CDATA[
       Value   EESP Header Options Types          Reference
       -----   ------------------------------    ---------------
-          0   Pad1                              [this document]
-          1   PadN                              [this document]
-          2   PSP                               [this document]
-          3   FID                               [this document]
+          0   No Option present                 [this document]
+          1   FID4                              [this document]
+          2   FID8                              [this document]
+          3   PSP                               [this document]
       27-31   Private                           [this document]
             ]]>
 </artwork>
