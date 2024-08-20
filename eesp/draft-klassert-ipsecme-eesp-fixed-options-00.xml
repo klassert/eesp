@@ -329,7 +329,7 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
    processing details are described in later sections.
 	</t>
     <table anchor="eesp-packet-separate-algos" align="center">
-        <name>Separate Encryption and Integrity Algorithms</name>
+        <name>EESP ID and features</name>
         <thead>
             <tr>
                 <th align="left">EESP ID</th>
