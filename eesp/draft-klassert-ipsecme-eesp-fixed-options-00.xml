@@ -700,13 +700,13 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
     0                   1                   2                   3
     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |    Version    | Option ID 2   |     Cryto ID                  |
+   |    Version    | Option ID = 2 |     Cryto ID                  |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    |   Header Len  | Next Header   |S|D|Crypt Off  |A|E|RESERVED   |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    |                              SPI                              |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |                          IV 64                                |
+   |                          IV (64)                              |
    |                                                               |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    |                                                               ~
@@ -716,8 +716,6 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    |                   L4 Payload Data (variable)                  |
    ~                                                               ~
-   |               +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |               |          Padding (0-255 bytes)                |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    |                                                               |
    ~              Integrity Check Value-ICV (variable)             ~
@@ -756,7 +754,6 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
     VNI64: 8 bytes only in <xref target="psp-vni64-packet-format"/>
     </li>
     </ul>
-
 				</section>
           <section anchor="PSP-VNI64" numbered="true" toc="default">
            <name>PSP VNI64</name>
@@ -780,9 +777,47 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
    |                          VNI (64)                             |
    |                                                               |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |                                                               ~
-   ~                     IPv4/IPv6 Header or Transport Header      ~
    |                                                               |
+   ~                     IPv4/IPv6 Header                          ~
+   |                    or Transport Header                        |
+   |  0x0  |        Reserved       | Next Header   | Pad Length    |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                   L4 Payload Data (variable)                  |
+   ~                                                               ~
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                                                               |
+   ~              Integrity Check Value-ICV (variable)             ~
+   |                                                               |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+        ]]>
+</artwork>
+        </figure>
+
+          </section>
+      <section anchor="EESP-Flow-ID-32" numbered="true" toc="default">
+        <name>EESP Flow ID 32</name>
+    <figure align="center" anchor="eesp-flow-id-32-packet-format">
+          <name>EESP Flow ID 32 Packet Format</name>
+          <artwork align="left">
+            <![CDATA[
+    0                   1                   2                   3
+    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |    Version    | Option ID = 4 |      Reserved                 |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                         Flow ID 32                            |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                              SPI                              |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                   Sequece Number (64) (optional)              |
+   |                                                               |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                          IV (optional)                        |
+   |                                                               |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                                                               |
+   ~                     IPv4/IPv6 Header                          ~
+	 |                     or Transport Header                       |
    |  0x0  |        Reserved       | Next Header   | Pad Length    |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    |                   L4 Payload Data (variable)                  |
@@ -797,12 +832,22 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
         ]]>
 </artwork>
         </figure>
-
-          </section>
-      </section>
-
-      <section anchor="UDP-Encapsulation" numbered="true" toc="default">
-        <name>UDP Encapsulation</name>
+    <ul>
+    <li>
+    Version - 8 bits: TBD
+    </li>
+    <li>
+    Option ID - 8 bits:
+    </li>
+    <li>
+    Flow ID - 32 bits: Used for intermeditate ECMP or End system RSS.
+		This should be negotiated using IKEv2
+		</li>
+    </ul>
+	  </section>
+  </section>
+  <section anchor="UDP-Encapsulation" numbered="true" toc="default">
+   <name>UDP Encapsulation</name>
         <t>
 				TBD
 				</t>
