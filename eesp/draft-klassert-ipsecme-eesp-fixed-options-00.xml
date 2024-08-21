@@ -328,26 +328,22 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
    different processing model, affect the fields noted above.  The
    processing details are described in later sections.
 	</t>
-    <table anchor="eesp-packet-separate-algos" align="center">
+    <table anchor="eesp-id" align="center">
         <name>EESP ID and features</name>
         <thead>
             <tr>
                 <th align="left">EESP ID</th>
-                <th align="center">Name </th>
+                <th align="center">Name</th>
                 <th align="center">IIV<xref target="note1_1" format="none">[1]</xref></th>
-                <th align="center">64bit SN <xref target="note1_2" format="none">[2]</xref> </th>
-                <th align="center">32bit SN <xref target="note1_3" format="none">[3]</xref> </th>
-                <th align="center">Stream only <xref target="note1_4" format="none">[4]</xref> </th>
-                <th align="center">Block Also  <xref target="note1_5" format="none">[5]</xref></th>
+                <th align="center">Stream only <xref target="note1_2" format="none">[4]</xref> </th>
+                <th align="center">Block Also  <xref target="note1_3" format="none">[5]</xref></th>
             </tr>
         </thead>
         <tbody>
             <tr>
                 <td align="center">1</td>
                 <td align="left">EESP</td>
-                <td align="center">N</td>
-                <td align="center">Y</td>
-                <td align="center">N</td>
+                <td align="center">O</td>
                 <td align="center">N</td>
                 <td align="center">Y</td>
             </tr>
@@ -357,8 +353,6 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
                 <td align="center">Y</td>
                 <td align="center">Y</td>
                 <td align="center">N</td>
-                <td align="center">Y</td>
-                <td align="center">N</td>
             </tr>
             <tr>
                 <td align="center">3</td>
@@ -366,16 +360,12 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
                 <td align="center">Y</td>
                 <td align="center">Y</td>
                 <td align="center">N</td>
-                <td align="center">Y</td>
-                <td align="center">N</td>
             </tr>
             <tr>
                 <td align="center">4</td>
                 <td align="left">PSP VNI64</td>
                 <td align="center">Y</td>
-                <td align="center">Y</td>
-                <td align="center">N</td>
-                <td align="center">Y</td>
+               <td align="center">Y</td>
                 <td align="center">N</td>
            </tr>
             <tr>
@@ -384,20 +374,134 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
                 <td align="center">Y</td>
                 <td align="center">Y</td>
                 <td align="center">N</td>
-                <td align="center">Y</td>
-                <td align="center">N</td>
             </tr>
         </tbody>
     </table>
     <!-- Notes with anchor attributes -->
-    <t anchor="note1_1">[1] Implecit IV only either from 64 bit SN or 32bit</t>
-    <t anchor="note1_2">[2] 64bit SN in packet</t>
-    <t anchor="note1_3">[3] Lower 32bit SN on packet </t>
-    <t anchor="note1_4">[4] Only Stream ciphers supported</t>
-    <t anchor="note1_5">[5] Also support Block Mode Ciphers</t>
+    <t anchor="note1_1">[1] Implecit IV algorithms only</t>
+    <t anchor="note1_2">[2] Only Stream ciphers supported</t>
+    <t anchor="note1_3">[3] Also support Block Ciphers</t>
 
+    <table anchor="eesp-packet-separate-algos" align="center">
+        <name>Separate Encryption and Integrity Algorithms</name>
+        <thead>
+            <tr>
+                <th align="left">Field</th>
+                <th align="center"># of bytes</th>
+                <th align="center">Requ'd <xref target="note2_1" format="none">[1]</xref></th>
+                <th align="center">What Encrypt Covers</th>
+                <th align="center">What Integ Covers</th>
+                <th align="center">What is Xmtd</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td align="left">Base Header</td>
+                <td align="center">4</td>
+                <td align="center">M</td>
+                <td align="center"></td>
+                <td align="center">Y</td>
+                <td align="center">plain</td>
+            </tr>
+            <tr>
+                <td align="left">Options</td>
+                <td align="center">variable</td>
+                <td align="center">O</td>
+                <td align="center"></td>
+                <td align="center">Y</td>
+                <td align="center">plain</td>
+            </tr>
+            <tr>
+                <td align="left">SPI</td>
+                <td align="center">4</td>
+                <td align="center">M</td>
+                <td align="center"></td>
+                <td align="center">Y</td>
+                <td align="center">plain</td>
+            </tr>
+            <tr>
+                <td align="left">Seq#</td>
+                <td align="center">8</td>
+                <td align="center">M</td>
+                <td align="center"></td>
+                <td align="center">Y</td>
+                <td align="center">plain</td>
+            </tr>
+            <tr>
+                <td align="left">IV</td>
+                <td align="center">variable</td>
+                <td align="center">O</td>
+                <td align="center"></td>
+                <td align="center">Y</td>
+                <td align="center">plain</td>
+            </tr>
+            <tr>
+                <td align="left">Transport mode Header <xref target="note2_5" format="none">[5]</xref></td>
+                <td align="center">4</td>
+                <td align="center">O</td>
+                <td align="center">Y</td>
+                <td align="center">Y</td>
+                <td align="center">cipher <xref target="note2_3" format="none">[3]</xref></td>
+            </tr>
+	    <!--
+            <tr>
+                <td align="left">Pad Length</td>
+                <td align="center">1</td>
+                <td align="center">M</td>
+                <td align="center">Y</td>
+                <td align="center">Y</td>
+                <td align="center">cipher <xref target="note2_3" format="none">[3]</xref></td>
+            </tr>
+            <tr>
+                <td align="left">Reserved</td>
+                <td align="center">2</td>
+                <td align="center">M</td>
+                <td align="center">Y</td>
+                <td align="center">Y</td>
+                <td align="center">cipher <xref target="note2_3" format="none">[3]</xref></td>
+            </tr>
+	    -->
+            <tr>
+                <td align="left">IP datagram <xref target="note2_2" format="none">[2]</xref></td>
+                <td align="center">variable</td>
+                <td align="center">M or D</td>
+                <td align="center">Y</td>
+                <td align="center">Y</td>
+                <td align="center">cipher <xref target="note2_3" format="none">[3]</xref></td>
+            </tr>
+            <tr>
+                <td align="left">Padding</td>
+                <td align="center">0-255</td>
+                <td align="center">M</td>
+                <td align="center">Y</td>
+                <td align="center">Y</td>
+                <td align="center">cipher <xref target="note2_3" format="none">[3]</xref></td>
+            </tr>
+            <tr>
+                <td align="left">ICV Padding</td>
+                <td align="center">variable</td>
+                <td align="center">if need</td>
+                <td align="center"></td>
+                <td align="center">Y</td>
+                <td align="center">not xmtd</td>
+            </tr>
+            <tr>
+                <td align="left">ICV</td>
+                <td align="center">variable</td>
+                <td align="center">M <xref target="note2_4" format="none">[4]</xref></td>
+                <td align="center"></td>
+                <td align="center"></td>
+                <td align="center">plain</td>
+            </tr>
+        </tbody>
+    </table>
 
-
+    <!-- Notes with anchor attributes -->
+    <t anchor="note2_1">[1] M = mandatory; O = optional; D = dummy</t>
+    <t anchor="note2_2">[2] If tunnel mode -&gt; IP datagram. If beet mode -&gt; IP datagram. If transport mode -&gt; next header and       data</t>
+    <t anchor="note2_3">[3] ciphertext if encryption has been selected</t>
+    <t anchor="note2_4">[4] mandatory if a separate integrity algorithm is used</t>
+    <t anchor="note2_5">[5] mandatory if transport or BEET mode is used, not present on tunnel mode</t>
 
         <t>
          The following subsections describe the fields in the header format.
