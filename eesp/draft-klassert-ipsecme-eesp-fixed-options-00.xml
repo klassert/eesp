@@ -134,14 +134,10 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
         illustrates the top-level format of an EESP packet.
         The EESP header is split into multiple parts.
 	</t>
-
-
         <figure align="center" anchor="eesp-top-level-packet-format">
           <name>Top-Level Format of an EESP Packet</name>
           <artwork align="left">
             <![CDATA[
-
-
     0                   1                   2                   3
     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -153,12 +149,12 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
    ~                   Crypto Header (variable)                    ~
    |                                                               |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |                     Transtport Mode Header                    |
+   |                     Transtport Mode Header (optional)         |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    |                      Payload Data (variable)                  |
    ~                                                               ~
    |               +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |               |          Padding (0-255 bytes)                |
+   |               |          Padding (0-255 bytes) (optional)     |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    |                                                               |
    ~              Integrity Check Value-ICV (variable)             ~
@@ -224,28 +220,21 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
    <xref target="eesp-tunnel-packet-format"/> illustrates the resulting packet format for Tunnel Mode
    and <xref target="eesp-transport-packet-format"/> for Transport and BEET Mode.
    </t>
-
-        <figure align="center" anchor="eesp-tunnel-packet-format">
+    <figure align="center" anchor="eesp-tunnel-packet-format">
           <name>Tunnel Mode EESP packet format</name>
           <artwork align="left">
             <![CDATA[
-
-
     0                   1                   2                   3
     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |    Version    |         Option Type       |     Reserved      |
-   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |                                                               |
-   ~                              Option                           ~
-   |                                                               |
+   |    Version    | Option ID     |     Reserved                  |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    |                              SPI                              |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |                        Sequence Number                        |
+   |                        Sequence Number(64)                    |
    |                                                               |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |                          IV* (optional)                       |
+   |                          IV *(optional)                       |
    |                                                               |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    |                                                               ~
@@ -265,25 +254,18 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
 </artwork>
         </figure>
 
-
         <figure align="center" anchor="eesp-transport-packet-format">
           <name>Transport/BEET Mode EESP packet format</name>
           <artwork align="left">
             <![CDATA[
-
-
     0                   1                   2                   3
     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |    Version    |         Option Type       |     Reserved      |
-   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |                                                               |
-   ~                             Options                           ~
-   |                                                               |
+   |    Version    | Option Type 1 |         Reserved              |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    |                              SPI                              |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |                        Sequence Number                        |
+   |                       Sequence Number (64)                    |
    |                                                               |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    |                          IV* (optional)                       |
@@ -303,9 +285,6 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
         ]]>
 </artwork>
         </figure>
-
-
-
 	<t>
 	* If included, cryptographic synchronization
         data, e.g., an Initialization Vector (IV),
@@ -579,10 +558,6 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
 	can be used for any purposes that are out of scope for standardization.
 	For example it can be used to encode hardware specific information,
 	such as used encryption/authentication algorithms as done in <xref target="PSP"/>.</t>
-
-	<t>The only EESP Option Types defined in this document are the FID4 and
-	   FID8 options specified in <xref target="EESP-FID"/>.</t>
-
       </section>
 
       <section anchor="Crypto-Header" numbered="true" toc="default">
@@ -693,7 +668,6 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
    present.
         </t>
       </section>
-      </section>
 
       <section anchor="Payload-Data" numbered="true" toc="default">
         <name>Payload Data</name>
@@ -715,127 +689,127 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
       </section>
       </section>
 
+      <section anchor="EESP-OPTIONS" numbered="true" toc="default">
+        <name>EESP Optional formats</name>
+      <section anchor="PSP-Header" numbered="true" toc="default">
+        <name>PSP Header</name>
+    <figure align="center" anchor="psp-packet-format">
+          <name>PSP Packet Format</name>
+          <artwork align="left">
+            <![CDATA[
+    0                   1                   2                   3
+    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |    Version    | Option ID 2   |     Cryto ID                  |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |   Header Len  | Next Header   |S|D|Crypt Off  |A|E|RESERVED   |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                              SPI                              |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                          IV 64                                |
+   |                                                               |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                                                               ~
+   ~                     IPv4/IPv6 Header or Transport Header      ~
+   |                                                               |
+   |  0x0  |        Reserved       | Next Header   | Pad Length    |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                   L4 Payload Data (variable)                  |
+   ~                                                               ~
+   |               +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |               |          Padding (0-255 bytes)                |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                                                               |
+   ~              Integrity Check Value-ICV (variable)             ~
+   |                                                               |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+        ]]>
+</artwork>
+        </figure>
+    <ul>
+    <li>
+    Version - 8 bits: TBD
+    </li>
+    <li>
+    Option ID - 8 bits:
+    </li>
+    <li>
+    Crypt Offset - 6 bits: The offset from the end of the IV to the
+      start of the encrypted portion of the packet, speciied in 4 octet
+      units. The resulting value MUST NOT be larger than the size of
+      the inner packet, it SHOULD be only next layer header e.g. UDP or TCP.
+			A zero CryptOffset means that the complete packet is authenticated and
+			encrypted. A positive Crypt Offset means that the first 'Crypt Offset * 4'
+			octets of the inner packet belong to the AAD but are not encrypted.
+			In this case the Next Header field MUST be the same as the Next Header
+			field in the EESP transport header, when the transport mode header is
+			present so that the Header can be parsed by intermediate devices. For
+			Tunnel mode Next Header in EESP header points to 4, IPTFS 144.
+    </li>
+    <li>
+    Flags - 4 bits: TBD
+    </li>
+    <li>
+    Crypto IE - 16 bits: From IKEv2 Encrypt Transform or IKEv2 Authenticate Transform
+    </li>
+    <li>
+    VNI64: 8 bytes only in <xref target="psp-vni64-packet-format"/>
+    </li>
+    </ul>
+
+				</section>
+          <section anchor="PSP-VNI64" numbered="true" toc="default">
+           <name>PSP VNI64</name>
+
+    <figure align="center" anchor="psp-vni64-packet-format">
+          <name>PSP VNI 64 Packet Format</name>
+          <artwork align="left">
+            <![CDATA[
+    0                   1                   2                   3
+    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |    Version    | Option ID = 3 |     Cryto ID                  |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |   Header Len  | Next Header   |S|D|Crypt Off  |A|E|RESERVED   |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                              SPI                              |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                          IV (64)                              |
+   |                                                               |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                          VNI (64)                             |
+   |                                                               |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                                                               ~
+   ~                     IPv4/IPv6 Header or Transport Header      ~
+   |                                                               |
+   |  0x0  |        Reserved       | Next Header   | Pad Length    |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                   L4 Payload Data (variable)                  |
+   ~                                                               ~
+   |               +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |               |          Padding (0-255 bytes)                |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                                                               |
+   ~              Integrity Check Value-ICV (variable)             ~
+   |                                                               |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+        ]]>
+</artwork>
+        </figure>
+
+          </section>
+      </section>
+
+
+
       <section anchor="UDP-Encapsulation" numbered="true" toc="default">
         <name>UDP Encapsulation</name>
         <t>
 	TBD
         </t>
       </section>
-      <section anchor="Packet-format" numbered="true" toc="default">
-        <name>Enhanced Encapsulating Security Protocol Processing
-	</name>
-	<t>
-        TBD
-	</t>
-
       </section>
-
-      <section anchor="Option-Types" numbered="true" toc="default">
-        <name>EESP Option Types</name>
-	<t>
-        This document defines two Flow Identifier Options FID4 and FID8 and one option defining
-	the Pretty Security Protocol (PSP). Future documents can define furter options.
-        </t>
-
-
-     <section anchor="EESP-FID" numbered="true" toc="default">
-        <name>EESP Flow Identifier Option</name>
-
-    <t>
-   Flow Identifier Options are constructed as described in <xref target="Options"/>.
-
-    </t>
-        <figure align="center" anchor="fid4-option">
-          <name>FID4: 4 byte Flow Identifier</name>
-          <artwork align="left">
-            <![CDATA[
-    0                   1                   2                   3
-    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
-   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |                    Flow Identifier (FID)                      |
-   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-]]></artwork></figure>
-
-        <figure align="center" anchor="fid8-option">
-          <name>FID8: 8 byte Flow Identifier</name>
-          <artwork align="left">
-            <![CDATA[
-    0                   1                   2                   3
-    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
-   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |                    Flow Identifier (FID)                      |
-   |                                                               |
-   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-]]></artwork></figure>
-
-
-      </section>
-
-
-       <section anchor="PSP-Option" numbered="true" toc="default">
-        <name>EESP PSP Option</name>
-
-	<t>
-       The PSP Option is an extended Flow Identifier (that will go likely into
-       a second document using EESP with this option and
-       defining the PSP KDF).
-
-	</t>
-
-        <figure align="center" anchor="psp-option">
-          <name>PSP Option</name>
-          <artwork align="left">
-            <![CDATA[
-    0                   1                   2                   3
-    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
-   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |  Netxt Header | Header Length |CryptOffset| Flags |CryptoParam|
-   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |                         FID8 (optional)                       |
-   |                                                               |
-   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-]]></artwork></figure>
-
-    <ul>
-    <li>
-    Next Header - 8 bits: TBD
-    </li>
-    <li>
-    Header Length - 8 bits: TBD
-    </li>
-    <li>
-    CryptOffset - 6 bits: The offset from the end of the IV to the
-      start of the encrypted portion of the packet, measured in 4 octet
-      units.  The resulting value MUST NOT be larger than the size of
-      the inner packet.  A zero CryptOffset means that the complete
-      packet is authenticated and encrypted.  A positive CryptOffset
-      means that the first 'CryptOffset * 4' octets of the inner packet
-      belong to the AAD but are not encrypted.  In this case the Next
-      Header field MUST be the same as the Next Header field in the ESP
-      trailer, so that the Header can be parsed by intermediate devices.
-      (Authors note: This is to preserve the original WESP use-case and
-      because PSP uses this too.  In case the Flow Identifier Options
-      can carry enough information about inner flows, we can remove the
-      cryptoffset.)
-
-    </li>
-    <li>
-    Flags - 4 bits: TBD
-    </li>
-    <li>
-    CryptoParam - 6 bits: TDB ( was Version in PSP)
-    </li>
-    <li>
-    FID8: 8 bytes, MUST carry caracteristic infromation of the inner
-    </li>
-
-    </ul>
-
-
-	</section>
-      </section>
-
-
 
     <section anchor="IKENegotiation" numbered="true" toc="default">
       <name>IKEv2 Negotiation</name>
