@@ -227,14 +227,14 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
     0                   1                   2                   3
     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |    Version    | Option ID     |     Reserved                  |
+   |    Version    |  Type     |     Reserved                  |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    |                              SPI                              |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    |                        Sequence Number(64)                    |
    |                                                               |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |                          IV *(optional)                       |
+   |                          IV (optional)                        |
    |                                                               |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    |                                                               ~
@@ -261,7 +261,7 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
     0                   1                   2                   3
     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |    Version    | Option Type 1 |         Reserved              |
+   |    Version    |    Type = 1   |         Reserved              |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    |                              SPI                              |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -313,7 +313,6 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
             <tr>
                 <th align="left">EESP ID</th>
                 <th align="center">Name</th>
-                <th align="center">IIV<xref target="note1_1" format="none">[1]</xref></th>
                 <th align="center">Stream only <xref target="note1_2" format="none">[4]</xref> </th>
                 <th align="center">Block Also  <xref target="note1_3" format="none">[5]</xref></th>
             </tr>
@@ -322,7 +321,6 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
             <tr>
                 <td align="center">1</td>
                 <td align="left">EESP</td>
-                <td align="center">O</td>
                 <td align="center">N</td>
                 <td align="center">Y</td>
             </tr>
@@ -330,27 +328,23 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
                 <td align="center">2</td>
                 <td align="left">PSP</td>
                 <td align="center">Y</td>
-                <td align="center">Y</td>
                 <td align="center">N</td>
             </tr>
             <tr>
                 <td align="center">3</td>
                 <td align="left">PSP VNI32</td>
                 <td align="center">Y</td>
-                <td align="center">Y</td>
                 <td align="center">N</td>
             </tr>
             <tr>
                 <td align="center">4</td>
                 <td align="left">PSP VNI64</td>
-                <td align="center">Y</td>
                <td align="center">Y</td>
                 <td align="center">N</td>
            </tr>
             <tr>
                 <td align="center">5</td>
                 <td align="left">EESP Flow ID 32</td>
-                <td align="center">Y</td>
                 <td align="center">Y</td>
                 <td align="center">N</td>
             </tr>
@@ -574,7 +568,7 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
         <name>Sequence Number</name>
 
         <t>
-   This unsigned 64-bit field contains a counter value that increases by
+   This unsigned 64-bit field contains a counter value that start at one and increases by
    for each packet sent, i.e., a per-SA packet sequence number.
    For a unicast SA or a single-sender multicast SA, the sender MUST
     increment this field for every transmitted packet.
@@ -587,7 +581,9 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
    protection SHOULD increase the sequence number by one for each send packet.
    Even if recommended to increase the sequence number by one, implementatins
    MAY employ other methods to increase the sequence number, as long
-   as the aforementioned requirements are met.
+   as the aforementioned requirements are met. This Sequence Number COULD also
+	 be used as Initialization Vector(IV) for counter mode alogrithms,
+	 in this case only the Sequence Number transmitted in the packet.
 
    Sharing an SA
    among multiple senders is permitted, though generally not
@@ -700,9 +696,9 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
     0                   1                   2                   3
     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |    Version    | Option ID = 2 |     Cryto ID                  |
+   |    Version    |    Type = 2   |     Encryption ID             |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |   Header Len  | Next Header   |S|D|Crypt Off  |A|E|RESERVED   |
+   |   Header Len  | Next Header   |S|D|Crypt Off  |   RESERVED    |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    |                              SPI                              |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -729,7 +725,7 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
     Version - 8 bits: TBD
     </li>
     <li>
-    Option ID - 8 bits:
+    Type - 8 bits:
     </li>
     <li>
     Crypt Offset - 6 bits: The offset from the end of the IV to the
@@ -745,10 +741,13 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
 			Tunnel mode Next Header in EESP header points to 4, IPTFS 144.
     </li>
     <li>
-    Flags - 4 bits: TBD
+    Flags - bits S: Sample bit
     </li>
     <li>
-    Crypto IE - 16 bits: From IKEv2 Encrypt Transform or IKEv2 Authenticate Transform
+    Flags - bits D: Discard bit
+    </li>
+    <li>
+    Encryption ID - 16 bits: IANA IKEv2 <xref target="Encryption-Transform-IDs" format="none">Encryption Algorithm Transform IDs</xref>
     </li>
     <li>
     VNI64: 8 bytes only in <xref target="psp-vni64-packet-format"/>
@@ -765,9 +764,9 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
     0                   1                   2                   3
     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |    Version    | Option ID = 3 |     Cryto ID                  |
+   |    Version    |    Type = 3   |     Cryto ID                  |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |   Header Len  | Next Header   |S|D|Crypt Off  |A|E|RESERVED   |
+	 |   Header Len  | Next Header   |S|D|Crypt Off  |   RESERVED    |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    |                              SPI                              |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -803,7 +802,7 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
     0                   1                   2                   3
     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |    Version    | Option ID = 4 |      Reserved                 |
+   |    Version    |    Type = 4   |      Reserved                 |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    |                         Flow ID 32                            |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -837,7 +836,7 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
     Version - 8 bits: TBD
     </li>
     <li>
-    Option ID - 8 bits:
+    Type - 8 bits:
     </li>
     <li>
     Flow ID - 32 bits: Used for intermeditate ECMP or End system RSS.
@@ -907,17 +906,17 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
 </section>
 
 
-<section title="EESP Options Registry">
+<section title="EESP Type Registry">
       <t>This document requests IANA to create a registry called
       "EESP_OPTIONS Type Registry" under a new category named
       "EESP_OPTIONS Parameters".</t>
 
     <ul>
     <li>
-    Name: EESP Options Registry
+    Name: EESP Type Registry
     </li>
     <li>
-    Description: EESP Base Header Options
+    Description: EESP Base Header Types
     </li>
     <li>
     Reference: This document
@@ -928,7 +927,7 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
       <figure align="center" anchor="iana_requests_reg">
         <artwork align="left">
           <![CDATA[
-      Value   EESP Header Options Types          Reference
+      Value   EESP  Type                          Reference
       -----   ------------------------------    ---------------
           0   Unused                            [this document]
           1   EESP                              [this document]
@@ -1031,7 +1030,6 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
     <references>
       <name>Normative References</name>
       <xi:include href="http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.2119.xml"/>
-      <xi:include href="http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.3948.xml"/>
       <xi:include href="http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.4301.xml"/>
       <xi:include href="http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.4303.xml"/>
       <xi:include href="http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.5840.xml"/>
@@ -1061,6 +1059,16 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
           <title>PSP Architecture Specification</title>
           <author>
             <organization showOnFrontPage="true">Google</organization>
+          </author>
+        </front>
+      </reference>
+			<reference anchor="Encryption-Transform-IDs"
+      target="https://www.iana.org/assignments/ikev2-parameters/ikev2-parameters.xhtml#ikev2-parameters-5"
+      quoteTitle="true">
+        <front>
+          <title>Encryption Algorithm Transform IDs</title>
+          <author>
+            <organization showOnFrontPage="true">IANA</organization>
           </author>
         </front>
       </reference>
