@@ -801,23 +801,30 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
           </section>
       </section>
 
-
-
       <section anchor="UDP-Encapsulation" numbered="true" toc="default">
         <name>UDP Encapsulation</name>
         <t>
-	TBD
-        </t>
-      </section>
-      </section>
-
-    <section anchor="IKENegotiation" numbered="true" toc="default">
-      <name>IKEv2 Negotiation</name>
+				TBD
+				</t>
+	<ul>
+	<li>
+	Source and Destination port SHOULD be same as IKE when used with IKE.
+	</li>
+   <li>
+	When used in multiple SAs UDP source port could be different, ephemeral, to increase ECMP entropy
+	</li>
+ <li>
+	When used without IKE such as PSP the destination port is 1000, and source port is ephemeral.
+	</li>
+	</ul>
+ </section>
+ </section>
+ <section anchor="IKENegotiation" numbered="true" toc="default">
+    <name>IKEv2 Negotiation</name>
       <t>
       TBD
       </t>
       </section>
-
 
     <section anchor="IANA" title="IANA Considerations">
 
@@ -826,13 +833,11 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
    place a reference to this document to the Reserved value 0x0
    in the IP protocol version number space.</t>
 
-
    <t>
    Note: Maybe we don't need this, because we know
    if this is transport or tunnel mode...
    </t>
 </section>
-
 
     <section title="EESP Protocol Number">
     <t>This document requests IANA
@@ -880,18 +885,18 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
           <![CDATA[
       Value   EESP Header Options Types          Reference
       -----   ------------------------------    ---------------
-          0   No Option present                 [this document]
-          1   FID4                              [this document]
-          2   FID8                              [this document]
-          3   PSP                               [this document]
-      27-31   Private                           [this document]
+          0   Unused                            [this document]
+          1   EESP                              [this document]
+          2   PSP                               [this document]
+          3   PSP VNI 64                        [this document]
+          4   EESP Flow ID 32                   [this document]
+      5-255   Unasigned                         [this document]
             ]]>
 </artwork>
       </figure>
 
     </section>
     </section>
-
 
     <section anchor="Implementation" numbered="true" toc="default">
       <name>Implementation Status</name>
