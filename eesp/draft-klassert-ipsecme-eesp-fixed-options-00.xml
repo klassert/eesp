@@ -62,29 +62,30 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
       parts of the headers of the inner packet.
 
       EESP provides a solution for all the aforementioned use-cases.</t>
-      <t> This document defines Options for the PSP usecase.
-      Future documents can define the meaning of
-      additional Options for their particular use-case. With this, all existing and
-      potential new use-cases for Flow Identifiers can be covered. For
-      instance it can be used for the case of
+      <t> This document also defines the PSP usecase: a stateless(no SADB) receiver.
+      Future documents can define additional
+      EESP types for their particular use-case with differet header.
+      With this, all existing and potential new use-cases for Flow Identifiers
+      can be covered. For instance it can be used for the case of
       <xref target="I-D.ponchon-ipsecme-anti-replay-subspaces"/> or
       <xref target="I-D.he-ipsecme-vpn-shared-ipsecsa"/> etc., or combinations
-      thereof.
-      EESP does not have a trailer as ESP had, instead the Next Header an Pad Length
-      fields are placed in front for Transport and BEET Mode. For Tunnel mode,
-      the Next Header and Pad Length fields are removed. The needed information
-      can be found in the IPv4 or IPv6 header, respectively. EESP also does not
-      define TFC padding, IP-TFS SHOULD be used instead.
-      A detailed discussion about the
-      problems of the ESP protocol can be found in
-      <xref target="I-D.mrossberg-ipsecme-multiple-sequence-counters"/>.</t>
+      thereof.</t>
+
+      <t> EESP does not have a trailer as ESP had, instead the Next Header an Pad
+      Length fields may be placed in front when necessary : in Transport Mode,
+      BEET Mode, <xref target="RFC9347" format="none"> IP-TFS </xref>, and Dummy
+      Payload -- 59. For Tunnel mode the necessary information can be found in
+      the IPv4 or IPv6 header, respectively. EESP also does not
+      support TFC padding, <xref target="RFC9347"/> IP-TFS SHOULD be used instead.
+      A detailed discussion about the problems of the ESP protocol can be found
+      in <xref target="I-D.mrossberg-ipsecme-multiple-sequence-counters"/>.</t>
 
       <t>
        EESP follows the Security Architecture for the Internet Protocol
-       <xref target="RFC4301"/> and uses ESP as of <xref target="RFC4303"/>
-       as reference. That means this document is seen as an modern version of ESP
-       (with new protocol number), it follows the design principles
-       of ESP. Protocol parts that are not mentioned here, MUST be handled
+       <xref target="RFC4301"/> and uses ESP v3 specified in <xref target="RFC4303"/>
+       as a reference. That means this document is seen as an modern version of ESP
+       (with new protocol number), it follows several features of ESP v3.
+       Protocol parts that are not mentioned here, MUST be handled
        exaclty the way as specified in <xref target="RFC4303"/>.
        EESP neither updates nor obsoletes <xref target="RFC4303"/>.
       </t>
@@ -163,7 +164,6 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
         ]]>
 </artwork>
         </figure>
-
 
         <t>
         The packet starts with a Base Header that is used by protocol
@@ -816,7 +816,7 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    |                                                               |
    ~                     IPv4/IPv6 Header                          ~
-	 |                     or Transport Header                       |
+   |                     or Transport Header                       |
    |  0x0  |        Reserved       | Next Header   | Pad Length    |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    |                   L4 Payload Data (variable)                  |
@@ -1036,6 +1036,7 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
       <xi:include href="http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.7296.xml"/>
       <xi:include href="http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.2992.xml"/>
       <xi:include href="http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.8200.xml"/>
+      <xi:include href="http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.9347.xml"/>
       <!--
       <xi:include href="http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.4301.xml"/>
       <xi:include href="http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.791.xml"/>
