@@ -150,7 +150,7 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
    |                                                               |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    |                                                               |
-   ~                   Crypto Header (variable)                    ~
+   ~                     Host Header (variable)                    ~
    |                                                               |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    |                     Transtport Mode Header                    |
@@ -185,7 +185,7 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
         <t>
 	This Base Header follows the Crypto Header, used to
 	route the packet to the correct Crypto context.
-       The Crypto Header consists of two, from ESP well known, 4-byte fields Security Parameters Index
+       The Host Header consists of two, from ESP well known, 4-byte fields Security Parameters Index
        (SPI) and Sequence Number and an optional Initialization Vector.
         </t>
 
@@ -234,7 +234,7 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
     0                   1                   2                   3
     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |  Next Header  |    HdrLen     |   Optlen  |   R   | Version   |
+   |    Version    |    OptLen     |            Session ID         |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    |                                                               |
    ~                             Options                           ~
@@ -242,7 +242,7 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    |                              SPI                              |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |                        Sequence Number                        |
+   |                    Sequence Number (optional)                 |
    |                                                               |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    |                          IV* (optional)                       |
@@ -275,7 +275,7 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
     0                   1                   2                   3
     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |  Next Header  |    HdrLen     |   Optlen  |   R   | Version   |
+   |    Version    |    OptLen     |            Session ID         |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    |                                                               |
    ~                             Options                           ~
@@ -283,7 +283,7 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    |                              SPI                              |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |                        Sequence Number                        |
+   |                    Sequence Number (optional)                 |
    |                                                               |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    |                          IV* (optional)                       |
@@ -368,7 +368,7 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
             <tr>
                 <td align="left">Seq#</td>
                 <td align="center">8</td>
-                <td align="center">M</td>
+                <td align="center">O</td>
                 <td align="center"></td>
                 <td align="center">Y</td>
                 <td align="center">plain</td>
@@ -468,25 +468,7 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
         <name>Fixed Base Header</name>
 
         <ul>
-          <li>Next Header - 8 bits:
-          MUST be set to 59, <xref target="RFC8200"/> Section 4.7. if encryption has
-	  been selected. MUST be set to the Next Header value of the inner packet
-	  encryption has not been selected.
-          </li>
-          <li>HdrLen - 8 bits: Offset from the beginning of the EESP header
-          to the beginning of the Payload Data (i.e., past the IV, if
-          present) within, in octet. The following HdrLen values
-          are invalid: any value less than 16; any value that is not a multiple
-          of 4; any value that is not a multiple of 8 when using IPv6. The
-          receiver MUST ensure that this field matches with the header offset
-          computed from using the negotiated Security Association (SA) and MUST
-          drop the packet in case it does not match.</li>
-          <li>OptLen - 6 bit: Total length of all options included in the EESP
-	  header Options, in octets.
-          </li>
-          <li>Reserved - 4 bits: Set to zero on transmit, ignored on
-          receive.</li>
-          <li>Version (V) - 6 bits: MUST be sent to zero and checked by the
+          <li>Version - 8 bits: MUST be sent to zero and checked by the
           receiver. If the version is different than an expected version number
           (e.g., negotiated via the control channel), then the packet MUST be
           dropped by the receiver. Future modifications to the EESP header
@@ -496,6 +478,14 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
           versions are not necessarily able to parse the packet correctly.
           Intermediate treatment of such packets is policy dependent (e.g., it
           may dictate dropping such packets).</li>
+	  <li>OptLen - 8 bits: Overall length of the Options following
+	  the fixed Baseheader in bytes.</li>
+	  <li>Session ID - 16 bit: The Session ID covers additional information
+	  that might be needed to route the packet to the correct crypto context.
+	  For instance, if a KDF is used do stateless key derivation, the
+	  crypto algorithm IH could be encoded there. The meaning of that field
+	  is opaque and MAY be negotiated by IKEv2.
+	  </li>
         </ul>
 
 	</section>
@@ -619,7 +609,7 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
       </section>
 
       <section anchor="Crypto-Header" numbered="true" toc="default">
-        <name>Crypto Header</name>
+        <name>Host Header</name>
 
       <section anchor="SPI" numbered="true" toc="default">
         <name>Security Parameters Index (SPI)</name>
@@ -906,6 +896,23 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
     <li>
     Option Length - 8 bits: See <xref target="EESP-Options"/>
     </li>
+          <li>Next Header - 8 bits:
+          MUST be set to 59, <xref target="RFC8200"/> Section 4.7. if encryption has
+	  been selected. MUST be set to the Next Header value of the inner packet
+	  encryption has not been selected.
+          </li>
+          <li>HdrLen - 8 bits: Offset from the beginning of the EESP header
+          to the beginning of the Payload Data (i.e., past the IV, if
+          present) within, in octet. The following HdrLen values
+          are invalid: any value less than 16; any value that is not a multiple
+          of 4; any value that is not a multiple of 8 when using IPv6. The
+          receiver MUST ensure that this field matches with the header offset
+          computed from using the negotiated Security Association (SA) and MUST
+          drop the packet in case it does not match.</li>
+          <li>OptLen - 6 bit: Total length of all options included in the EESP
+	  header Options, in octets.
+          </li>
+
     <li>
     CryptOffset - 6 bits: The offset from the end of the IV to the
       start of the encrypted portion of the packet, measured in 4 octet
