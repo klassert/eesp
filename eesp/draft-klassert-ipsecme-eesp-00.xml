@@ -183,8 +183,8 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
 	integrity protected flow identifiers that can be used for flow classification. </t>
 
         <t>
-	This Base Header follows the Crypto Header, used to
-	route the packet to the correct Crypto context.
+	This Base Header follows the Host Header, used to
+	route the packet to the correct Crypto context and for replay protection.
        The Host Header consists of two, from ESP well known, 4-byte fields Security Parameters Index
        (SPI) and Sequence Number and an optional Initialization Vector.
         </t>
@@ -193,7 +193,7 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
         Unlike ESP, EESP does not have
 	a trailer. Instead, it has an optional Transport Mode
 	Header which consists of the the next header and pad length fields directly following
-	the Crypto Header. This part of the header is present only in Transport and BEET Mode.
+	the Host Header. This part of the header is present only in Transport and BEET Mode.
 	On tunnel mode, the inner packet always start with an IPv4 or IPv6
 	header. These headers are constructed in a way that they always
 	start with a Version field at the first nibble. So it is possible to
@@ -627,7 +627,7 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
    For a unicast SA or a single-sender multicast SA, the sender MUST
     increment this field for every transmitted packet.
    The sequence number MUST strictly monotonic increase, sequence numbers
-   MUST not repead and MUST not cycle for any given SA.
+   MUST not repeat and MUST not cycle for any given SA.
    Thus, the sender's counter and the receiver's counter MUST
    be reset (by establishing a new SA and thus a new key) prior to the
    transmission of the 2^64nd packet on an SA.
@@ -683,7 +683,7 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
    being part of the ciphertext.)
       </t>
       <t>
-      Counter mode algorithms SHOULD encode the 64-bit counter ofthe
+      Counter mode algorithms SHOULD encode the 64-bit counter of the
       Initialization Vector (IV) on the Sequence number Field. This option
       saves 8 header bytes on each packet.
          Whether or not this option is selected is determined as part of
