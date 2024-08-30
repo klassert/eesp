@@ -526,7 +526,7 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
 	<t>The only EESP Option Types defined in this document are the Pad1 and
 	   PadN options specified in <xref target="Adapt-Options"/>.</t>
 
-  <section title=" Adapting IPv6 Extension header options" anchor="Adapt-Options">
+  <section title="Adapting IPv6 Extension header options" anchor="Adapt-Options">
 
 	<t>EESP extension header Options are adapted from IPv6 extension header Options as
 	   defined in Section 4.2 of <xref target="RFC8200"/>, with the following modifications:</t>
@@ -542,7 +542,7 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
 
 	</section>
 
-  <section title=" EESP Extension header options" anchor="EESP-Options">
+  <section title="EESP Extension header options" anchor="EESP-Options">
 
     <t>EESP Options
      carry a variable number of type-length-value (TLV) encoded
