@@ -71,12 +71,11 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
       <xref target="I-D.he-ipsecme-vpn-shared-ipsecsa"/> etc., or combinations
       thereof.
       EESP does not have a trailer as ESP had, instead the Next Header an Pad Length
-      fields are placed in front for Transport and BEET Mode. For Tunnel mode,
-      the Next Header and Pad Length fields are removed. The needed information
-      can be found in the IPv4 or IPv6 header, respectively. EESP also does not
-      define TFC padding, IP-TFS SHOULD be used instead.
-      A detailed discussion about the
-      problems of the ESP protocol can be found in
+      values are moved to the EESP header. Additionally, an Optimized EESP header is
+      defined which eliminates these 2 values when using simple IPv4 or IPv6
+      tunnel mode. EESP also does not define TFC padding, IP-TFS SHOULD be used
+      instead. A detailed discussion about the problems of the ESP protocol can
+      be found in
       <xref target="I-D.mrossberg-ipsecme-multiple-sequence-counters"/>.</t>
 
       <t>
@@ -153,7 +152,7 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
    ~                     Host Header (variable)                    ~
    |                                                               |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |                     Transtport Mode Header                    |
+   |                       Payload Info Header                     |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    |                      Payload Data (variable)                  |
    ~                                                               ~
@@ -173,7 +172,7 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
         The packet starts with a Base Header that is used by protocol
 	parsing engines of middleboxes such as routers or firewalls
 	and the end host.
-        The Base Header consits of a 4-byte field that is always
+        The Base Header consists of a 4-bytes that are always
         present and an optional part directly following this field.
 	The
         base header essentially defines the total length of the EESP header
@@ -183,36 +182,35 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
 	integrity protected flow identifiers that can be used for flow classification. </t>
 
         <t>
-	This Base Header follows the Host Header, used to
+          The Host Header follows the Base Header and is used to
 	route the packet to the correct Crypto context and for replay protection.
-       The Host Header consists of two, from ESP well known, 4-byte fields Security Parameters Index
-       (SPI) and Sequence Number and an optional Initialization Vector.
+       The Host Header consists of a 4-byte Security Parameters Index
+       (SPI), a Sequence Number and an optional Initialization Vector.
         </t>
 
         <t>
         Unlike ESP, EESP does not have
-	a trailer. Instead, it has an optional Transport Mode
-	Header which consists of the the next header and pad length fields directly following
-	the Host Header. This part of the header is present only in Transport and BEET Mode.
-	On tunnel mode, the inner packet always start with an IPv4 or IPv6
-	header. These headers are constructed in a way that they always
+	a trailer. Instead, these values have moved to a Payload Info Header
+        directly following the Host Header.
+
+	Additionally, when IPv4 or IPv6 tunnel mode is used an the Payload Info
+        Header MAY be elided. In this tunnel mode the inner packet will always start
+        with an IPv4 or IPv6 header. IPv4 or IPv6 packets always
 	start with a Version field at the first nibble. So it is possible to
 	identify IPv4 and IPv6 by reading the first nibble of the inner packet.
-	This means that there is no Next Header field needed on tunnel mode.
-	Additionally IPv4 and IPv6 headers have a field describing the
+	and there is no need for a Next Header field.
+	Additionally, IPv4 and IPv6 also have a field describing the
 	overall size of the inner packet, so a pad length fields is
-	also not needed for tunnel mode. Transport and BEET mode are
-	encoded with a 0x0 at the first nibble. In that case the
-	Transport Mode Header is present.
+	also not needed for tunnel mode as it can be derived.
 	</t>
 
         <t>The EESP header is constructed in a way that the start of the following next header
-        is aligned on a 4 byte boundary on IPv4 and on a  8 byte boundary on IPv6
+        is aligned on a 4 byte boundary on IPv4 and on a 8 byte boundary on IPv6
 	respective the start of the IPv4/IPv6 header.</t>
 
 
        <t>
-       Following these header fields is the Payload Data, which has
+       The Payload Data follows these header fields, and has
        substructure that depends on the choice of encryption algorithm and
        mode.  Following the Payload Data is variable cipher block padding and
        the optional Integrity Check Value (ICV)
@@ -221,12 +219,13 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
 
 
    <t>
-   <xref target="eesp-tunnel-packet-format"/> illustrates the resulting packet format for Tunnel Mode
-   and <xref target="eesp-transport-packet-format"/> for Transport and BEET Mode.
+   <xref target="eesp-optimized-packet-format"/> illustrates the resulting packet
+   format for IPv4 or IPv6 Tunnel Mode
+   and <xref target="eesp-full-packet-format"/> in all other modes of operation.
    </t>
 
-        <figure align="center" anchor="eesp-tunnel-packet-format">
-          <name>Tunnel Mode EESP packet format</name>
+        <figure align="center" anchor="eesp-optimized-packet-format">
+          <name>Optimized EESP packet format</name>
           <artwork align="left">
             <![CDATA[
 
@@ -234,7 +233,7 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
     0                   1                   2                   3
     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |    Version    |    OptLen     |            Session ID         |
+   |1|  Version    |    OptLen     |            Session ID         |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    |                                                               |
    ~                             Options                           ~
@@ -266,8 +265,8 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
         </figure>
 
 
-        <figure align="center" anchor="eesp-transport-packet-format">
-          <name>Transport/BEET Mode EESP packet format</name>
+        <figure align="center" anchor="eesp-full-packet-format">
+          <name>Full EESP packet format</name>
           <artwork align="left">
             <![CDATA[
 
@@ -275,7 +274,7 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
     0                   1                   2                   3
     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |    Version    |    OptLen     |            Session ID         |
+   |0|  Version    |    OptLen     |            Session ID         |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    |                                                               |
    ~                             Options                           ~
@@ -446,7 +445,7 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
     <t anchor="note1_2">[2] If tunnel mode -&gt; IP datagram. If beet mode -&gt; IP datagram. If transport mode -&gt; next header and data</t>
     <t anchor="note1_3">[3] ciphertext if encryption has been selected</t>
     <t anchor="note1_4">[4] mandatory if a separate integrity algorithm is used</t>
-    <t anchor="note1_5">[5] mandatory if transport or BEET mode is used, not present on tunnel mode</t>
+    <t anchor="note1_5">[5] not present in Optimized Header otherwise mandatory</t>
 
         <t>
          The following subsections describe the fields in the header format.
@@ -468,7 +467,7 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
         <name>Fixed Base Header</name>
 
         <ul>
-          <li>Version - 8 bits: MUST be sent to zero and checked by the
+          <li>Version - 7 bits: MUST be sent to zero and checked by the
           receiver. If the version is different than an expected version number
           (e.g., negotiated via the control channel), then the packet MUST be
           dropped by the receiver. Future modifications to the EESP header
@@ -1118,7 +1117,6 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
     <references>
       <name>Normative References</name>
       <xi:include href="http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.2119.xml"/>
-      <xi:include href="http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.3948.xml"/>
       <xi:include href="http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.4301.xml"/>
       <xi:include href="http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.4303.xml"/>
       <xi:include href="http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.5840.xml"/>
