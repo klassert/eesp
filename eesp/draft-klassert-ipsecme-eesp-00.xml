@@ -1,11 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <?xml-stylesheet type='text/xsl' href='rfc2629.xslt' ?>
-<!-- <xi:strict="yes" ?>
-<xi:compact="yes" ?>
-<xi:subcompact="no" ?>  -->
 <rfc xmlns:xi="http://www.w3.org/2001/XInclude" category="std"
-docName="draft-klassert-ipsecme-eesp-00" ipr="trust200902" obsoletes="" updates=""
-submissionType="IETF" xml:lang="en" tocInclude="true" tocDepth="4"
+docName="draft-klassert-ipsecme-eesp-00" ipr="trust200902"
+submissionType="IETF" tocInclude="true"
 symRefs="true" sortRefs="true" version="3" consensus="true">
   <front>
     <!-- The abbreviated title is used in the page header - it is only necessary if the
@@ -25,7 +22,7 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
         <email>antony.antony@secunet.com</email>
       </address>
     </author>
-    <area>sec</area>
+    <area>SEC</area>
     <workgroup>IPSECME Working Group</workgroup>
     <keyword>IKEv2</keyword>
     <keyword>EESP</keyword>
@@ -306,7 +303,7 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
 
 
 	<t>
-	* If included, cryptographic synchronization
+	[*] If included, cryptographic synchronization
         data, e.g., an Initialization Vector (IV),
         usually is not encrypted per se, although it often is referred
         to as being part of the ciphertext. Unlike ESP, the IV is not considered
@@ -333,10 +330,10 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
             <tr>
                 <th align="left">Field</th>
                 <th align="center"># of bytes</th>
-                <th align="center">Requ'd <xref target="note1_1" format="none">[1]</xref></th>
-                <th align="center">What Encrypt Covers</th>
-                <th align="center">What Integ Covers</th>
-                <th align="center">What is Xmtd</th>
+                <th align="center">Requ'd [1]</th>
+                <th align="center">Encrypt Covers</th>
+                <th align="center">Integ Covers</th>
+                <th align="center">Tx'd</th>
             </tr>
         </thead>
         <tbody>
@@ -381,12 +378,12 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
                 <td align="center">plain</td>
             </tr>
             <tr>
-                <td align="left">Transport mode Header <xref target="note1_5" format="none">[5]</xref></td>
+                <td align="left">Transport mode Header [5]</td>
                 <td align="center">4</td>
                 <td align="center">O</td>
                 <td align="center">Y</td>
                 <td align="center">Y</td>
-                <td align="center">cipher <xref target="note1_3" format="none">[3]</xref></td>
+                <td align="center">cipher [3]</td>
             </tr>
 	    <!--
             <tr>
@@ -395,7 +392,7 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
                 <td align="center">M</td>
                 <td align="center">Y</td>
                 <td align="center">Y</td>
-                <td align="center">cipher <xref target="note1_3" format="none">[3]</xref></td>
+                <td align="center">cipher [3]</td>
             </tr>
             <tr>
                 <td align="left">Reserved</td>
@@ -403,16 +400,16 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
                 <td align="center">M</td>
                 <td align="center">Y</td>
                 <td align="center">Y</td>
-                <td align="center">cipher <xref target="note1_3" format="none">[3]</xref></td>
+                <td align="center">cipher [3]</td>
             </tr>
 	    -->
             <tr>
-                <td align="left">IP datagram <xref target="note1_2" format="none">[2]</xref></td>
+                <td align="left">IP datagram [2]</td>
                 <td align="center">variable</td>
                 <td align="center">M or D</td>
                 <td align="center">Y</td>
                 <td align="center">Y</td>
-                <td align="center">cipher <xref target="note1_3" format="none">[3]</xref></td>
+                <td align="center">cipher [3]</td>
             </tr>
             <tr>
                 <td align="left">Padding</td>
@@ -420,7 +417,7 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
                 <td align="center">M</td>
                 <td align="center">Y</td>
                 <td align="center">Y</td>
-                <td align="center">cipher <xref target="note1_3" format="none">[3]</xref></td>
+                <td align="center">cipher [3]</td>
             </tr>
             <tr>
                 <td align="left">ICV Padding</td>
@@ -433,7 +430,7 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
             <tr>
                 <td align="left">ICV</td>
                 <td align="center">variable</td>
-                <td align="center">M <xref target="note1_4" format="none">[4]</xref></td>
+                <td align="center">M [4]</td>
                 <td align="center"></td>
                 <td align="center"></td>
                 <td align="center">plain</td>
@@ -441,11 +438,13 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
         </tbody>
     </table>
     <!-- Notes with anchor attributes -->
-    <t anchor="note1_1">[1] M = mandatory; O = optional; D = dummy</t>
-    <t anchor="note1_2">[2] If tunnel mode -&gt; IP datagram. If beet mode -&gt; IP datagram. If transport mode -&gt; next header and data</t>
-    <t anchor="note1_3">[3] ciphertext if encryption has been selected</t>
-    <t anchor="note1_4">[4] mandatory if a separate integrity algorithm is used</t>
-    <t anchor="note1_5">[5] not present in Optimized Header otherwise mandatory</t>
+    <ul spacing="compact">
+      <li> [1] M = mandatory; O = optional; D = dummy </li>
+      <li> [2] If tunnel mode -&gt; IP datagram. If beet mode -&gt; IP datagram. If transport mode -&gt; next header and data</li>
+      <li> [3] ciphertext if encryption has been selected</li>
+      <li> [4] Mandatory if a separate integrity algorithm is used</li>
+      <li> [5] Not present in Optimized Header otherwise mandatory</li>
+    </ul>
 
         <t>
          The following subsections describe the fields in the header format.
@@ -547,7 +546,9 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
      carry a variable number of type-length-value (TLV) encoded
     "options", of the following format:</t>
 
-    <figure><artwork align="left"><![CDATA[
+    <figure>
+      <name>EESP Header Option Format</name>
+      <artwork align="left"><![CDATA[
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+- - - - - - - - -
    |  Option Type  |  Opt Data Len |  Option Data
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+- - - - - - - - -
@@ -773,14 +774,11 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
     appear at an integer multiple of x octets from the start of the
     header, plus y octets.  For example:</t>
 
-      <?rfc subcompact="yes" ?>
       <ul>
       <li>2n means any 2-octet offset from the start of the header.</li>
       <li>8n+2 means any 8-octet offset from the start of the header,
       plus 2 octets.</li>
 	</ul>
-
-    <?rfc subcompact="no" ?>
 
     <t>There are two padding options which are used when necessary to
     align subsequent options and to pad out the containing header to a
@@ -789,7 +787,9 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
 
     <t>Pad1 option (alignment requirement: none)</t>
 
-    <figure><artwork align="left"><![CDATA[
+    <figure>
+      <name>Pad1 Option</name>
+      <artwork align="left"><![CDATA[
    +-+-+-+-+-+-+-+-+
    |       0       |
    +-+-+-+-+-+-+-+-+
@@ -805,7 +805,9 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
     than multiple Pad1 options.</t>
 
     <t>PadN option  (alignment requirement: none)</t>
-    <figure><artwork align="left"><![CDATA[
+    <figure>
+      <name>PadN Option</name>
+      <artwork align="left"><![CDATA[
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+- - - - - - - - -
    |       1       |  Opt Data Len |  Option Data
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+- - - - - - - - -
@@ -1012,6 +1014,7 @@ symRefs="true" sortRefs="true" version="3" consensus="true">
 
 <t>The initial content for this registry is as follows:</t>
       <figure align="center" anchor="iana_requests_reg">
+        <name>Initial Registry Values</name>
         <artwork align="left">
           <![CDATA[
       Value   EESP Header Options Types          Reference
