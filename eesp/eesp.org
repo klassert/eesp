@@ -44,10 +44,10 @@ certain use-cases. Examples are
 [[I-D.ponchon-ipsecme-anti-replay-subspaces]] and
 [[I-D.he-ipsecme-vpn-shared-ipsecsa]]. Such a Flow Identifier could
 also be used to perform ECMP based on the inner flows at intermediate
-devices or endpoints.  dditionally to that, there exists a
+devices or endpoints.  additionally to that, there exists a
 specification of the [[PSP]] protocol that has the need of a Flow
 Identifier, called Network Identifier (VNI) there. PSP also defines a
-Crypto Offset to expose parts of the headers of the inner packet.
+Crypt Offset to expose parts of the headers of the inner packet.
 EESP provides a solution for all the aforementioned use-cases.
 
 This document defines Options for the PSP usecase. Future documents
@@ -152,7 +152,7 @@ an EESP packet. The EESP header is split into multiple parts.
 #+end_src
 
 The packet starts with a Base Header that is used by protocol parsing
-engines of middleboxes such as routers or firewalls and the IPsec end host.
+engines of middle boxes such as routers or firewalls and the IPsec end host.
 The Base Header consists of a 8-bytes that are always present and an
 optional part directly following this field. The base header
 essentially defines the total length of the EESP header and the
@@ -196,7 +196,7 @@ in all other modes of operation.
     0                   1                   2                   3
     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |1|  Version    |    OptLen     |            Session ID +       |
+   |1|  Version    |    Opt Len    |            Session ID +       |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+                               |
    |                              SPI                              |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -230,7 +230,7 @@ in all other modes of operation.
     0                   1                   2                   3
     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |0|  Version    |    OptLen     |            Session ID +       |
+   |0|  Version    |    Opt Len    |            Session ID +       |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+                               |
    |                              SPI                              |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -259,7 +259,7 @@ in all other modes of operation.
 
 [*] If included, cryptographic synchronization data, e.g., an
 Initialization Vector (IV), usually is not encrypted per se, although
-it often is referred to as being part of the ciphertext. Unlike ESP,
+it often is referred to as being part of the cipher-text. Unlike ESP,
 the IV is not considered to be a part of the payload data in EESP.
 
 If a combined algorithm mode is employed, the explicit ICV shown in
@@ -316,7 +316,7 @@ are always present in the EESP packet format, for all SAs.
 
 - Version - 7 bits: MUST be sent to zero and checked by the receiver.
 If the version is different than an expected version number (e.g.,
-  negotiated via the control channel), then the packet MUST be
+  negotiated via the control channel ), then the packet MUST be
   dropped by the receiver. Future modifications to the EESP header
   require a new version number. In particular, the version of EESP
   defined in this document does not allow for any extensions.
@@ -324,22 +324,23 @@ If the version is different than an expected version number (e.g.,
   necessarily able to parse the packet correctly. Intermediate
   treatment of such packets is policy dependent (e.g., it may dictate
   dropping such packets).
-- OptLen - 8 bits: Overall length of the Options following the fixed
+- Opt Len - 8 bits: Overall length of the Options following the fixed
   Baseheader in bytes. For the intermediate routers to parse options.
 - Session ID - 16 bit: The Session ID covers additional information
   that might be needed to route the packet to the correct inline
   crypto context. For instance, if a KDF is used do stateless key
   derivation, the crypto algorithm ID could be encoded there. The
   meaning of that field is opaque and MAY be negotiated by IKEv2.
-  This combined with following 32bits Security Parameter Index (SPI) is the
+  This combined with following 32bits Security Parameter Index (SPI)
+  is the SPI.
 
 
 *** Base Header Options
 
 EESP options carry a variable number of "options" that are
-type-length- value (TLV) encoded in the similar format as done in
-[[RFC8200]] Section 4.2 for IPv6 extension headers. This document
-defines three different option classes, Padding Options, Flow
+type-length-value (TLV) encoded in the similar format as done in
+[[RFC8200]] Section 4.2 for IPv6 extension header options. This
+document defines three different option classes, Padding Options, Flow
 Identifier Options and Private Options.
 
 Padding Options MUST be used to align the start of the next header to
@@ -416,9 +417,9 @@ ones.
 *** Host Header
 
 Following the Base Header and Options is the Host Header for e.g.
-optional Sequence Number. When persent it is full 64bit sequence number.
-EESP only support 64bit sequence numbers, a.k.a ESN and transmits the entire
-sequence number on each packet.
+optional Sequence Number. When present it is full 64bit sequence
+number. EESP only support 64bit sequence numbers, a.k.a ESN and
+transmits the entire sequence number on each packet.
 
 *** Sequence Number
 
@@ -432,7 +433,7 @@ receiver's counter MUST be reset (by establishing a new SA and thus a
 new key) prior to the transmission of the 2^64nd packet on an SA.
 Implementations that do replay protection SHOULD increase the
 sequence number by one for each send packet. Even if recommended to
-increase the sequence number by one, implementatins MAY employ other
+increase the sequence number by one, implementations MAY employ other
 methods to increase the sequence number, as long as the
 aforementioned requirements are met. Sharing an SA among multiple
 senders is permitted, though generally not recommended. EESP
@@ -450,7 +451,6 @@ capable of performing the processing described in Sections 3.3.3 and
 3.4.3. Thus, the sender MUST always transmit this field, but the
 receiver need not act upon it.
 
-AA Note
 - *AA Note:* [[RFC4303]] Section 2.2 stipulate:
 The sender's counter and the receiver's counter are initialized to 0
 when an SA is established. (The first packet sent using a given SA
@@ -488,6 +488,8 @@ selected is determined as part of Security Association (SA)
 establishment.
 
 ** Payload Info Header
+Used when the ESP payload is not tunnel mode IPv4 or IPv6, such as
+Transport Mode, or IP-TFS.
 
 *** Next Header
 
@@ -497,8 +499,10 @@ data. The value of this field is chosen from the set of IP Protocol
 Numbers defined on the web page of the IANA, e.g., a value of 6
 indicates TCP and a value of 17 indicates UDP.
 
-- *AA Note:* When there is Crypto Header/PSP and say transport mode would
-there be two " Next Header fields"
+- *AA Note:* When there is Crypto Header/PSP and using
+ transport mode would there be "Next Header" field twice? Once here,
+ and again in "Crypt Offset"
+
 
 *** Pad Length
 
@@ -558,7 +562,7 @@ Flow Identifier Options are constructed as described in
 
 - Option Type - 8 bits: See [[#EESP-Options]]
 - Option Length - 8 bits: See [[#EESP-Options]]
-- FID: Variable length, MUST carry caracteristic infromation of the
+- FID: Variable length, MUST carry characteristic information of the
   inner flow i.e. MUST not change within a gives SA.
 
 
@@ -566,13 +570,13 @@ Flow Identifier Options are constructed as described in
 This option is typically used for within one Datacenter use case
 such as [[PSP]].
 
-#+caption: PSP Option
-#+name: psp-option
+#+caption: Crypt Offset Option
+#+name: crypt-offset-option
 #+begin_src
     0                   1                   2                   3
     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |  Option Type  | Option Length |NextHeader     |CryptOffset|Flags|
+   |  Option Type  | Option Length |Next Header    |CryptOffset|F F|
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #+end_src
 
@@ -580,20 +584,20 @@ such as [[PSP]].
 - Option Length - 8 bits: See [[#EESP-Options]]
 - Next Header - 8 bits: MUST be set to 59, [[RFC8200]] Section 4.7
   when CryptOffset is zero, and MUST be set to the Next Header value
-  of the inner packet. For the use of intermediate routers.
+  of the inner packet when non-zero. For the use of intermediate routers.
 - CryptOffset - 6 bits: The offset from the end of the IV to the start
-  of the encrypted portion of the packet, measured in 4 octet units.
+  of the encrypted portion of the packet, measured in 4-octet units.
   The resulting value MUST NOT be larger than the size of the inner
-  packet.  A zero CryptOffset means that the complete packet is
-  authenticated and encrypted.  A positive CryptOffset means that the
+  packet. A zero CryptOffset means that the complete packet is
+  authenticated and encrypted. A non-zero CryptOffset means that the
   first 'CryptOffset * 4' octets of the inner packet belong to the
-  AAD but are not encrypted.  In this case the Next Header field MUST
-  be the same as the Next Header field in the ESP trailer, so that
-  the Header can be parsed by intermediate devices. (Authors note:
-  This is to preserve the original WESP use-case and because PSP uses
-  this too.  In case the Flow Identifier Options can carry enough
-  information about inner flows, we can remove the cryptoffset.)
-- Flags - 2 bits: TBD : Used for inline crypto signlaing such as  s
+  AAD but are not encrypted. The value 0x3F (111111) means encryption
+  is GMAC, the packet is only authenticated and not encrypted.
+  (Authors note: This is to preserve the original WESP use-case and
+  because PSP uses this too.  In case the Flow Identifier Options
+  can carry enough information about inner flows, we can remove the
+  cryptoffset.)
+- Flags - 2 bits: TBD : Used for inline crypto signaling such as  s
   d bit in PSP specification
 
 * IKEv2 Negotiation
