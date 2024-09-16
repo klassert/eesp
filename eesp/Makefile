@@ -31,3 +31,6 @@ tidy:
 
 aadiff:
 	git diff  $(NEW_FILE).xml | grep -E "^[+-]" -A 1 -B 1 | grep -v "^--" > a
+
+xml2org:
+	xml-orgrfc $(NEW_FILE).xml > eesp.org
