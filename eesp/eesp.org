@@ -116,8 +116,7 @@ This section is normative.
 
 The (outer) protocol header (IPv4, IPv6, or Extension) that
 immediately precedes the ESP header SHALL contain the value TBD in
-its Protocol (IPv4) or Next Header (IPv6, Extension) field (see IANA
-web page at http://www.iana.org/assignments/protocol-numbers).
+its [[Protocol]] (IPv4) or Next Header (IPv6, Extension) field.
 [[eesp-top-level-packet-format]] illustrates the top-level format of
 an EESP packet. The EESP header is split into multiple parts.
 
@@ -164,9 +163,12 @@ that can be used for flow classification.
 Base Header consists of a 6-byte, two bytes Session ID and 4 bytes
 Security Parameters Index (SPI).
 
-The Host Header follows the Base Header and, possible Options.
-It is used to route the packet to the correct Crypto context and for replay
-protection.
+The Host Header or possible Options, follows the Base Header. Host
+header is used to route the packet to the correct Crypto context and
+optional replay protection.
+
+The Options, if present, may be processed by middleboxes, such as
+ECMP or other telemetry use, as well as by IPsec peers.
 
 Unlike ESP, EESP does not have a trailer. Instead, these values have
 moved to a Payload Info Header directly following the Host Header.
@@ -182,8 +184,14 @@ mode as it can be derived.
 
 The Payload Data follows these header fields, and has substructure
 that depends on the choice of encryption algorithm and mode.
-Following the Payload Data is variable cipher block padding and the
-optional Integrity Check Value (ICV) field that completes the packet.
+
+Padding (for Encryption) is an optional field following the Payload,
+primarily for alignment of plaintext when using a block cipher.
+
+Following the Payload Data is the optional Integrity Check Value
+(ICV), Section 3.3.2 of [[RFC4303]], field that completes the packet.
+The length of this ICV depends on the Crypto suite.
+
 
 [[eesp-optimized-packet-format]] illustrates the resulting packet
 format for IPv4 or IPv6 Tunnel Mode and [[eesp-full-packet-format]]
@@ -268,7 +276,7 @@ modes and options are fixed when an SA is established, the detailed
 format of ESP packets for a given SA (including the Payload Data
 substructure) is fixed, for all traffic on the SA.
 
-The tables below refer to the fields in the preceding figures and
+The table below refer to the fields in the preceding figures and
 illustrate how several categories of algorithmic options, each with a
 different processing model, affect the fields noted above.  The
 processing details are described in later sections.
@@ -281,7 +289,7 @@ processing details are described in later sections.
 |---------------------------+------------+------------+----------------+--------------+------------|
 | Base Header(+SPI)         |     8      |     M      |                |      Y       |   plain    |
 | Options                   |  variable  |     O      |                |      Y       |   plain    |
-| Seq Number                |     8      |     O      |                |      Y       |   plain    |
+| Sequence Number           |     8      |     O      |                |      Y       |   plain    |
 | IV                        |  variable  |     O      |                |      Y       |   plain    |
 | Payload Info Header   [5] |     4      |     O      |       Y        |      Y       | cipher [3] |
 | IP datagram [2]           |  variable  |   M or D   |       Y        |      Y       | cipher [3] |
@@ -710,7 +718,12 @@ TBD
 :REF_TITLE: PSP Architecture Specification
 :REF_ORG: Google
 :END:
-
+** Protocol
+:PROPERTIES:
+:REF_TARGET: https://www.iana.org/assignments/protocol-numbers/protocol-numbers.xhtml
+:REF_TITLE: Assigned Internet Protocol Numbers
+:REF_ORG: IANA
+:END:
 
 * Additional Stuff
 
