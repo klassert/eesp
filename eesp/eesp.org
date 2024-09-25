@@ -63,8 +63,8 @@ does not have a trailer as ESP had, instead the Next Header an Pad
 Length values are moved to the EESP header. Additionally, an Optimized
 EESP header is defined which eliminates these 2 values when using simple
 IPv4 or IPv6 tunnel mode. EESP also does not define TFC padding, IP-TFS
-SHOULD be used instead. A detailed discussion about the problems of the
-ESP protocol can be found in
+as of as of [[RFC9347]] SHOULD be used instead. A detailed discussion
+about the problems of the ESP protocol can be found in
 [[I-D.mrossberg-ipsecme-multiple-sequence-counters]].
 
 EESP follows the Security Architecture for the Internet Protocol
@@ -95,9 +95,6 @@ Child SA, CREATE_CHILD_SA, IKE_AUTH exchange, USE_TRANSPORT_MODE
 This document uses the following terms defined in [[PSP]]: PSP (a
 recursive acronym for PSP Security Protocol), Network Identifier
 (VNI), Crypt Offset.
-
-This document uses the following terms defined in [[RFC5840]]:
-Wrapped Encapsulating Security Payload (WESP), USE_WESP_MODE.
 
 This document uses the following terms defined in [[RFC2992]]:
 Equal-cost multi-path (ECMP)
@@ -140,7 +137,7 @@ an EESP packet. The EESP header is split into multiple parts.
    ~                     Host Header (variable)                    ~
    |                                                               |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |                       Payload Info Header                     |
+   |                 Payload Info Header (optional)                |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    |                      Payload Data (variable)                  |
    ~                                                               ~
@@ -159,12 +156,11 @@ The Base Header consists of a 8-bytes that are always present and an
 optional part directly following this field. The base header
 essentially defines the total length of the EESP header and the
 length of potential present options as well as the EESP version
-number. The optional part of the Base Header defines Options to store
+number along with a 6-byte field consisting of two bytes Session ID
+and 4 bytes Security Parameters Index (SPI).
+The optional part of the Base Header defines Options to store
 additional information, like integrity protected flow identifiers
 that can be used for flow classification.
-
-The Base Header consists of a 6-byte, two bytes Session ID and 4 bytes
-Security Parameters Index (SPI).
 
 The ~Host Header~ and optional ~Options~ field follow the ~Base
 Header~. The ~Host Header~ is used to route the packet to the correct
@@ -293,13 +289,13 @@ illustrate how several categories of algorithmic options, each with a
 different processing model, affect the fields noted above.  The
 processing details are described in later sections.
 
-#+caption: Separate Encryption and Integrity Algorithms
+#+caption: High level layout for fields of an EESP packet
 #+name: eesp-packet-separate-algos
 |---------------------+------------+-----------+----------------+--------------+------------|
 | Field               | # of bytes | Req'd [1] | Encrypt Covers | Integ Covers |    Tx'd    |
 | <l>                 |    <c>     |    <c>    |      <c>       |     <c>      |    <c>     |
 |---------------------+------------+-----------+----------------+--------------+------------|
-| Base Header(+SPI)   |     8      |     M     |                |      Y       |   plain    |
+| Base Header         |     8      |     M     |                |      Y       |   plain    |
 | Options             |  variable  |     O     |                |      Y       |   plain    |
 | Sequence Number     |     8      |     O     |                |      Y       |   plain    |
 | IV                  |  variable  |     O     |                |      Y       |   plain    |
@@ -411,9 +407,12 @@ alignment for IPv6 packet.
 ** Host Header
 
 Following the ~Base Header~ and ~Options~ field is the Host Header
-for e.g. optional Sequence Number. When present it is full 64bit
+for e.g. optional Sequence Number and Initialization Vector.
+When present, the Sequence Number is a full 64bit
 sequence number. EESP only support 64bit sequence numbers, a.k.a ESN
 and transmits the entire sequence number on each packet.
+The actual size of the Initialization Vector depends on the
+choice of the cipher suite.
 
 *** Sequence Number
 
@@ -437,13 +436,16 @@ in the context of multiple senders. Unless any future Option
 defining this for a multi-sender SA, the anti-replay features of ESP
 are not available.
 
-The field is mandatory and MUST always be present even if the
-receiver does not elect to enable the anti-replay service for a
-specific SA. Processing of the Sequence Number field is at the
-discretion of the receiver, but all ESP implementations MUST be
-capable of performing the processing described in Sections 3.3.3 and
-3.4.3. Thus, the sender MUST always transmit this field, but the
-receiver need not act upon it.
+# Note STK: The text below needs to be reworded. It does not
+# match with the optional Sequence Number mentioned above.
+#
+# The field is mandatory and MUST always be present even if the
+# receiver does not elect to enable the anti-replay service for a
+# specific SA. Processing of the Sequence Number field is at the
+# discretion of the receiver, but all ESP implementations MUST be
+# capable of performing the processing described in Sections 3.3.3 and
+# 3.4.3. Thus, the sender MUST always transmit this field, but the
+# receiver need not act upon it.
 
 # - *AA Note:* [[RFC4303]] Section 2.2 stipulate:
 # The sender's counter and the receiver's counter are initialized to 0
@@ -464,7 +466,7 @@ receiver need not act upon it.
 If the algorithm used to encrypt the payload requires cryptographic
 synchronization data, e.g., an Initialization Vector (IV), then this
 data is carried explicitly in front of the encrypted part of the
-packet in the Crypto Header.  Any encryption algorithm that requires
+packet in the Host Header.  Any encryption algorithm that requires
 such explicit, per-packet synchronization data MUST indicate the
 length, any structure for such data, and the location of this data as
 part of an RFC specifying how the algorithm is used with EESP.
@@ -709,12 +711,14 @@ The initial content for this registry is as follows:
 #+caption: Initial Registry Values
 #+name: iana_requests_reg
 #+begin_src
-      Value   EESP Header Options Types          Reference
-      -----   ------------------------------    ---------------
-          1   Crypt Offset                      [this document]
-          2   FID                               [this document]
-       3-26   Unassigned                        [this document]
-      27-31   Private                           [this document]
+    Value     EESP Header Options Types         Reference
+    -------   ------------------------------    ---------------
+          1   Pad1                              [this document]
+          2   PadN                              [this document]
+          3   Crypt Offset                      [this document]
+          4   FID                               [this document]
+      5-111   Unassigned                        [this document]
+    112-127   Private                           [this document]
 #+end_src
 
 * Implementation Status
@@ -760,7 +764,7 @@ TBD
 ** RFC2119
 ** RFC4301
 ** RFC4303
-** RFC5840
+# ** RFC5840
 ** RFC7296
 ** RFC2992
 ** RFC8200
