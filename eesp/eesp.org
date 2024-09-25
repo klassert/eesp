@@ -732,8 +732,8 @@ The initial content for this registry is as follows:
           2   PadN                              [this document]
           3   Crypt Offset                      [this document]
           4   FID                               [this document]
-      5-111   Unassigned                        [this document]
-    112-127   Private                           [this document]
+      5-223   Unassigned                        [this document]
+    224-255   Private                           [this document]
 #+end_src
 
 * Implementation Status
