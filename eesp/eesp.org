@@ -524,14 +524,6 @@ TBD
 
 Integrity Check Value is handled as in [[RFC4303]].
 
-* UDP Encapsulation
-
-TBD
-
-* Enhanced Encapsulating Security Protocol Processing
-
-TBD
-
 * EESP Header Options
 
 The EESP header ~Options~ field carries a variable number of
@@ -680,6 +672,14 @@ such as [[PSP]].
 
   :NOTE: Is this used and thus still required by PSP, or can it be
   removed?
+
+* Enhanced Encapsulating Security Protocol Processing
+
+TBD
+
+* UDP Encapsulation
+
+TBD
 
 * IKEv2 Negotiation
 
