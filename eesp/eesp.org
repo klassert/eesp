@@ -728,11 +728,11 @@ The initial content for this registry is as follows:
 #+begin_src
     Value     EESP Header Options Types         Reference
     -------   ------------------------------    ---------------
-          1   Pad1                              [this document]
-          2   PadN                              [this document]
-          3   Crypt Offset                      [this document]
-          4   FID                               [this document]
-      5-223   Unassigned                        [this document]
+          0   Pad1                              [this document]
+          1   PadN                              [this document]
+          2   Crypt Offset                      [this document]
+          3   FID                               [this document]
+      4-223   Unassigned                        [this document]
     224-255   Private                           [this document]
 #+end_src
 
