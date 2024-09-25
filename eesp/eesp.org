@@ -130,10 +130,6 @@ an EESP packet. The EESP header is split into multiple parts.
    ~                      Base Header                              ~
    |                                                               |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |                                                               |
-   ~                      Options (variable)                       ~
-   |                                                               |
-   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    ~                     Host Header (variable)                    ~
    |                                                               |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -150,57 +146,54 @@ an EESP packet. The EESP header is split into multiple parts.
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #+end_src
 
-The packet starts with a Base Header that is used by protocol parsing
-engines of middle boxes such as routers or firewalls and the IPsec end host.
-The Base Header consists of a 8-bytes that are always present and an
-optional part directly following this field. The base header
-essentially defines the total length of the EESP header and the
-length of potential present options as well as the EESP version
-number along with a 6-byte field consisting of two bytes Session ID
-and 4 bytes Security Parameters Index (SPI).
-The optional part of the Base Header defines Options to store
-additional information, like integrity protected flow identifiers
-that can be used for flow classification.
+The packet starts with a ~Base Header~ that can be used by protocol
+parsing engines of middle boxes such as routers or firewalls and the
+as well as the IPsec end-point host.
 
-The ~Host Header~ and optional ~Options~ field follow the ~Base
-Header~. The ~Host Header~ is used to route the packet to the correct
-Crypto context and support replay protection.
-
-The Options, if present, may be processed by middleboxes, such as
-ECMP or other telemetry use, as well as by IPsec peers.
+The ~Host Header~ follows the ~Base Header~. The ~Host Header~ is
+used to route the packet to the correct Crypto context and support
+replay protection on the end-point host system.
 
 Unlike ESP, EESP does not have a trailer. Instead, these values have
 moved to a ~Payload Info Header~ directly following the ~Host Header~.
-Additionally, when IPv4 or IPv6 tunnel mode is used the ~Payload Info
-Header~ MAY be elided. In this optimized mode the payload will
-always start with an IPv4 or IPv6 header. IPv4 or IPv6 packets always
-start with a Version field at the first nibble, so it is possible to
-identify IPv4 and IPv6 by reading the first nibble of the inner
-packet, and there is no need for a next header field. Additionally,
-IPv4 and IPv6 also have a field describing the overall size of the
-inner packet, so a pad length field is also not needed as it can be
-derived.
 
-The packet format without the ~Payload Info Header~ is the optimized
-EESP packet fomat, while the packet format containing the ~Payload
-Info Header~ is the full EESP packet format. Which of these two
-formats are chosen is encoded in the ~Packet Format~ bit in the
-Base Header.
-
-The ~Payload Data~ follows these header fields, and has substructure
-that depends on the choice of encryption algorithm and mode.
+# :NOTE: doesn't the Payload Data structure depend on the mode of
+# operation selected during creation of the SA?
+The ~Payload Data~ follows these 3 header sections, and has
+substructure that depends on the choice of encryption algorithm and
+mode.
 
 ~Padding~ is an optional field following the ~Payload Data~,
 primarily for alignment when using a block cipher.
 
-Following the ~Payload Data~ and optional ~Padding~ is the optional
-~Integrity Check Value~ (ICV) field which completes the packet (see
-Section 3.3.2 of [[RFC4303]]). The length of this ICV depends on the
+Finally, packet ends with an optional ~Integrity Check Value~ (ICV)
+(see Section 3.3.2 of [[RFC4303]]). The length of this ICV depends on the
 Crypto suite.
 
-[[eesp-optimized-packet-format]] illustrates the resulting packet
-format for use with IPv4 or IPv6 Tunnel Mode, and [[eesp-full-packet-format]]
-for use in all other modes of operation.
+
+*** Full and Optimized Packet Formats
+
+# :NOTE: maybe move this below out of this generic description section
+When IPv4 or IPv6 tunnel mode is used the ~Payload Info Header~ MAY
+be elided. In this optimized mode the payload will always start with
+an IPv4 or IPv6 header. IPv4 or IPv6 packets always start with a
+Version field at the first nibble, so it is possible to identify IPv4
+and IPv6 by reading the first nibble of the inner packet, and there
+is no need for a next header field. Additionally, IPv4 and IPv6 also
+have a field describing the overall size of the inner packet, so a
+pad length field is also not needed as it can be derived.
+
+The packet format without the ~Payload Info Header~ is called the
+"Optimized EESP packet fomat", while the packet format containing the
+~Payload Info Header~ is the called the "Full EESP packet format".
+Which of these two formats are chosen is encoded in the
+a ~Packet Format~ bit in the ~Base Header~.
+
+The 2 packet formats are shown below. [[eesp-optimized-packet-format]]
+illustrates the resulting packet format for use with IPv4 or IPv6
+Tunnel Mode when the ~Payload Info Header~ is elided, and
+[[eesp-full-packet-format]] shows the full header version for use in all
+other modes of operation.
 
 #+caption: Optimized EESP packet format
 #+name: eesp-optimized-packet-format
@@ -410,17 +403,9 @@ alignment for IPv6 packet.
 
 ** Host Header
 
-Following the ~Base Header~ and ~Options~ field is the Host Header
-for e.g. optional Sequence Number and Initialization Vector.
-When present, the Sequence Number is a full 64bit
-sequence number. EESP only support 64bit sequence numbers, a.k.a ESN
-and transmits the entire sequence number on each packet.
-The actual size of the Initialization Vector depends on the
-choice of the cipher suite.
-
-The host Header  is defined as in [[host-header]]. Detailed
-specification of the Sequence Number and Initialization Vector
-follows in the subsequent sections.
+The ~Host Header~ follows the ~Base Header~ and ~Options~ field is the ~Host Header~
+containing an optional ~Sequence Number~ and an optional
+~Initialization Vector~, and the format is shown below.
 
 #+caption: Host Header
 #+name: host-header
@@ -436,6 +421,13 @@ follows in the subsequent sections.
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #+end_src
 
+When present, the ~Sequence Number~ is a full 64bit sequence number.
+EESP only support 64bit sequence numbers, a.k.a ESN and transmits the
+entire sequence number on each packet. The actual size of the
+~Initialization Vector~ depends on the choice of the cipher suite.
+
+The ~Sequence Number~ and ~Initialization Vector~ fields are defined
+in the following sections.
 
 *** Sequence Number
 
