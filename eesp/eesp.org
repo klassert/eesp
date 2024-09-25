@@ -160,21 +160,18 @@ moved to a ~Payload Info Header~ directly following the ~Host Header~.
 
 # :NOTE: doesn't the Payload Data structure depend on the mode of
 # operation selected during creation of the SA?
-The ~Payload Data~ follows these 3 header sections, and has
-substructure that depends on the choice of encryption algorithm and
-mode.
+The ~Payload Data~ follows these 3 header parts, and has structure
+that depends on the choice of encryption algorithm and mode.
 
 ~Padding~ is an optional field following the ~Payload Data~,
 primarily for alignment when using a block cipher.
 
-Finally, packet ends with an optional ~Integrity Check Value~ (ICV)
-(see Section 3.3.2 of [[RFC4303]]). The length of this ICV depends on the
-Crypto suite.
-
+Finally, the packet ends with an optional ~Integrity Check Value~
+(ICV) (see Section 3.3.2 of [[RFC4303]]). The length of this ICV depends
+on the Crypto suite.
 
 *** Full and Optimized Packet Formats
 
-# :NOTE: maybe move this below out of this generic description section
 When IPv4 or IPv6 tunnel mode is used the ~Payload Info Header~ MAY
 be elided. In this optimized mode the payload will always start with
 an IPv4 or IPv6 header. IPv4 or IPv6 packets always start with a
