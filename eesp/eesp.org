@@ -46,7 +46,7 @@ certain use-cases. Examples are
 [[I-D.ponchon-ipsecme-anti-replay-subspaces]] and
 [[I-D.he-ipsecme-vpn-shared-ipsecsa]]. Such a Flow Identifier could
 also be used to perform ECMP based on the inner flows at intermediate
-devices or endpoints.  additionally to that, there exists a
+devices or endpoints.  Additionally to that, there exists a
 specification of the [[PSP]] protocol that has the need of a Flow
 Identifier, called Network Identifier (VNI) there. PSP also defines a
 Crypt Offset to expose parts of the headers of the inner packet.
@@ -63,7 +63,7 @@ does not have a trailer as ESP had, instead the Next Header an Pad
 Length values are moved to the EESP header. Additionally, an Optimized
 EESP header is defined which eliminates these 2 values when using simple
 IPv4 or IPv6 tunnel mode. EESP also does not define TFC padding, IP-TFS
-as of as of [[RFC9347]] SHOULD be used instead. A detailed discussion
+as of [[RFC9347]] SHOULD be used instead. A detailed discussion
 about the problems of the ESP protocol can be found in
 [[I-D.mrossberg-ipsecme-multiple-sequence-counters]].
 
@@ -257,8 +257,8 @@ alignment for IPv6 packet.
 
 ** Host Header
 
-The ~Host Header~ follows the ~Base Header~ and ~Options~ field is
-the ~Host Header~ containing an optional ~Sequence Number~ and an
+The ~Host Header~ follows the ~Base Header~ and ~Options~ field.
+The ~Host Header~ containing an optional ~Sequence Number~ and an
 optional ~Initialization Vector~, and the format is shown below.
 
 #+caption: Host Header
