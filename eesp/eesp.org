@@ -276,7 +276,7 @@ for use in all other modes of operation.
 it often is referred to as being part of the cipher-text. Unlike ESP,
 the IV is not considered to be a part of the payload data in EESP.
 
-:NOTE: Changed ICV to IV below.
+# :NOTE: Changed ICV to IV below.
 
 If a combined algorithm mode is employed, the explicit IV shown in
 [[eesp-packet-separate-algos]] may be omitted.  Because algorithms,
@@ -332,6 +332,8 @@ optional ~Options~ field.
 
 The fixed portion of the base header is defined as follows.
 
+#+caption: Fixed Base Header
+#+name: base-header
 #+begin_src
     0                   1                   2                   3
     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
@@ -366,6 +368,8 @@ The fixed portion of the base header is defined as follows.
   32-bit value that is used by a receiver to identify the SA to which
   an incoming packet is bound. This combined with the 16-bit Session
   ID is the Enhanced SPI.
+
+# Note STK: Discuss Enhanced SPI here later...
 
 *** Base Header Options
 
@@ -413,6 +417,25 @@ sequence number. EESP only support 64bit sequence numbers, a.k.a ESN
 and transmits the entire sequence number on each packet.
 The actual size of the Initialization Vector depends on the
 choice of the cipher suite.
+
+The host Header  is defined as in [[host-header]]. Detailed
+specification of the Sequence Number and Initialization Vector
+follows in the subsequent sections.
+
+#+caption: Host Header
+#+name: host-header
+#+begin_src
+    0                   1                   2                   3
+    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                    Sequence Number (optional)                 |
+   |                                                               |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                          IV (optional)                        |
+   |                                                               |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+#+end_src
+
 
 *** Sequence Number
 
@@ -490,6 +513,8 @@ format. This packet format is for use when the contained payload is
 not a single IPv4 or IPv6 packet (e.g., when using Transport Mode or
 IP-TFS).
 
+#+caption: Payload Info Header
+#+name: payload-info-header
 #+begin_src
     0                   1                   2                   3
     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
