@@ -127,9 +127,10 @@ an EESP packet. The EESP header is split into multiple parts.
     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    |                                                               |
-   ~                      Base Header                              ~
+   ~                          Base Header                          ~
    |                                                               |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                                                               |
    ~                     Host Header (variable)                    ~
    |                                                               |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -147,8 +148,8 @@ an EESP packet. The EESP header is split into multiple parts.
 #+end_src
 
 The packet starts with a ~Base Header~ that can be used by protocol
-parsing engines of middle boxes such as routers or firewalls and the
-as well as the IPsec end-point host.
+parsing engines of middle boxes such as routers or firewalls in
+addition to the IPsec end-point host system.
 
 The ~Host Header~ follows the ~Base Header~. The ~Host Header~ is
 used to route the packet to the correct Crypto context and support
