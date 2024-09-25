@@ -387,13 +387,74 @@ following the payload data and is used to align the ICV field. The
 range of valid values is 0 to 255, where a value of zero indicates
 that no Padding bytes are present.
 
+** Payload Data
+
+Payload Data is adapted from ESP [[RFC4303]] and adjusted to apply to
+EESP. 
+
+Payload Data is a variable-length field containing data from the
+original IP packet.  The Payload
+Data field is mandatory and is an integral number of bytes in length.
+
+Note that the beginning of the next layer protocol header MUST be
+aligned relative to the beginning of the EESP header as follows.  For
+IPv4, this alignment is a multiple of 4 bytes.  For IPv6, the
+alignment is a multiple of 8 bytes.
+
 ** Padding (for Encryption)
 
-TBD
+Padding is adapted from ESP [[RFC4303]] and adjusted to apply to
+EESP. Two primary factors require or motivate use of the Padding
+field.
+
+- If an encryption algorithm is employed that requires the
+  plaintext to be a multiple of some number of bytes, e.g.,
+  the block size of a block cipher, the Padding field is used
+  to fill the plaintext (consisting of the Payload Data,
+  Padding, Pad Length, and Next Header fields) to the size
+  required by the algorithm.
+
+- Padding also may be required, irrespective of encryption
+  algorithm requirements, to ensure that the resulting
+  ciphertext terminates on a 4-byte boundary to make sure
+  the ICV is properly aligned.
+
+The sender MAY add 0 to 255 bytes of padding.  Inclusion of the
+Padding field in an EESP packet is optional, subject to the
+requirements noted above, but all implementations MUST support
+generation and consumption of padding.
+
+For the purposes of ensuring that the ICV is aligned on a
+4-byte boundary (second bullet above), the padding
+computation applies to the Payload Data inclusive of the Payload
+Info Header, if present.  If a combined mode
+algorithm is used, any replicated data and ICV-equivalent
+data are included in the Payload Data covered by the padding
+computation.
+
+If Padding bytes are needed but the encryption algorithm does not
+specify the padding contents, then the following default processing
+MUST be used.  The default processing follows exactly ESP as of [[RFC4303]].
+The Padding bytes are initialized with a series of
+(unsigned, 1-byte) integer values.  The first padding byte appended
+to the plaintext is numbered 1, with subsequent padding bytes making
+up a monotonically increasing sequence: 1, 2, 3, ....  When this
+padding scheme is employed, the receiver SHOULD inspect the Padding
+field.  (This scheme was selected because of its relative simplicity,
+ease of implementation in hardware, and because it offers limited
+protection against certain forms of "cut and paste" attacks in the
+absence of other integrity measures, if the receiver checks the
+padding values upon decryption.)
+
+If an encryption or combined mode algorithm imposes constraints on
+the values of the bytes used for padding, they MUST be specified by
+the RFC defining how the algorithm is employed with ESP.  If the
+algorithm requires checking of the values of the bytes used for
+padding, this too MUST be specified in that RFC.
 
 ** Integrity Check Value (ICV)
 
-Integrity Check Value is handled as in ESP [[RFC4303]].
+Integrity Check Value is handled exactly as in ESP [[RFC4303]].
 
 ** Full and Optimized Packet Formats
 
