@@ -170,150 +170,6 @@ Finally, the packet ends with an optional ~Integrity Check Value~
 (ICV) (see Section 3.3.2 of [[RFC4303]]). The length of this ICV depends
 on the Crypto suite.
 
-*** Full and Optimized Packet Formats
-
-When IPv4 or IPv6 tunnel mode is used the ~Payload Info Header~ MAY
-be elided. In this optimized mode the payload will always start with
-an IPv4 or IPv6 header. IPv4 or IPv6 packets always start with a
-Version field at the first nibble, so it is possible to identify IPv4
-and IPv6 by reading the first nibble of the inner packet, and there
-is no need for a next header field. Additionally, IPv4 and IPv6 also
-have a field describing the overall size of the inner packet, so a
-pad length field is also not needed as it can be derived.
-
-The packet format without the ~Payload Info Header~ is called the
-"Optimized EESP packet fomat", while the packet format containing the
-~Payload Info Header~ is the called the "Full EESP packet format".
-Which of these two formats are chosen is encoded in the
-a ~Packet Format~ bit in the ~Base Header~.
-
-The 2 packet formats are shown below. [[eesp-optimized-packet-format]]
-illustrates the resulting packet format for use with IPv4 or IPv6
-Tunnel Mode when the ~Payload Info Header~ is elided, and
-[[eesp-full-packet-format]] shows the full header version for use in all
-other modes of operation.
-
-#+caption: Optimized EESP packet format
-#+name: eesp-optimized-packet-format
-#+begin_src
-
-    0                   1                   2                   3
-    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
-   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |  Version    |1|    Opt Len    |            Session ID +       |
-   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+                               |
-   |                              SPI                              |
-   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |                                                               |
-   ~                   Options (variable, optional)                ~
-   |                                                               |
-   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |                    Sequence Number (optional)                 |
-   |                                                               |
-   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |                          IV* (optional)                       |
-   |                                                               |
-   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |                                                               |
-   ~                     IPv4/IPv6 Header                          ~
-   |                                                               |
-   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |                   L4 Payload Data (variable)                  |
-   ~                                                               ~
-   |               +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |               |          Padding (0-255 bytes)                |
-   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |                                                               |
-   ~              Integrity Check Value-ICV (variable)             ~
-   |                                                               |
-   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#+end_src
-
-#+caption: Full EESP packet format
-#+name: eesp-full-packet-format
-#+begin_src
-    0                   1                   2                   3
-    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
-   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |  Version    |0|    Opt Len    |            Session ID +       |
-   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+                               |
-   |                              SPI                              |
-   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |                                                               |
-   ~                   Options (variable, optional)                ~
-   |                                                               |
-   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |                    Sequence Number (optional)                 |
-   |                                                               |
-   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |                          IV* (optional)                       |
-   |                                                               |
-   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |  0x0  |        Reserved       | Next Header   | Pad Length    |
-   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |                   L4 Payload Data (variable)                  |
-   ~                                                               ~
-   |               +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |               |          Padding (0-255 bytes)                |
-   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |                                                               |
-   ~              Integrity Check Value-ICV (variable)             ~
-   |                                                               |
-   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#+end_src
-
-[*] If included, cryptographic synchronization data, e.g., an
-~Initialization Vector~ (IV), usually is not encrypted per se, although
-it often is referred to as being part of the cipher-text. Unlike ESP,
-the IV is not considered to be a part of the payload data in EESP.
-
-# :NOTE: Changed ICV to IV below.
-
-If a combined algorithm mode is employed, the explicit IV shown in
-[[eesp-packet-separate-algos]] may be omitted.  Because algorithms,
-modes and options are fixed when an SA is established, the detailed
-format of EESP packets for a given SA (including the ~Payload Data~
-substructure) is fixed for all traffic on the SA.
-
-The table below refers to the fields in the preceding figures and
-illustrate how several categories of algorithmic options, each with a
-different processing model, affect the fields noted above.  The
-processing details are described in later sections.
-
-#+caption: High level layout for fields of an EESP packet
-#+name: eesp-packet-separate-algos
-|---------------------+------------+-----------+----------------+--------------+------------|
-| Field               | # of bytes | Req'd [1] | Encrypt Covers | Integ Covers |    Tx'd    |
-| <l>                 |    <c>     |    <c>    |      <c>       |     <c>      |    <c>     |
-|---------------------+------------+-----------+----------------+--------------+------------|
-| Base Header         |     8      |     M     |                |      Y       |   plain    |
-| Options             |  variable  |     O     |                |      Y       |   plain    |
-| Sequence Number     |     8      |     O     |                |      Y       |   plain    |
-| IV                  |  variable  |     O     |                |      Y       |   plain    |
-| Payload Info Hdr[5] |     4      |     O     |       Y        |      Y       | cipher [3] |
-| Payload [2]         |  variable  |  M or D   |       Y        |      Y       | cipher [3] |
-| Padding             |   0-255    |     M     |       Y        |      Y       | cipher [3] |
-| ICV Padding         |  variable  |  if need  |                |      Y       |  not Tx'd  |
-| ICV                 |  variable  |   M [4]   |                |              |   plain    |
-|---------------------+------------+-----------+----------------+--------------+------------|
-
-#+ATTR_RFC: :compact t
-- [1] M = mandatory; O = optional; D = dummy
-- [2] If tunnel mode -> IP datagram. If beet mode -> IP datagram. If
-  transport mode -> next header and data. If IP-TFS, IP-TFS header
-  and payload.
-- [3] Ciphertext if encryption has been selected
-- [4] Mandatory if a separate integrity algorithm is used
-- [5] Not present in Optimized Header otherwise mandatory
-
-In the table "optional" means that the field is omitted if the option is not
-selected, i.e., it is not present in the packet as transmitted
-or as formatted for computation of an ICV. Whether or not an option
-is selected is determined as part of Security Association (SA)
-establishment. Thus, the format of EESP packets for a given SA is
-fixed for the duration of the SA. In contrast, "mandatory" fields
-are always present in the EESP packet format for all SAs.
-
 ** Base Header
 
 The ~Base Header~ is comprised of a fixed base header followed by an
@@ -537,7 +393,153 @@ TBD
 
 ** Integrity Check Value (ICV)
 
-Integrity Check Value is handled as in [[RFC4303]].
+Integrity Check Value is handled as in ESP [[RFC4303]].
+
+** Full and Optimized Packet Formats
+
+The resulting two packet formats are described in this section.
+When IPv4 or IPv6 tunnel mode is used the ~Payload Info Header~ MAY
+be elided. In this optimized mode the payload will always start with
+an IPv4 or IPv6 header. IPv4 or IPv6 packets always start with a
+Version field at the first nibble, so it is possible to identify IPv4
+and IPv6 by reading the first nibble of the inner packet, and there
+is no need for a next header field. Additionally, IPv4 and IPv6 also
+have a field describing the overall size of the inner packet, so a
+pad length field is also not needed as it can be derived.
+
+The packet format without the ~Payload Info Header~ is called the
+"Optimized EESP packet fomat", while the packet format containing the
+~Payload Info Header~ is the called the "Full EESP packet format".
+Which of these two formats are chosen is encoded in the
+a ~Packet Format~ bit in the ~Base Header~.
+
+The 2 packet formats are shown below. [[eesp-optimized-packet-format]]
+illustrates the resulting packet format for use with IPv4 or IPv6
+Tunnel Mode when the ~Payload Info Header~ is elided, and
+[[eesp-full-packet-format]] shows the full header version for use in all
+other modes of operation.
+
+#+caption: Optimized EESP packet format
+#+name: eesp-optimized-packet-format
+#+begin_src
+
+    0                   1                   2                   3
+    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |  Version    |1|    Opt Len    |            Session ID +       |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+                               |
+   |                              SPI                              |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                                                               |
+   ~                   Options (variable, optional)                ~
+   |                                                               |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                    Sequence Number (optional)                 |
+   |                                                               |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                          IV* (optional)                       |
+   |                                                               |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                                                               |
+   ~                     IPv4/IPv6 Header                          ~
+   |                                                               |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                   L4 Payload Data (variable)                  |
+   ~                                                               ~
+   |               +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |               |          Padding (0-255 bytes)                |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                                                               |
+   ~              Integrity Check Value-ICV (variable)             ~
+   |                                                               |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+#+end_src
+
+#+caption: Full EESP packet format
+#+name: eesp-full-packet-format
+#+begin_src
+    0                   1                   2                   3
+    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |  Version    |0|    Opt Len    |            Session ID +       |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+                               |
+   |                              SPI                              |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                                                               |
+   ~                   Options (variable, optional)                ~
+   |                                                               |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                    Sequence Number (optional)                 |
+   |                                                               |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                          IV* (optional)                       |
+   |                                                               |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |  0x0  |        Reserved       | Next Header   | Pad Length    |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                   L4 Payload Data (variable)                  |
+   ~                                                               ~
+   |               +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |               |          Padding (0-255 bytes)                |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                                                               |
+   ~              Integrity Check Value-ICV (variable)             ~
+   |                                                               |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+#+end_src
+
+[*] If included, cryptographic synchronization data, e.g., an
+~Initialization Vector~ (IV), usually is not encrypted per se, although
+it often is referred to as being part of the cipher-text. Unlike ESP,
+the IV is not considered to be a part of the payload data in EESP.
+
+# :NOTE: Changed ICV to IV below.
+
+If a combined algorithm mode is employed, the explicit IV shown in
+[[eesp-packet-separate-algos]] may be omitted.  Because algorithms,
+modes and options are fixed when an SA is established, the detailed
+format of EESP packets for a given SA (including the ~Payload Data~
+substructure) is fixed for all traffic on the SA.
+
+The table below refers to the fields in the preceding figures and
+illustrate how several categories of algorithmic options, each with a
+different processing model, affect the fields noted above.  The
+processing details are described in later sections.
+
+#+caption: High level layout for fields of an EESP packet
+#+name: eesp-packet-separate-algos
+|---------------------+------------+-----------+----------------+--------------+------------|
+| Field               | # of bytes | Req'd [1] | Encrypt Covers | Integ Covers |    Tx'd    |
+| <l>                 |    <c>     |    <c>    |      <c>       |     <c>      |    <c>     |
+|---------------------+------------+-----------+----------------+--------------+------------|
+| Base Header         |     8      |     M     |                |      Y       |   plain    |
+| Options             |  variable  |     O     |                |      Y       |   plain    |
+| Sequence Number     |     8      |     O     |                |      Y       |   plain    |
+| IV                  |  variable  |     O     |                |      Y       |   plain    |
+| Payload Info Hdr[5] |     4      |     O     |       Y        |      Y       | cipher [3] |
+| Payload [2]         |  variable  |  M or D   |       Y        |      Y       | cipher [3] |
+| Padding             |   0-255    |     M     |       Y        |      Y       | cipher [3] |
+| ICV Padding         |  variable  |  if need  |                |      Y       |  not Tx'd  |
+| ICV                 |  variable  |   M [4]   |                |              |   plain    |
+|---------------------+------------+-----------+----------------+--------------+------------|
+
+#+ATTR_RFC: :compact t
+- [1] M = mandatory; O = optional; D = dummy
+- [2] If tunnel mode -> IP datagram. If beet mode -> IP datagram. If
+  transport mode -> next header and data. If IP-TFS, IP-TFS header
+  and payload.
+- [3] Ciphertext if encryption has been selected
+- [4] Mandatory if a separate integrity algorithm is used
+- [5] Not present in Optimized Header otherwise mandatory
+
+In the table "optional" means that the field is omitted if the option is not
+selected, i.e., it is not present in the packet as transmitted
+or as formatted for computation of an ICV. Whether or not an option
+is selected is determined as part of Security Association (SA)
+establishment. Thus, the format of EESP packets for a given SA is
+fixed for the duration of the SA. In contrast, "mandatory" fields
+are always present in the EESP packet format for all SAs.
+
 
 * EESP Header Options
 
