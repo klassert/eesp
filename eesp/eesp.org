@@ -316,7 +316,7 @@ are always present in the EESP packet format for all SAs.
 
 ** Base Header
 
-The Base Header is comprised of a fixed base header followed by an
+The ~Base Header~ is comprised of a fixed base header followed by an
 optional ~Options~ field.
 
 *** Fixed Base Header
@@ -401,9 +401,9 @@ alignment for IPv6 packet.
 
 ** Host Header
 
-The ~Host Header~ follows the ~Base Header~ and ~Options~ field is the ~Host Header~
-containing an optional ~Sequence Number~ and an optional
-~Initialization Vector~, and the format is shown below.
+The ~Host Header~ follows the ~Base Header~ and ~Options~ field is
+the ~Host Header~ containing an optional ~Sequence Number~ and an
+optional ~Initialization Vector~, and the format is shown below.
 
 #+caption: Host Header
 #+name: host-header
@@ -594,8 +594,8 @@ padding options must be recognized by all implementations:
    +-+-+-+-+-+-+-+-+
 #+end_src
 
-:NOTE: the format of the Pad1 option is a special case -- it does not
-have length and value fields.
+*Note:* the format of the Pad1 option is a special case -- it does
+not have length and value fields.
 
 The ~Pad1~ option is used to insert one octet of padding into the
 Options field. If more than one octet of padding is required, the
@@ -673,7 +673,7 @@ such as [[PSP]].
 - Next Header :: 8 bits: Set to the Next Header value. For the use of
   intermediate routers.
 
-  :NOTE: This ~Next Header~ field is redundant with the same named
+  *Note:* this ~Next Header~ field is redundant with the same named
   field at the start of the Host Header. We intend to remove it, but
   would like feedback on whether it may be required by middle-box
   hardware parsing engines.
@@ -685,7 +685,7 @@ such as [[PSP]].
 - F[lags] :: 2-bits: Flags used for inline crypto signaling such as the
   S-bit and D-bit in the PSP specification.
 
-  :NOTE: Is this used and thus still required by PSP, or can it be
+ *QUESTION:* Is this used and thus still required by PSP, or can it be
   removed?
 
 * Enhanced Encapsulating Security Protocol Processing
