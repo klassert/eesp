@@ -393,7 +393,7 @@ algorithms as done in [[PSP]].
 
 When options are present, padding options (i.e., ~Pad1~ and ~PadN~)
 MUST be used to align the fields following the ~Options~ field. This
-alignment is dictated by the packet format. For the non-optimized
+alignment is dictated by the packet format. For the Full EESP
 packet format the ~Payload Info Header~ must be 4 byte aligned. For
 the optimized packet format the alignment is given by the contained
 packet type, namely, 4 byte alignment for an IPv4 packet, and 8 byte
@@ -498,7 +498,7 @@ establishment.
 
 ** Payload Info Header
 
-The Payload Info Header is present in the non-optimized packet
+The Payload Info Header is present in the Full EESP packet
 format. This packet format is for use when the contained payload is
 not a single IPv4 or IPv6 packet (e.g., when using Transport Mode or
 IP-TFS).
