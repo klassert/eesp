@@ -390,7 +390,7 @@ that no Padding bytes are present.
 ** Payload Data
 
 Payload Data is adapted from ESP [[RFC4303]] and adjusted to apply to
-EESP. 
+EESP.
 
 Payload Data is a variable-length field containing data from the
 original IP packet.  The Payload
@@ -469,7 +469,7 @@ have a field describing the overall size of the inner packet, so a
 pad length field is also not needed as it can be derived.
 
 The packet format without the ~Payload Info Header~ is called the
-"Optimized EESP packet fomat", while the packet format containing the
+"Optimized EESP packet format", while the packet format containing the
 ~Payload Info Header~ is the called the "Full EESP packet format".
 Which of these two formats are chosen is encoded in the
 a ~Packet Format~ bit in the ~Base Header~.
