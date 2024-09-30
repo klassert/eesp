@@ -741,6 +741,10 @@ such as [[PSP]].
   would like feedback on whether it may be required by middle-box
   hardware parsing engines.
 
+	*AA Note:* Avoid dupliate "Next Header" field and save 4 bytes in
+  Non Tunnel mode Payload Header when there is no padding  i.e. AEAD
+  algorithms and no padding.
+
 - CryptOffset :: 6 bits: Non-zero value. The offset from the end of the IV to the
   start of the encrypted portion of the packet, measured in 4-octet units. The
   resulting value MUST NOT be larger than the size of the inner packet.
