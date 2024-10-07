@@ -1,2 +1,2 @@
 ORG := eesp.org
-include ../mk/yang.mk
+include mk/yang.mk
