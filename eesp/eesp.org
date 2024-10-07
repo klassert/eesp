@@ -39,10 +39,10 @@ EESP where flow identifiers can be stored.
 
 Due to the absence of a version number in the packet header of the ESP
 protocol, ESP can't be updated in a transparent way. Any updates
-to ESP must be negotiated by IKEv2 and for that, indiscernible to
+to ESP must be negotiated by IKEv2 and are therefore indiscernible to,
 intermediate devices such as routers and firewalls. In the recent
 past, several attempts were taken to introduce a Flow Identifier for
-certain use-cases. Examples are
+certain use cases. Examples are
 [[I-D.ponchon-ipsecme-anti-replay-subspaces]] and
 [[I-D.he-ipsecme-vpn-shared-ipsecsa]]. Such a Flow Identifier could
 also be used to perform ECMP based on the inner flows at intermediate
@@ -50,13 +50,13 @@ devices or endpoints.  Additionally to that, there exists a
 specification of the [[PSP]] protocol that has the need of a Flow
 Identifier, called Network Identifier (VNI) there. PSP also defines a
 Crypt Offset to expose parts of the headers of the inner packet.
-EESP provides a solution for all the aforementioned use-cases.
+EESP provides a solution for all the aforementioned use cases.
 
 This document defines Flow Identifier and Crypt Offset Options, the
 combination thereof along with the Session ID can be used for the PSP
 use case. Future documents can define the meaning of additional Options
 for their particular use-case. With this, all existing and potential new
-use-cases for Flow Identifiers can be covered. For instance it can be
+use cases can be covered. For instance, it can be
 used for the case of [[I-D.ponchon-ipsecme-anti-replay-subspaces]] or
 [[I-D.he-ipsecme-vpn-shared-ipsecsa]] etc., or combinations thereof. EESP
 does not have a trailer as ESP had, instead the Next Header an Pad
@@ -70,13 +70,13 @@ about the problems of the ESP protocol can be found in
 EESP follows the Security Architecture for the Internet Protocol
 [[RFC4301]] and uses ESP as of [[RFC4303]] as reference. That means
 this document is seen as an modern version of ESP (with new protocol
-number), it follows the design principles of ESP. Protocol parts that
+number), but it follows the design principles of ESP. Protocol parts that
 are not mentioned here, MUST be handled exactly the way as specified
 in [[RFC4303]]. EESP neither updates nor obsoletes [[RFC4303]].
 
 Though this document specifies IKEv2 as a negotiation protocol, EESP
 may use other protocols for negotiation and key derivation. The
-packet specification is portable to other key protocol use cases,
+packet specification is portable to other keying protocol use cases,
 such as [[PSP]], and offers versioning at the packet level.
 
 
@@ -148,12 +148,15 @@ an EESP packet. The EESP header is split into multiple parts.
 #+end_src
 
 The packet starts with a ~Base Header~ that can be used by protocol
-parsing engines of middle boxes such as routers or firewalls in
+parsing engines of middleboxes such as routers or firewalls in
 addition to the IPsec end-point host system.
 
 The ~Host Header~ follows the ~Base Header~. The ~Host Header~ is
 used to route the packet to the correct Crypto context and support
 replay protection on the end-point host system.
+
+# :NOTE: Maybe 'route the packet to the correct Crypto context'
+# is more what the SPI/ID does i.e. the Base Header.
 
 Unlike ESP, EESP does not have a trailer. Instead, these values have
 moved to a ~Payload Info Header~ directly following the ~Host Header~.
@@ -191,7 +194,7 @@ The fixed portion of the base header is defined as follows.
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #+end_src
 
-- Version :: 7 bits: MUST be sent to zero and checked by the
+- Version :: 7 bits: MUST be set to zero and checked by the
   receiver. If the version is different than an expected version
   number (e.g., negotiated via the control channel ), then the packet
   MUST be dropped by the receiver. Future modifications to the EESP
@@ -201,9 +204,9 @@ The fixed portion of the base header is defined as follows.
   necessarily able to parse the packet correctly. Intermediate
   treatment of such packets is policy dependent (e.g., it may dictate
   dropping such packets).
-- Packet Format :: 1 bit: Set to zero on full EESP packet Format
+- Packet Format :: 1 bit: Set to zero for full EESP packet Format
   (i.e., the EESP header includes the ~Payload Info Header~), set to
-  1 on Optimized EESP Packet format.
+  1 for Optimized EESP Packet format.
 - Opt Len :: 8 bits: Length in bytes of the ~Options~ field.
 - Session ID :: 16 bit: The Session ID covers additional information
   that might be needed to route the packet to the correct inline
@@ -294,7 +297,7 @@ MUST not cycle for any given SA. Thus, the sender's counter and the
 receiver's counter MUST be reset (by establishing a new SA and thus a
 new key) prior to the transmission of the 2^64nd packet on an SA.
 Implementations that do replay protection SHOULD increase the
-sequence number by one for each send packet. Even if recommended to
+sequence number by one for each sent packet. Even if recommended to
 increase the sequence number by one, implementations MAY employ other
 methods to increase the sequence number, as long as the
 aforementioned requirements are met. Sharing an SA among multiple
@@ -371,7 +374,7 @@ IP-TFS).
 
 *** Next Header
 
-The Next Header is a, 8-bit field that identifies the type of data
+The Next Header is an 8-bit field that identifies the type of data
 contained in the Payload Data field, e.g., a next layer header and
 data. The value of this field is chosen from the set of IP Protocol
 Numbers defined on the web page of the IANA (e.g., a value of 6
@@ -459,8 +462,8 @@ Integrity Check Value is handled exactly as in ESP [[RFC4303]].
 ** Full and Optimized Packet Formats
 
 The resulting two packet formats are described in this section.
-When IPv4 or IPv6 tunnel mode is used the ~Payload Info Header~ MAY
-be elided. In this optimized mode the payload will always start with
+When IPv4 or IPv6 tunnel mode is used, the ~Payload Info Header~ MAY
+be omitted. In this optimized mode the payload will always start with
 an IPv4 or IPv6 header. IPv4 or IPv6 packets always start with a
 Version field at the first nibble, so it is possible to identify IPv4
 and IPv6 by reading the first nibble of the inner packet, and there
@@ -685,7 +688,14 @@ zero-valued octets.
 
 Flow Identifier (FID) Options are used to carry characteristic
 information of the inner flow and MUST NOT change on per packet
-basis. The Flow Identifier SHOULD be negotiated by IKEv2 or another
+basis.
+# Note from Tobias: So if you use a flow identifier, an SA can't transport multiple flows
+# anymore (e.g. tunnel mode to different remote hosts, or even different
+# ports/protocols to the same host)?  If so, then I don't get how this
+# could be used to implement the "Sub-Child SA" feature as there every
+# packet will potentially be for a different sub-child and have a
+# different flow identifier value.
+The Flow Identifier SHOULD be negotiated by IKEv2 or another
 suitable protocol. The detailed specification of FIDs MAY be provided
 in subsequent documents. The precise meaning of a FID is opaque to
 intermediate devices; however, intermediate devices MAY use it for
