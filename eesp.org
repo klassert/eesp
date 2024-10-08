@@ -131,7 +131,7 @@ an EESP packet. The EESP header is split into multiple parts.
    |                                                               |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    |                                                               |
-   ~                     Host Header (variable)                    ~
+   ~                     Peer Header (variable)                    ~
    |                                                               |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    |                 Payload Info Header (optional)                |
@@ -149,19 +149,19 @@ an EESP packet. The EESP header is split into multiple parts.
 
 The packet starts with a ~Base Header~ that can be used by protocol
 parsing engines of middleboxes such as routers or firewalls in
-addition to the IPsec end-point host system that use it to
-route the packet to the correct Crypto context.
+addition to the IPsec peer that use it to route the packet to the
+correct Crypto context.
 
-The ~Host Header~ follows the ~Base Header~. The ~Host Header~ is
+The ~Peer Header~ follows the ~Base Header~. The ~Peer Header~ is
 used to support replay protection and to store cryptographic
 synchronization data, e.g., an Initialization Vector (IV)
-for the IPsec end-point host system.
+for the IPsec peer.
 
 # :NOTE: Maybe 'route the packet to the correct Crypto context'
 # is more what the SPI/ID does i.e. the Base Header.
 
 Unlike ESP, EESP does not have a trailer. Instead, these values have
-moved to a ~Payload Info Header~ directly following the ~Host Header~.
+moved to a ~Payload Info Header~ directly following the ~Peer Header~.
 
 # :NOTE: doesn't the Payload Data structure depend on the mode of
 # operation selected during creation of the SA?
@@ -260,14 +260,14 @@ the optimized packet format the alignment is given by the contained
 packet type, namely, 4 byte alignment for an IPv4 packet, and 8 byte
 alignment for IPv6 packet.
 
-** Host Header
+** Peer Header
 
-The ~Host Header~ follows the ~Base Header~ and ~Options~ field.
-The ~Host Header~ containing an optional ~Sequence Number~ and an
+The ~Peer Header~ follows the ~Base Header~ and ~Options~ field.
+The ~Peer Header~ containing an optional ~Sequence Number~ and an
 optional ~Initialization Vector~, and the format is shown below.
 
-#+caption: Host Header
-#+name: host-header
+#+caption: Peer Header
+#+name: peer-header
 #+begin_src
     0                   1                   2                   3
     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
@@ -340,7 +340,7 @@ are not available.
 If the algorithm used to encrypt the payload requires cryptographic
 synchronization data, e.g., an Initialization Vector (IV), then this
 data is carried explicitly in front of the encrypted part of the
-packet in the Host Header.  Any encryption algorithm that requires
+packet in the ~Peer Header~.  Any encryption algorithm that requires
 such explicit, per-packet synchronization data MUST indicate the
 length, any structure for such data, and the location of this data as
 part of an RFC specifying how the algorithm is used with EESP.
@@ -743,7 +743,7 @@ such as [[PSP]].
   intermediate routers.
 
   *Note:* this ~Next Header~ field is redundant with the same named
-  field at the start of the Host Header. We intend to remove it, but
+  field at the start of the ~Peer Header~. We intend to remove it, but
   would like feedback on whether it may be required by middle-box
   hardware parsing engines.
 
