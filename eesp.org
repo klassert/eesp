@@ -689,14 +689,8 @@ zero-valued octets.
 *** EESP Flow Identifier Option
 
 Flow Identifier (FID) Options are used to carry characteristic
-information of the inner flow and MUST NOT change on per packet
-basis.
-# Note from Tobias: So if you use a flow identifier, an SA can't transport multiple flows
-# anymore (e.g. tunnel mode to different remote hosts, or even different
-# ports/protocols to the same host)?  If so, then I don't get how this
-# could be used to implement the "Sub-Child SA" feature as there every
-# packet will potentially be for a different sub-child and have a
-# different flow identifier value.
+information of the inner flow and SHOULD NOT change on per packet
+basis inside any inner flow to avoid packet reordering.
 The Flow Identifier SHOULD be negotiated by IKEv2 or another
 suitable protocol. The detailed specification of FIDs MAY be provided
 in subsequent documents. The precise meaning of a FID is opaque to
