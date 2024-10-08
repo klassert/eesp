@@ -149,11 +149,13 @@ an EESP packet. The EESP header is split into multiple parts.
 
 The packet starts with a ~Base Header~ that can be used by protocol
 parsing engines of middleboxes such as routers or firewalls in
-addition to the IPsec end-point host system.
+addition to the IPsec end-point host system that use it to
+route the packet to the correct Crypto context.
 
 The ~Host Header~ follows the ~Base Header~. The ~Host Header~ is
-used to route the packet to the correct Crypto context and support
-replay protection on the end-point host system.
+used to support replay protection and to store cryptographic
+synchronization data, e.g., an Initialization Vector (IV)
+for the IPsec end-point host system.
 
 # :NOTE: Maybe 'route the packet to the correct Crypto context'
 # is more what the SPI/ID does i.e. the Base Header.
@@ -349,7 +351,7 @@ cryptographic synchronization data, e.g., an Initialization Vector
 (IV), usually is not encrypted per se (see Table 1), although it
 sometimes is referred to as being part of the ciphertext.)
 
-Counter mode algorithms SHOULD encode the 64-bit counter of the
+Counter mode algorithms MAY encode the 64-bit counter of the
 Initialization Vector (IV) on the Sequence number Field.  This option
 saves 8 header bytes on each packet.  Whether or not this option is
 selected is determined as part of Security Association (SA)
