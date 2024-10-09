@@ -178,7 +178,8 @@ on the Crypto suite.
 ** Base Header
 
 The ~Base Header~ is comprised of a fixed base header followed by an
-optional ~Options~ field.
+optional ~Options~ field. IPsec Peers and Middleboxes MAY act upon
+the Base Header and any possible Options.
 
 *** Fixed Base Header
 
@@ -265,6 +266,9 @@ alignment for IPv6 packet.
 The ~Peer Header~ follows the ~Base Header~ and ~Options~ field.
 The ~Peer Header~ containing an optional ~Sequence Number~ and an
 optional ~Initialization Vector~, and the format is shown below.
+The Peer Header is private to the IPsec peers, Middleboxes MUST
+NOT act upon the Peer Header fields.
+
 
 #+caption: Peer Header
 #+name: peer-header
@@ -362,7 +366,8 @@ establishment.
 The Payload Info Header is present in the Full EESP packet
 format. This packet format is for use when the contained payload is
 not a single IPv4 or IPv6 packet (e.g., when using Transport Mode or
-IP-TFS).
+IP-TFS). IPsec Peers and Middleboxes MAY act upon the Payload Info
+Header.
 
 #+caption: Payload Info Header
 #+name: payload-info-header
