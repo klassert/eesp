@@ -26,11 +26,17 @@
 
 #+begin_abstract
 This document describes the Enhanced Encapsulating Security Payload
-(EESP) protocol, which builds on the Encapsulating Security Payload
-(ESP) [[RFC4303]]. It is designed to overcome limitations of the ESP
-protocol to expose inner flow information to the network in a
-transparent way. To do so, it adapts IPv6 Extension header options to
-EESP where flow identifiers can be stored.
+(EESP) protocol, which builds on the existing IP Encapsulating
+Security Payload (ESP) protocol. It is designed to modernize and
+overcome limitations in the ESP protocol.
+
+EESP adds Session IDs (e.g., to support CPU pinning and stateless
+encryption), changes some previously mandatory fields to optional,
+and moves the ESP trailer into the EESP header. Additionally, EESP
+adds header options adapted from IPv6 to allow for future extension.
+New header options are defined which add Flow IDs (e.g., for CPU
+pinning and QoS support), and a crypt-offset to allow for exposing
+inner flow information for middlebox use.
 
 #+end_abstract
 #+RFC_KEYWORDS: ("EESP" "IKEv2")
@@ -212,7 +218,7 @@ The fixed portion of the base header is defined as follows.
   1 for Optimized EESP Packet format.
 - Opt Len :: 8 bits: Length in bytes of the ~Options~ field.
 - Session ID :: 16 bit: The Session ID covers additional information
-  that might be needed to route the packet to the correct inline
+  that might be needed to route the packet to the correct stateless
   crypto context. For instance, if a Key Derivation Function (KDF) is
   used do stateless key derivation, the crypto algorithm ID could be
   encoded there. The meaning of that field is opaque and MAY be
@@ -298,8 +304,8 @@ This unsigned 64-bit field contains a counter value that increases by
 for each packet sent, i.e., a per-SA packet sequence number. For a
 unicast SA or a single-sender multicast SA, the sender MUST increment
 this field for every transmitted packet. The sequence number MUST
-strictly monotonic increase, sequence numbers MUST not repeat and
-MUST not cycle for any given SA. Thus, the sender's counter and the
+strictly monotonic increase, sequence numbers MUST NOT repeat and
+MUST NOT cycle for any given SA. Thus, the sender's counter and the
 receiver's counter MUST be reset (by establishing a new SA and thus a
 new key) prior to the transmission of the 2^64nd packet on an SA.
 Implementations that do replay protection SHOULD increase the
@@ -721,7 +727,7 @@ here.
 - Option Type :: 8 bits: See [[EESP Header Options]]
 - Option Length :: 8 bits: See [[EESP Header Options]]
 - FID :: Variable length, carries characteristic information of the
-  inner flow and MUST not change within a given SA.
+  inner flow and MUST NOT change within a given SA.
 
 # XXX I don't think this is right, I think we want to allow multiple
 # FIDs (e.g., multiple tcp connections) per SA.
@@ -760,7 +766,7 @@ such as [[PSP]].
   start of the encrypted portion of the packet, measured in 4-octet units. The
   resulting value MUST NOT be larger than the size of the inner packet.
 
-- F[lags] :: 2-bits: Flags used for inline crypto signaling such as the
+- F[lags] :: 2-bits: Flags used for stateless crypto signaling such as the
   S-bit and D-bit in the PSP specification.
 
  *QUESTION:* Is this used and thus still required by PSP, or can it be
@@ -768,7 +774,7 @@ such as [[PSP]].
 
 * Enhanced Encapsulating Security Protocol Processing
 
-** Inline Encryption
+** Stateless Encryption
 
 In large-scale deployments, such as data center traffic, stateful
 IPsec using databases outlined in [[RFC4301]] and [[RFC4303]] can
@@ -792,10 +798,10 @@ performance.
 
 *** Receiving without SAD
 
-When using Inline Encryption, implementations can bypass the
+When using Stateless Encryption, implementations can bypass the
 monolithic SAD in the receiving path. Using fields from the EESP
 packet's SPI + Session ID, the Session ID contains the [[Encryption]]
-context ID used by inline encryption hardware to directly decrypt a
+context ID used by stateless encryption hardware to directly decrypt a
 packet at line rate, without needing to consult the receive-side SAD
 on a per-packet basis. For the receiving side, the system may be
 stateless, as specified in [[PSP]]. In this approach, packets are
@@ -803,7 +809,7 @@ decrypted and authenticated directly, without requiring SAD lookups
 for each packet. However, Security Policy validation MUST be done
 later in the stack using policies specified in the socket or route.
 
-Inline encryption not only reduces CPU overhead but also reduces
+stateless encryption not only reduces CPU overhead but also reduces
 stateful checks (such as anti-replay protection or sequence number
 tracking, packet limit). These checks can be offloaded to hardware
 or handled asynchronously, further optimizing performance in high-throughput
@@ -869,7 +875,7 @@ The initial content for this registry is as follows:
 * Implementation Status
 
 [Note to RFC Editor: Please remove this section and the reference to
-[[RFC6982]]before publication.]
+[[RFC7942]] before publication.]
 
 This section records the status of known implementations of the
 protocol defined by this specification at the time of posting of this
@@ -909,9 +915,7 @@ TBD
 ** RFC2119
 ** RFC4301
 ** RFC4303
-# ** RFC5840
 ** RFC7296
-** RFC2992
 ** RFC8200
 ** RFC9347
 
@@ -920,7 +924,7 @@ TBD
 ** I-D.mrossberg-ipsecme-multiple-sequence-counters
 ** I-D.ponchon-ipsecme-anti-replay-subspaces
 ** I-D.he-ipsecme-vpn-shared-ipsecsa
-** RFC6982
+** RFC2992
 ** RFC7942
 ** PSP
 :PROPERTIES:
