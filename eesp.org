@@ -19,8 +19,8 @@
 #+EMAIL: steffen.klassert@secunet.com
 #+AFFILIATION: secunet Security Networks AG
 #+RFC_SHORT_ORG: secunet
-#+RFC_ADD_AUTHOR: ("Christian Hopps" "chopps@chopps.org" "LabN Consulting, L.L.C.")
 #+RFC_ADD_AUTHOR: ("Antony Antony" "antony.antony@secunet.com" ("secunet" "secunet Security Networks AG"))
+#+RFC_ADD_AUTHOR: ("Christian Hopps" "chopps@chopps.org" "LabN Consulting, L.L.C.")
 #+RFC_AREA: SEC
 #+RFC_WORKGROUP: IPSECME Working Group
 
