@@ -28,6 +28,7 @@ git-clean-check:
 .PHONY: publish
 publish: git-clean-check $(VBASE).xml $(VBASE).txt $(VBASE).html
 	if [ -f $(PBASE).xml ]; then echo "$(PBASE).xml already present, increment version?"; exit 1; fi
+	mkdir -p publish
 	cp $(VBASE).xml $(VBASE).txt $(VBASE).html publish
 	git checkout -b $(PBRANCH)
 	git tag -m "yank.mk publish-$(DTYPE)-$(VERSION)" bp-$(PBRANCH)
@@ -35,7 +36,7 @@ publish: git-clean-check $(VBASE).xml $(VBASE).txt $(VBASE).html
 	git add $(PBASE).xml $(PBASE).txt $(PBASE).html
 	git commit -m "yank.mk publish-$(DTYPE)-$(VERSION)"
 	git push origin $(PBRANCH)
-	git checkout master
+	git checkout main
 	git merge --ff-only $(PBRANCH)
 	sed -i -e 's/\#+RFC_VERSION: *\([0-9]*\)/\#+RFC_VERSION: $(NEXT_VERSION)/' $(ORG)
 	git commit -am "yank.mk new version post-publish"
