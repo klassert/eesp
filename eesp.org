@@ -742,7 +742,7 @@ such as [[PSP]].
     0                   1                   2                   3
     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |  Option Type  | Option Length |Next Header    |CryptOffset|F|F|
+   |  Option Type  | Option Length |Payl.Offset| R |CryptOffset| F |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #+end_src
 
@@ -750,21 +750,17 @@ such as [[PSP]].
 
 - Option Length :: 8 bits: See [[EESP Header Options]]
 
-- Next Header :: 8 bits: Set to the Next Header value. For the use of
-  intermediate routers.
+- Payload Offset :: 6 bits: The offset from the start of the fixed
+  header to the start of the payload header (or the payload for
+  optimized packet format) measured in 4-octet units.
 
-  *Note:* this ~Next Header~ field is redundant with the same named
-  field at the start of the ~Peer Header~. We intend to remove it, but
-  would like feedback on whether it may be required by middle-box
-  hardware parsing engines.
+- R[eserved] :: 2-bits: Reserved MUST be sent 0 and ignored on receipt.
 
-	*AA Note:* Avoid dupliate "Next Header" field and save 4 bytes in
-  Non Tunnel mode Payload Header when there is no padding  i.e. AEAD
-  algorithms and no padding.
-
-- CryptOffset :: 6 bits: Non-zero value. The offset from the end of the IV to the
-  start of the encrypted portion of the packet, measured in 4-octet units. The
-  resulting value MUST NOT be larger than the size of the inner packet.
+- CryptOffset :: 6 bits: The offset from the start of the payload
+  header (or the payload for optimized packet format) to the start of
+  the encrypted portion of the packet, measured in 4-octet units. The
+  resulting value MUST NOT be larger than the size of the inner
+  packet.
 
 - F[lags] :: 2-bits: Flags used for stateless crypto signaling such as the
   S-bit and D-bit in the PSP specification.
