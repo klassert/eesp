@@ -1,0 +1,2692 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta content="Common,Latin" name="scripts">
+<meta content="initial-scale=1.0" name="viewport">
+<title>Enhanced Encapsulating Security Payload (EESP)</title>
+<meta content="Steffen Klassert" name="author">
+<meta content="Antony Antony" name="author">
+<meta content="Christian Hopps" name="author">
+<meta content="
+       This document describes the Enhanced Encapsulating Security Payload
+(EESP) protocol, which builds on the existing IP Encapsulating
+Security Payload (ESP) protocol. It is designed to modernize and
+overcome limitations in the ESP protocol. 
+       EESP adds Session IDs (e.g., to support CPU pinning and stateless
+encryption), changes some previously mandatory fields to optional,
+and moves the ESP trailer into the EESP header. Additionally, EESP
+adds header options adapted from IPv6 to allow for future extension.
+New header options are defined which add Flow IDs (e.g., for CPU
+pinning and QoS support), and a crypt-offset to allow for exposing
+inner flow information for middlebox use. 
+    " name="description">
+<meta content="xml2rfc 3.23.0" name="generator">
+<meta content="EESP" name="keyword">
+<meta content="IKEv2" name="keyword">
+<meta content="draft-klassert-ipsecme-eesp-01" name="ietf.draft">
+<!-- Generator version information:
+  xml2rfc 3.23.0
+    Python 3.10.12
+    ConfigArgParse 1.7
+    google-i18n-address 3.1.0
+    intervaltree 3.1.0
+    Jinja2 3.1.4
+    lxml 4.9.4
+    platformdirs 4.2.2
+    pycountry 24.6.1
+    PyYAML 6.0.2
+    requests 2.32.3
+    setuptools 59.6.0
+    wcwidth 0.2.13
+-->
+<link href="draft/draft-klassert-ipsecme-eesp-01.xml" rel="alternate" type="application/rfc+xml">
+<link href="#copyright" rel="license">
+<style type="text/css">/*
+
+  NOTE: Changes at the bottom of this file overrides some earlier settings.
+
+  Once the style has stabilized and has been adopted as an official RFC style,
+  this can be consolidated so that style settings occur only in one place, but
+  for now the contents of this file consists first of the initial CSS work as
+  provided to the RFC Formatter (xml2rfc) work, followed by itemized and
+  commented changes found necessary during the development of the v3
+  formatters.
+
+*/
+
+/* fonts */
+@import url('https://fonts.googleapis.com/css?family=Noto+Sans'); /* Sans-serif */
+@import url('https://fonts.googleapis.com/css?family=Noto+Serif'); /* Serif (print) */
+@import url('https://fonts.googleapis.com/css?family=Roboto+Mono'); /* Monospace */
+
+:root {
+  --font-sans: 'Noto Sans', Arial, Helvetica, sans-serif;
+  --font-serif: 'Noto Serif', 'Times', 'Times New Roman', serif;
+  --font-mono: 'Roboto Mono', Courier, 'Courier New', monospace;
+}
+
+@viewport {
+  zoom: 1.0;
+}
+@-ms-viewport {
+  width: extend-to-zoom;
+  zoom: 1.0;
+}
+/* general and mobile first */
+html {
+}
+body {
+  max-width: 90%;
+  margin: 1.5em auto;
+  color: #222;
+  background-color: #fff;
+  font-size: 14px;
+  font-family: var(--font-sans);
+  line-height: 1.6;
+  scroll-behavior: smooth;
+  overflow-wrap: break-word;
+}
+.ears {
+  display: none;
+}
+
+/* headings */
+#title, h1, h2, h3, h4, h5, h6 {
+  margin: 1em 0 0.5em;
+  font-weight: bold;
+  line-height: 1.3;
+}
+#title {
+  clear: both;
+  border-bottom: 1px solid #ddd;
+  margin: 0 0 0.5em 0;
+  padding: 1em 0 0.5em;
+}
+.author {
+  padding-bottom: 4px;
+}
+h1 {
+  font-size: 26px;
+  margin: 1em 0;
+}
+h2 {
+  font-size: 22px;
+  margin-top: -20px;  /* provide offset for in-page anchors */
+  padding-top: 33px;
+}
+h3 {
+  font-size: 18px;
+  margin-top: -36px;  /* provide offset for in-page anchors */
+  padding-top: 42px;
+}
+h4 {
+  font-size: 16px;
+  margin-top: -36px;  /* provide offset for in-page anchors */
+  padding-top: 42px;
+}
+h5, h6 {
+  font-size: 14px;
+}
+#n-copyright-notice {
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 1em;
+  margin-bottom: 1em;
+}
+/* general structure */
+p {
+  padding: 0;
+  margin: 0 0 1em 0;
+  text-align: left;
+}
+div, span {
+  position: relative;
+}
+div {
+  margin: 0;
+}
+.alignRight.art-text {
+  background-color: #f9f9f9;
+  border: 1px solid #eee;
+  border-radius: 3px;
+  padding: 1em 1em 0;
+  margin-bottom: 1.5em;
+}
+.alignRight.art-text pre {
+  padding: 0;
+}
+.alignRight {
+  margin: 1em 0;
+}
+.alignRight > *:first-child {
+  border: none;
+  margin: 0;
+  float: right;
+  clear: both;
+}
+.alignRight > *:nth-child(2) {
+  clear: both;
+  display: block;
+  border: none;
+}
+svg {
+  display: block;
+}
+svg[font-family~="serif" i], svg [font-family~="serif" i] {
+  font-family: var(--font-serif);
+}
+svg[font-family~="sans-serif" i], svg [font-family~="sans-serif" i] {
+  font-family: var(--font-sans);
+}
+svg[font-family~="monospace" i], svg [font-family~="monospace" i] {
+  font-family: var(--font-mono);
+}
+.alignCenter.art-text {
+  background-color: #f9f9f9;
+  border: 1px solid #eee;
+  border-radius: 3px;
+  padding: 1em 1em 0;
+  margin-bottom: 1.5em;
+}
+.alignCenter.art-text pre {
+  padding: 0;
+}
+.alignCenter {
+  margin: 1em 0;
+}
+.alignCenter > *:first-child {
+  display: table;
+  border: none;
+  margin: 0 auto;
+}
+
+/* lists */
+ol, ul {
+  padding: 0;
+  margin: 0 0 1em 2em;
+}
+ol ol, ul ul, ol ul, ul ol {
+  margin-left: 1em;
+}
+li {
+  margin: 0 0 0.25em 0;
+}
+.ulCompact li {
+  margin: 0;
+}
+ul.empty, .ulEmpty {
+  list-style-type: none;
+}
+ul.empty li, .ulEmpty li {
+  margin-top: 0.5em;
+}
+ul.ulBare, li.ulBare {
+  margin-left: 0em !important;
+}
+ul.compact, .ulCompact,
+ol.compact, .olCompact {
+  line-height: 100%;
+  margin: 0 0 0 2em;
+}
+
+/* definition lists */
+dl {
+}
+dl > dt {
+  float: left;
+  margin-right: 1em;
+}
+/* 
+dl.nohang > dt {
+  float: none;
+}
+*/
+dl > dd {
+  margin-bottom: .8em;
+  min-height: 1.3em;
+}
+dl.compact > dd, .dlCompact > dd {
+  margin-bottom: 0em;
+}
+dl > dd > dl {
+  margin-top: 0.5em;
+  margin-bottom: 0em;
+}
+
+/* links */
+a {
+  text-decoration: none;
+}
+a[href] {
+  color: #22e; /* Arlen: WCAG 2019 */
+}
+a[href]:hover {
+  background-color: #f2f2f2;
+}
+figcaption a[href],
+a[href].selfRef {
+  color: #222;
+}
+/* XXX probably not this:
+a.selfRef:hover {
+  background-color: transparent;
+  cursor: default;
+} */
+
+/* Figures */
+tt, code, pre {
+  background-color: #f9f9f9;
+  font-family: var(--font-mono);
+}
+pre {
+  border: 1px solid #eee;
+  margin: 0;
+  padding: 1em;
+}
+img {
+  max-width: 100%;
+}
+figure {
+  margin: 0;
+}
+figure blockquote {
+  margin: 0.8em 0.4em 0.4em;
+}
+figcaption {
+  font-style: italic;
+  margin: 0 0 1em 0;
+}
+@media screen {
+  pre {
+    overflow-x: auto;
+    max-width: 100%;
+    max-width: calc(100% - 22px);
+  }
+}
+
+/* aside, blockquote */
+aside, blockquote {
+  margin-left: 0;
+  padding: 1.2em 2em;
+}
+blockquote {
+  background-color: #f9f9f9;
+  color: #111; /* Arlen: WCAG 2019 */
+  border: 1px solid #ddd;
+  border-radius: 3px;
+  margin: 1em 0;
+}
+blockquote > *:last-child {
+  margin-bottom: 0;
+}
+cite {
+  display: block;
+  text-align: right;
+  font-style: italic;
+}
+.xref {
+  overflow-wrap: normal;
+}
+
+/* tables */
+table {
+  width: 100%;
+  margin: 0 0 1em;
+  border-collapse: collapse;
+  border: 1px solid #eee;
+}
+th, td {
+  text-align: left;
+  vertical-align: top;
+  padding: 0.5em 0.75em;
+}
+th {
+  text-align: left;
+  background-color: #e9e9e9;
+}
+tr:nth-child(2n+1) > td {
+  background-color: #f5f5f5;
+}
+table caption {
+  font-style: italic;
+  margin: 0;
+  padding: 0;
+  text-align: left;
+}
+table p {
+  /* XXX to avoid bottom margin on table row signifiers. If paragraphs should
+     be allowed within tables more generally, it would be far better to select on a class. */
+  margin: 0;
+}
+
+/* pilcrow */
+a.pilcrow {
+  color: #666; /* Arlen: AHDJ 2019 */
+  text-decoration: none;
+  visibility: hidden;
+  user-select: none;
+  -ms-user-select: none;
+  -o-user-select:none;
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+@media screen {
+  aside:hover > a.pilcrow,
+  p:hover > a.pilcrow,
+  blockquote:hover > a.pilcrow,
+  div:hover > a.pilcrow,
+  li:hover > a.pilcrow,
+  pre:hover > a.pilcrow {
+    visibility: visible;
+  }
+  a.pilcrow:hover {
+    background-color: transparent;
+  }
+}
+
+/* misc */
+hr {
+  border: 0;
+  border-top: 1px solid #eee;
+}
+.bcp14 {
+  font-variant: small-caps;
+}
+
+.role {
+  font-variant: all-small-caps;
+}
+
+/* info block */
+#identifiers {
+  margin: 0;
+  font-size: 0.9em;
+}
+#identifiers dt {
+  width: 3em;
+  clear: left;
+}
+#identifiers dd {
+  float: left;
+  margin-bottom: 0;
+}
+/* Fix PDF info block run off issue */
+@media print {
+  #identifiers dd {
+    float: none;
+  }
+}
+#identifiers .authors .author {
+  display: inline-block;
+  margin-right: 1.5em;
+}
+#identifiers .authors .org {
+  font-style: italic;
+}
+
+/* The prepared/rendered info at the very bottom of the page */
+.docInfo {
+  color: #666; /* Arlen: WCAG 2019 */
+  font-size: 0.9em;
+  font-style: italic;
+  margin-top: 2em;
+}
+.docInfo .prepared {
+  float: left;
+}
+.docInfo .prepared {
+  float: right;
+}
+
+/* table of contents */
+#toc  {
+  padding: 0.75em 0 2em 0;
+  margin-bottom: 1em;
+}
+nav.toc ul {
+  margin: 0 0.5em 0 0;
+  padding: 0;
+  list-style: none;
+}
+nav.toc li {
+  line-height: 1.3em;
+  margin: 0.75em 0;
+  padding-left: 1.2em;
+  text-indent: -1.2em;
+}
+/* references */
+.references dt {
+  text-align: right;
+  font-weight: bold;
+  min-width: 7em;
+}
+.references dd {
+  margin-left: 8em;
+  overflow: auto;
+}
+
+.refInstance {
+  margin-bottom: 1.25em;
+}
+
+.refSubseries {
+  margin-bottom: 1.25em;
+}
+
+.references .ascii {
+  margin-bottom: 0.25em;
+}
+
+/* index */
+.index ul {
+  margin: 0 0 0 1em;
+  padding: 0;
+  list-style: none;
+}
+.index ul ul {
+  margin: 0;
+}
+.index li {
+  margin: 0;
+  text-indent: -2em;
+  padding-left: 2em;
+  padding-bottom: 5px;
+}
+.indexIndex {
+  margin: 0.5em 0 1em;
+}
+.index a {
+  font-weight: 700;
+}
+/* make the index two-column on all but the smallest screens */
+@media (min-width: 600px) {
+  .index ul {
+    -moz-column-count: 2;
+    -moz-column-gap: 20px;
+  }
+  .index ul ul {
+    -moz-column-count: 1;
+    -moz-column-gap: 0;
+  }
+}
+
+/* authors */
+address.vcard {
+  font-style: normal;
+  margin: 1em 0;
+}
+
+address.vcard .nameRole {
+  font-weight: 700;
+  margin-left: 0;
+}
+address.vcard .label {
+  font-family: var(--font-sans);
+  margin: 0.5em 0;
+}
+address.vcard .type {
+  display: none;
+}
+.alternative-contact {
+  margin: 1.5em 0 1em;
+}
+hr.addr {
+  border-top: 1px dashed;
+  margin: 0;
+  color: #ddd;
+  max-width: calc(100% - 16px);
+}
+
+/* temporary notes */
+.rfcEditorRemove::before {
+  position: absolute;
+  top: 0.2em;
+  right: 0.2em;
+  padding: 0.2em;
+  content: "The RFC Editor will remove this note";
+  color: #9e2a00; /* Arlen: WCAG 2019 */
+  background-color: #ffd; /* Arlen: WCAG 2019 */
+}
+.rfcEditorRemove {
+  position: relative;
+  padding-top: 1.8em;
+  background-color: #ffd; /* Arlen: WCAG 2019 */
+  border-radius: 3px;
+}
+.cref {
+  background-color: #ffd; /* Arlen: WCAG 2019 */
+  padding: 2px 4px;
+}
+.crefSource {
+  font-style: italic;
+}
+/* alternative layout for smaller screens */
+@media screen and (max-width: 1023px) {
+  body {
+    padding-top: 2em;
+  }
+  #title {
+    padding: 1em 0;
+  }
+  h1 {
+    font-size: 24px;
+  }
+  h2 {
+    font-size: 20px;
+    margin-top: -18px;  /* provide offset for in-page anchors */
+    padding-top: 38px;
+  }
+  #identifiers dd {
+    max-width: 60%;
+  }
+  #toc {
+    position: fixed;
+    z-index: 2;
+    top: 0;
+    right: 0;
+    padding: 0;
+    margin: 0;
+    background-color: inherit;
+    border-bottom: 1px solid #ccc;
+  }
+  #toc h2 {
+    margin: -1px 0 0 0;
+    padding: 4px 0 4px 6px;
+    padding-right: 1em;
+    min-width: 190px;
+    font-size: 1.1em;
+    text-align: right;
+    background-color: #444;
+    color: white;
+    cursor: pointer;
+  }
+  #toc h2::before { /* css hamburger */
+    float: right;
+    position: relative;
+    width: 1em;
+    height: 1px;
+    left: -164px;
+    margin: 6px 0 0 0;
+    background: white none repeat scroll 0 0;
+    box-shadow: 0 4px 0 0 white, 0 8px 0 0 white;
+    content: "";
+  }
+  #toc nav {
+    display: none;
+    padding: 0.5em 1em 1em;
+    overflow: auto;
+    height: calc(100vh - 48px);
+    border-left: 1px solid #ddd;
+  }
+}
+
+/* alternative layout for wide screens */
+@media screen and (min-width: 1024px) {
+  body {
+    max-width: 724px;
+    margin: 42px auto;
+    padding-left: 1.5em;
+    padding-right: 29em;
+  }
+  #toc {
+    position: fixed;
+    top: 42px;
+    right: 42px;
+    width: 25%;
+    margin: 0;
+    padding: 0 1em;
+    z-index: 1;
+  }
+  #toc h2 {
+    border-top: none;
+    border-bottom: 1px solid #ddd;
+    font-size: 1em;
+    font-weight: normal;
+    margin: 0;
+    padding: 0.25em 1em 1em 0;
+  }
+  #toc nav {
+    display: block;
+    height: calc(90vh - 84px);
+    bottom: 0;
+    padding: 0.5em 0 0;
+    overflow: auto;
+  }
+  img { /* future proofing */
+    max-width: 100%;
+    height: auto;
+  }
+}
+
+/* pagination */
+@media print {
+  body {
+    width: 100%;
+  }
+  p {
+    orphans: 3;
+    widows: 3;
+  }
+  #n-copyright-notice {
+    border-bottom: none;
+  }
+  #toc, #n-introduction {
+    page-break-before: always;
+  }
+  #toc {
+    border-top: none;
+    padding-top: 0;
+  }
+  figure, pre {
+    page-break-inside: avoid;
+  }
+  figure {
+    overflow: scroll;
+  }
+  .breakable pre {
+    break-inside: auto;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    page-break-after: avoid;
+  }
+  h2+*, h3+*, h4+*, h5+*, h6+* {
+    page-break-before: avoid;
+  }
+  pre {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    font-size: 10pt;
+  }
+  table {
+    border: 1px solid #ddd;
+  }
+  td {
+    border-top: 1px solid #ddd;
+  }
+}
+
+/* This is commented out here, as the string-set: doesn't
+   pass W3C validation currently */
+/*
+.ears thead .left {
+  string-set: ears-top-left content();
+}
+
+.ears thead .center {
+  string-set: ears-top-center content();
+}
+
+.ears thead .right {
+  string-set: ears-top-right content();
+}
+
+.ears tfoot .left {
+  string-set: ears-bottom-left content();
+}
+
+.ears tfoot .center {
+  string-set: ears-bottom-center content();
+}
+
+.ears tfoot .right {
+  string-set: ears-bottom-right content();
+}
+*/
+
+@page :first {
+  padding-top: 0;
+  @top-left {
+    content: normal;
+    border: none;
+  }
+  @top-center {
+    content: normal;
+    border: none;
+  }
+  @top-right {
+    content: normal;
+    border: none;
+  }
+}
+
+@page {
+  size: A4;
+  margin-bottom: 45mm;
+  padding-top: 20px;
+  /* The following is commented out here, but set appropriately by in code, as
+     the content depends on the document */
+  /*
+  @top-left {
+    content: 'Internet-Draft';
+    vertical-align: bottom;
+    border-bottom: solid 1px #ccc;
+  }
+  @top-left {
+    content: string(ears-top-left);
+    vertical-align: bottom;
+    border-bottom: solid 1px #ccc;
+  }
+  @top-center {
+    content: string(ears-top-center);
+    vertical-align: bottom;
+    border-bottom: solid 1px #ccc;
+  }
+  @top-right {
+    content: string(ears-top-right);
+    vertical-align: bottom;
+    border-bottom: solid 1px #ccc;
+  }
+  @bottom-left {
+    content: string(ears-bottom-left);
+    vertical-align: top;
+    border-top: solid 1px #ccc;
+  }
+  @bottom-center {
+    content: string(ears-bottom-center);
+    vertical-align: top;
+    border-top: solid 1px #ccc;
+  }
+  @bottom-right {
+      content: '[Page ' counter(page) ']';
+      vertical-align: top;
+      border-top: solid 1px #ccc;
+  }
+  */
+
+}
+
+/* Changes introduced to fix issues found during implementation */
+/* Make sure links are clickable even if overlapped by following H* */
+a {
+  z-index: 2;
+}
+/* Separate body from document info even without intervening H1 */
+section {
+  clear: both;
+}
+
+
+/* Top align author divs, to avoid names without organization dropping level with org names */
+.author {
+  vertical-align: top;
+}
+
+/* Leave room in document info to show Internet-Draft on one line */
+#identifiers dt {
+  width: 8em;
+}
+
+/* Don't waste quite as much whitespace between label and value in doc info */
+#identifiers dd {
+  margin-left: 1em;
+}
+
+/* Give floating toc a background color (needed when it's a div inside section */
+#toc {
+  background-color: white;
+}
+
+/* Make the collapsed ToC header render white on gray also when it's a link */
+@media screen and (max-width: 1023px) {
+  #toc h2 a,
+  #toc h2 a:link,
+  #toc h2 a:focus,
+  #toc h2 a:hover,
+  #toc a.toplink,
+  #toc a.toplink:hover {
+    color: white;
+    background-color: #444;
+    text-decoration: none;
+  }
+}
+
+/* Give the bottom of the ToC some whitespace */
+@media screen and (min-width: 1024px) {
+  #toc {
+    padding: 0 0 1em 1em;
+  }
+}
+
+/* Style section numbers with more space between number and title */
+.section-number {
+  padding-right: 0.5em;
+}
+
+/* prevent monospace from becoming overly large */
+tt, code, pre {
+  font-size: 95%;
+}
+
+/* Fix the height/width aspect for ascii art*/
+.sourcecode pre,
+.art-text pre {
+  line-height: 1.12;
+}
+
+
+/* Add styling for a link in the ToC that points to the top of the document */
+a.toplink {
+  float: right;
+  margin-right: 0.5em;
+}
+
+/* Fix the dl styling to match the RFC 7992 attributes */
+dl > dt,
+dl.dlParallel > dt {
+  float: left;
+  margin-right: 1em;
+}
+dl.dlNewline > dt {
+  float: none;
+}
+
+/* Provide styling for table cell text alignment */
+table td.text-left,
+table th.text-left {
+  text-align: left;
+}
+table td.text-center,
+table th.text-center {
+  text-align: center;
+}
+table td.text-right,
+table th.text-right {
+  text-align: right;
+}
+
+/* Make the alternative author contact information look less like just another
+   author, and group it closer with the primary author contact information */
+.alternative-contact {
+  margin: 0.5em 0 0.25em 0;
+}
+address .non-ascii {
+  margin: 0 0 0 2em;
+}
+
+/* With it being possible to set tables with alignment
+  left, center, and right, { width: 100%; } does not make sense */
+table {
+  width: auto;
+}
+
+/* Avoid reference text that sits in a block with very wide left margin,
+   because of a long floating dt label.*/
+.references dd {
+  overflow: visible;
+}
+
+/* Control caption placement */
+caption {
+  caption-side: bottom;
+}
+
+/* Limit the width of the author address vcard, so names in right-to-left
+   script don't end up on the other side of the page. */
+
+address.vcard {
+  max-width: 30em;
+  margin-right: auto;
+}
+
+/* For address alignment dependent on LTR or RTL scripts */
+address div.left {
+  text-align: left;
+}
+address div.right {
+  text-align: right;
+}
+
+/* Provide table alignment support.  We can't use the alignX classes above
+   since they do unwanted things with caption and other styling. */
+table.right {
+ margin-left: auto;
+ margin-right: 0;
+}
+table.center {
+ margin-left: auto;
+ margin-right: auto;
+}
+table.left {
+ margin-left: 0;
+ margin-right: auto;
+}
+
+/* Give the table caption label the same styling as the figcaption */
+caption a[href] {
+  color: #222;
+}
+
+@media print {
+  .toplink {
+    display: none;
+  }
+
+  /* avoid overwriting the top border line with the ToC header */
+  #toc {
+    padding-top: 1px;
+  }
+
+  /* Avoid page breaks inside dl and author address entries */
+  .vcard {
+    page-break-inside: avoid;
+  }
+
+}
+/* Tweak the bcp14 keyword presentation */
+.bcp14 {
+  font-variant: small-caps;
+  font-weight: bold;
+  font-size: 0.9em;
+}
+/* Tweak the invisible space above H* in order not to overlay links in text above */
+ h2 {
+  margin-top: -18px;  /* provide offset for in-page anchors */
+  padding-top: 31px;
+ }
+ h3 {
+  margin-top: -18px;  /* provide offset for in-page anchors */
+  padding-top: 24px;
+ }
+ h4 {
+  margin-top: -18px;  /* provide offset for in-page anchors */
+  padding-top: 24px;
+ }
+/* Float artwork pilcrow to the right */
+@media screen {
+  .artwork a.pilcrow {
+    display: block;
+    line-height: 0.7;
+    margin-top: 0.15em;
+  }
+}
+/* Make pilcrows on dd visible */
+@media screen {
+  dd:hover > a.pilcrow {
+    visibility: visible;
+  }
+}
+/* Make the placement of figcaption match that of a table's caption
+   by removing the figure's added bottom margin */
+.alignLeft.art-text,
+.alignCenter.art-text,
+.alignRight.art-text {
+   margin-bottom: 0;
+}
+.alignLeft,
+.alignCenter,
+.alignRight {
+  margin: 1em 0 0 0;
+}
+/* In print, the pilcrow won't show on hover, so prevent it from taking up space,
+   possibly even requiring a new line */
+@media print {
+  a.pilcrow {
+    display: none;
+  }
+}
+/* Styling for the external metadata */
+div#external-metadata {
+  background-color: #eee;
+  padding: 0.5em;
+  margin-bottom: 0.5em;
+  display: none;
+}
+div#internal-metadata {
+  padding: 0.5em;                       /* to match the external-metadata padding */
+}
+/* Styling for title RFC Number */
+h1#rfcnum {
+  clear: both;
+  margin: 0 0 -1em;
+  padding: 1em 0 0 0;
+}
+/* Make .olPercent look the same as <ol><li> */
+dl.olPercent > dd {
+  margin-bottom: 0.25em;
+  min-height: initial;
+}
+/* Give aside some styling to set it apart */
+aside {
+  border-left: 1px solid #ddd;
+  margin: 1em 0 1em 2em;
+  padding: 0.2em 2em;
+}
+aside > dl,
+aside > ol,
+aside > ul,
+aside > table,
+aside > p {
+  margin-bottom: 0.5em;
+}
+/* Additional page break settings */
+@media print {
+  figcaption, table caption {
+    page-break-before: avoid;
+  }
+}
+/* Font size adjustments for print */
+@media print {
+  body  { font-size: 10pt;      line-height: normal; max-width: 96%; }
+  h1    { font-size: 1.72em;    padding-top: 1.5em; } /* 1*1.2*1.2*1.2 */
+  h2    { font-size: 1.44em;    padding-top: 1.5em; } /* 1*1.2*1.2 */
+  h3    { font-size: 1.2em;     padding-top: 1.5em; } /* 1*1.2 */
+  h4    { font-size: 1em;       padding-top: 1.5em; }
+  h5, h6 { font-size: 1em;      margin: initial; padding: 0.5em 0 0.3em; }
+}
+/* Sourcecode margin in print, when there's no pilcrow */
+@media print {
+  .artwork,
+  .artwork > pre,
+  .sourcecode {
+    margin-bottom: 1em;
+  }
+}
+/* Avoid narrow tables forcing too narrow table captions, which may render badly */
+table {
+  min-width: 20em;
+}
+/* ol type a */
+ol.type-a { list-style-type: lower-alpha; }
+ol.type-A { list-style-type: upper-alpha; }
+ol.type-i { list-style-type: lower-roman; }
+ol.type-I { list-style-type: upper-roman; }
+/* Apply the print table and row borders in general, on request from the RPC,
+and increase the contrast between border and odd row background slightly */
+table {
+  border: 1px solid #ddd;
+}
+td {
+  border-top: 1px solid #ddd;
+}
+tr {
+  break-inside: avoid;
+}
+tr:nth-child(2n+1) > td {
+  background-color: #f8f8f8;
+}
+/* Use style rules to govern display of the TOC. */
+@media screen and (max-width: 1023px) {
+  #toc nav { display: none; }
+  #toc.active nav { display: block; }
+}
+/* Add support for keepWithNext */
+.keepWithNext {
+  break-after: avoid-page;
+  break-after: avoid-page;
+}
+/* Add support for keepWithPrevious */
+.keepWithPrevious {
+  break-before: avoid-page;
+}
+/* Change the approach to avoiding breaks inside artwork etc. */
+figure, pre, table, .artwork, .sourcecode  {
+  break-before: auto;
+  break-after: auto;
+}
+/* Avoid breaks between <dt> and <dd> */
+dl {
+  break-before: auto;
+  break-inside: auto;
+}
+dt {
+  break-before: auto;
+  break-after: avoid-page;
+}
+dd {
+  break-before: avoid-page;
+  break-after: auto;
+  orphans: 3;
+  widows: 3
+}
+span.break, dd.break {
+  margin-bottom: 0;
+  min-height: 0;
+  break-before: auto;
+  break-inside: auto;
+  break-after: auto;
+}
+/* Undo break-before ToC */
+@media print {
+  #toc {
+    break-before: auto;
+  }
+}
+/* Text in compact lists should not get extra bottom margin space,
+   since that would makes the list not compact */
+ul.compact p, .ulCompact p,
+ol.compact p, .olCompact p {
+ margin: 0;
+}
+/* But the list as a whole needs the extra space at the end */
+section ul.compact,
+section .ulCompact,
+section ol.compact,
+section .olCompact {
+  margin-bottom: 1em;                    /* same as p not within ul.compact etc. */
+}
+/* The tt and code background above interferes with for instance table cell
+   backgrounds.  Changed to something a bit more selective. */
+tt, code {
+  background-color: transparent;
+}
+p tt, p code, li tt, li code, dt tt, dt code {
+  background-color: #f8f8f8;
+}
+/* Tweak the pre margin -- 0px doesn't come out well */
+pre {
+   margin-top: 0.5px;
+}
+/* Tweak the compact list text */
+ul.compact, .ulCompact,
+ol.compact, .olCompact,
+dl.compact, .dlCompact {
+  line-height: normal;
+}
+/* Don't add top margin for nested lists */
+li > ul, li > ol, li > dl,
+dd > ul, dd > ol, dd > dl,
+dl > dd > dl {
+  margin-top: initial;
+}
+/* Elements that should not be rendered on the same line as a <dt> */
+/* This should match the element list in writer.text.TextWriter.render_dl() */
+dd > div.artwork:first-child,
+dd > aside:first-child,
+dd > figure:first-child,
+dd > ol:first-child,
+dd > div.sourcecode:first-child,
+dd > table:first-child,
+dd > ul:first-child {
+  clear: left;
+}
+/* fix for weird browser behaviour when <dd/> is empty */
+dt+dd:empty::before{
+  content: "\00a0";
+}
+/* Make paragraph spacing inside <li> smaller than in body text, to fit better within the list */
+li > p {
+  margin-bottom: 0.5em
+}
+/* Don't let p margin spill out from inside list items */
+li > p:last-of-type:only-child {
+  margin-bottom: 0;
+}
+</style>
+<link href="rfc-local.css" rel="stylesheet" type="text/css">
+<script type="application/javascript">async function addMetadata(){try{const e=document.styleSheets[0].cssRules;for(let t=0;t<e.length;t++)if(/#identifiers/.exec(e[t].selectorText)){const a=e[t].cssText.replace("#identifiers","#external-updates");document.styleSheets[0].insertRule(a,document.styleSheets[0].cssRules.length)}}catch(e){console.log(e)}const e=document.getElementById("external-metadata");if(e)try{var t,a="",o=function(e){const t=document.getElementsByTagName("meta");for(let a=0;a<t.length;a++)if(t[a].getAttribute("name")===e)return t[a].getAttribute("content");return""}("rfc.number");if(o){t="https://www.rfc-editor.org/rfc/rfc"+o+".json";try{const e=await fetch(t);a=await e.json()}catch(e){t=document.URL.indexOf("html")>=0?document.URL.replace(/html$/,"json"):document.URL+".json";const o=await fetch(t);a=await o.json()}}if(!a)return;e.style.display="block";const s="",d="https://datatracker.ietf.org/doc",n="https://datatracker.ietf.org/ipr/search",c="https://www.rfc-editor.org/info",l=a.doc_id.toLowerCase(),i=a.doc_id.slice(0,3).toLowerCase(),f=a.doc_id.slice(3).replace(/^0+/,""),u={status:"Status",obsoletes:"Obsoletes",obsoleted_by:"Obsoleted By",updates:"Updates",updated_by:"Updated By",see_also:"See Also",errata_url:"Errata"};let h="<dl style='overflow:hidden' id='external-updates'>";["status","obsoletes","obsoleted_by","updates","updated_by","see_also","errata_url"].forEach(e=>{if("status"==e){a[e]=a[e].toLowerCase();var t=a[e].split(" "),o=t.length,w="",p=1;for(let e=0;e<o;e++)p<o?w=w+r(t[e])+" ":w+=r(t[e]),p++;a[e]=w}else if("obsoletes"==e||"obsoleted_by"==e||"updates"==e||"updated_by"==e){var g,m="",b=1;g=a[e].length;for(let t=0;t<g;t++)a[e][t]&&(a[e][t]=String(a[e][t]).toLowerCase(),m=b<g?m+"<a href='"+s+"/rfc/".concat(a[e][t])+"'>"+a[e][t].slice(3)+"</a>, ":m+"<a href='"+s+"/rfc/".concat(a[e][t])+"'>"+a[e][t].slice(3)+"</a>",b++);a[e]=m}else if("see_also"==e){var y,L="",C=1;y=a[e].length;for(let t=0;t<y;t++)if(a[e][t]){a[e][t]=String(a[e][t]);var _=a[e][t].slice(0,3),v=a[e][t].slice(3).replace(/^0+/,"");L=C<y?"RFC"!=_?L+"<a href='"+s+"/info/"+_.toLowerCase().concat(v.toLowerCase())+"'>"+_+" "+v+"</a>, ":L+"<a href='"+s+"/info/"+_.toLowerCase().concat(v.toLowerCase())+"'>"+v+"</a>, ":"RFC"!=_?L+"<a href='"+s+"/info/"+_.toLowerCase().concat(v.toLowerCase())+"'>"+_+" "+v+"</a>":L+"<a href='"+s+"/info/"+_.toLowerCase().concat(v.toLowerCase())+"'>"+v+"</a>",C++}a[e]=L}else if("errata_url"==e){var R="";R=a[e]?R+"<a href='"+a[e]+"'>Errata exist</a> | <a href='"+d+"/"+l+"'>Datatracker</a>| <a href='"+n+"/?"+i+"="+f+"&submit="+i+"'>IPR</a> | <a href='"+c+"/"+l+"'>Info page</a>":"<a href='"+d+"/"+l+"'>Datatracker</a> | <a href='"+n+"/?"+i+"="+f+"&submit="+i+"'>IPR</a> | <a href='"+c+"/"+l+"'>Info page</a>",a[e]=R}""!=a[e]?"Errata"==u[e]?h+=`<dt>More info:</dt><dd>${a[e]}</dd>`:h+=`<dt>${u[e]}:</dt><dd>${a[e]}</dd>`:"Errata"==u[e]&&(h+=`<dt>More info:</dt><dd>${a[e]}</dd>`)}),h+="</dl>",e.innerHTML=h}catch(e){console.log(e)}else console.log("Could not locate metadata <div> element");function r(e){return e.charAt(0).toUpperCase()+e.slice(1)}}window.removeEventListener("load",addMetadata),window.addEventListener("load",addMetadata);</script>
+</head>
+<body class="xml2rfc">
+<script src="metadata.min.js"></script>
+<table class="ears">
+<thead><tr>
+<td class="left">Internet-Draft</td>
+<td class="center">EESP</td>
+<td class="right">October 2024</td>
+</tr></thead>
+<tfoot><tr>
+<td class="left">Klassert, et al.</td>
+<td class="center">Expires 17 April 2025</td>
+<td class="right">[Page]</td>
+</tr></tfoot>
+</table>
+<div id="external-metadata" class="document-information"></div>
+<div id="internal-metadata" class="document-information">
+<dl id="identifiers">
+<dt class="label-workgroup">Workgroup:</dt>
+<dd class="workgroup">IPSECME Working Group</dd>
+<dt class="label-published">Published:</dt>
+<dd class="published">
+<time datetime="2024-10-14" class="published">14 October 2024</time>
+    </dd>
+<dt class="label-intended-status">Intended Status:</dt>
+<dd class="intended-status">Standards Track</dd>
+<dt class="label-expires">Expires:</dt>
+<dd class="expires"><time datetime="2025-04-17">17 April 2025</time></dd>
+<dt class="label-authors">Authors:</dt>
+<dd class="authors">
+<div class="author">
+      <div class="author-name">S. Klassert</div>
+<div class="org">secunet</div>
+</div>
+<div class="author">
+      <div class="author-name">A. Antony</div>
+<div class="org">secunet</div>
+</div>
+<div class="author">
+      <div class="author-name">C. Hopps</div>
+<div class="org">LabN Consulting, L.L.C.</div>
+</div>
+</dd>
+</dl>
+</div>
+<h1 id="title">Enhanced Encapsulating Security Payload (EESP)</h1>
+<section id="section-abstract">
+      <h2 id="abstract"><a href="#abstract" class="selfRef">Abstract</a></h2>
+<p id="section-abstract-1">This document describes the Enhanced Encapsulating Security Payload
+(EESP) protocol, which builds on the existing IP Encapsulating
+Security Payload (ESP) protocol. It is designed to modernize and
+overcome limitations in the ESP protocol.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
+<p id="section-abstract-2">EESP adds Session IDs (e.g., to support CPU pinning and stateless
+encryption), changes some previously mandatory fields to optional,
+and moves the ESP trailer into the EESP header. Additionally, EESP
+adds header options adapted from IPv6 to allow for future extension.
+New header options are defined which add Flow IDs (e.g., for CPU
+pinning and QoS support), and a crypt-offset to allow for exposing
+inner flow information for middlebox use.<a href="#section-abstract-2" class="pilcrow">¶</a></p>
+</section>
+<div id="status-of-memo">
+<section id="section-boilerplate.1">
+        <h2 id="name-status-of-this-memo">
+<a href="#name-status-of-this-memo" class="section-name selfRef">Status of This Memo</a>
+        </h2>
+<p id="section-boilerplate.1-1">
+        This Internet-Draft is submitted in full conformance with the
+        provisions of BCP 78 and BCP 79.<a href="#section-boilerplate.1-1" class="pilcrow">¶</a></p>
+<p id="section-boilerplate.1-2">
+        Internet-Drafts are working documents of the Internet Engineering Task
+        Force (IETF). Note that other groups may also distribute working
+        documents as Internet-Drafts. The list of current Internet-Drafts is
+        at <span><a href="https://datatracker.ietf.org/drafts/current/">https://datatracker.ietf.org/drafts/current/</a></span>.<a href="#section-boilerplate.1-2" class="pilcrow">¶</a></p>
+<p id="section-boilerplate.1-3">
+        Internet-Drafts are draft documents valid for a maximum of six months
+        and may be updated, replaced, or obsoleted by other documents at any
+        time. It is inappropriate to use Internet-Drafts as reference
+        material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
+<p id="section-boilerplate.1-4">
+        This Internet-Draft will expire on 17 April 2025.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="copyright">
+<section id="section-boilerplate.2">
+        <h2 id="name-copyright-notice">
+<a href="#name-copyright-notice" class="section-name selfRef">Copyright Notice</a>
+        </h2>
+<p id="section-boilerplate.2-1">
+            Copyright (c) 2024 IETF Trust and the persons identified as the
+            document authors. All rights reserved.<a href="#section-boilerplate.2-1" class="pilcrow">¶</a></p>
+<p id="section-boilerplate.2-2">
+            This document is subject to BCP 78 and the IETF Trust's Legal
+            Provisions Relating to IETF Documents
+            (<span><a href="https://trustee.ietf.org/license-info">https://trustee.ietf.org/license-info</a></span>) in effect on the date of
+            publication of this document. Please review these documents
+            carefully, as they describe your rights and restrictions with
+            respect to this document. Code Components extracted from this
+            document must include Revised BSD License text as described in
+            Section 4.e of the Trust Legal Provisions and are provided without
+            warranty as described in the Revised BSD License.<a href="#section-boilerplate.2-2" class="pilcrow">¶</a></p>
+<p id="section-boilerplate.2-3">
+            This document may contain material from IETF Documents or IETF
+            Contributions published or made publicly available before November
+            10, 2008. The person(s) controlling the copyright in some of this
+            material may not have granted the IETF Trust the right to allow
+            modifications of such material outside the IETF Standards Process.
+            Without obtaining an adequate license from the person(s)
+            controlling the copyright in such materials, this document may not
+            be modified outside the IETF Standards Process, and derivative
+            works of it may not be created outside the IETF Standards Process,
+            except to format it for publication as an RFC or to translate it
+            into languages other than English.<a href="#section-boilerplate.2-3" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="toc">
+<section id="section-toc.1">
+        <a href="#" onclick="scroll(0,0)" class="toplink">▲</a><h2 id="name-table-of-contents">
+<a href="#name-table-of-contents" class="section-name selfRef">Table of Contents</a>
+        </h2>
+<nav class="toc"><ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.1">
+            <p id="section-toc.1-1.1.1" class="keepWithNext"><a href="#section-1" class="auto internal xref">1</a>.  <a href="#name-introduction" class="internal xref">Introduction</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.1.2.1">
+                <p id="section-toc.1-1.1.2.1.1" class="keepWithNext"><a href="#section-1.1" class="auto internal xref">1.1</a>.  <a href="#name-requirements-language" class="internal xref">Requirements Language</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.1.2.2">
+                <p id="section-toc.1-1.1.2.2.1" class="keepWithNext"><a href="#section-1.2" class="auto internal xref">1.2</a>.  <a href="#name-terminology" class="internal xref">Terminology</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2">
+            <p id="section-toc.1-1.2.1"><a href="#section-2" class="auto internal xref">2</a>.  <a href="#name-protocol-definition" class="internal xref">Protocol Definition</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.1">
+                <p id="section-toc.1-1.2.2.1.1"><a href="#section-2.1" class="auto internal xref">2.1</a>.  <a href="#name-eesp-packet-format" class="internal xref">EESP packet format</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.2">
+                <p id="section-toc.1-1.2.2.2.1"><a href="#section-2.2" class="auto internal xref">2.2</a>.  <a href="#name-base-header" class="internal xref">Base Header</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.2.2.1">
+                    <p id="section-toc.1-1.2.2.2.2.1.1"><a href="#section-2.2.1" class="auto internal xref">2.2.1</a>.  <a href="#name-fixed-base-header" class="internal xref">Fixed Base Header</a></p>
+</li>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.2.2.2">
+                    <p id="section-toc.1-1.2.2.2.2.2.1"><a href="#section-2.2.2" class="auto internal xref">2.2.2</a>.  <a href="#name-base-header-options" class="internal xref">Base Header Options</a></p>
+</li>
+                </ul>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.3">
+                <p id="section-toc.1-1.2.2.3.1"><a href="#section-2.3" class="auto internal xref">2.3</a>.  <a href="#name-peer-header" class="internal xref">Peer Header</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.3.2.1">
+                    <p id="section-toc.1-1.2.2.3.2.1.1"><a href="#section-2.3.1" class="auto internal xref">2.3.1</a>.  <a href="#name-sequence-number" class="internal xref">Sequence Number</a></p>
+</li>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.3.2.2">
+                    <p id="section-toc.1-1.2.2.3.2.2.1"><a href="#section-2.3.2" class="auto internal xref">2.3.2</a>.  <a href="#name-initialization-vector" class="internal xref">Initialization Vector</a></p>
+</li>
+                </ul>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.4">
+                <p id="section-toc.1-1.2.2.4.1"><a href="#section-2.4" class="auto internal xref">2.4</a>.  <a href="#name-payload-info-header" class="internal xref">Payload Info Header</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.4.2.1">
+                    <p id="section-toc.1-1.2.2.4.2.1.1"><a href="#section-2.4.1" class="auto internal xref">2.4.1</a>.  <a href="#name-next-header" class="internal xref">Next Header</a></p>
+</li>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.4.2.2">
+                    <p id="section-toc.1-1.2.2.4.2.2.1"><a href="#section-2.4.2" class="auto internal xref">2.4.2</a>.  <a href="#name-pad-length" class="internal xref">Pad Length</a></p>
+</li>
+                </ul>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.5">
+                <p id="section-toc.1-1.2.2.5.1"><a href="#section-2.5" class="auto internal xref">2.5</a>.  <a href="#name-payload-data" class="internal xref">Payload Data</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.6">
+                <p id="section-toc.1-1.2.2.6.1"><a href="#section-2.6" class="auto internal xref">2.6</a>.  <a href="#name-padding-for-encryption" class="internal xref">Padding (for Encryption)</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.7">
+                <p id="section-toc.1-1.2.2.7.1"><a href="#section-2.7" class="auto internal xref">2.7</a>.  <a href="#name-integrity-check-value-icv" class="internal xref">Integrity Check Value (ICV)</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.8">
+                <p id="section-toc.1-1.2.2.8.1"><a href="#section-2.8" class="auto internal xref">2.8</a>.  <a href="#name-full-and-optimized-packet-f" class="internal xref">Full and Optimized Packet Formats</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3">
+            <p id="section-toc.1-1.3.1"><a href="#section-3" class="auto internal xref">3</a>.  <a href="#name-eesp-header-options" class="internal xref">EESP Header Options</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.1">
+                <p id="section-toc.1-1.3.2.1.1"><a href="#section-3.1" class="auto internal xref">3.1</a>.  <a href="#name-eesp-option-types" class="internal xref">EESP Option Types</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.1.2.1">
+                    <p id="section-toc.1-1.3.2.1.2.1.1"><a href="#section-3.1.1" class="auto internal xref">3.1.1</a>.  <a href="#name-padding-options" class="internal xref">Padding Options</a></p>
+</li>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.1.2.2">
+                    <p id="section-toc.1-1.3.2.1.2.2.1"><a href="#section-3.1.2" class="auto internal xref">3.1.2</a>.  <a href="#name-eesp-flow-identifier-option" class="internal xref">EESP Flow Identifier Option</a></p>
+</li>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.1.2.3">
+                    <p id="section-toc.1-1.3.2.1.2.3.1"><a href="#section-3.1.3" class="auto internal xref">3.1.3</a>.  <a href="#name-eesp-crypt-offset-option" class="internal xref">EESP Crypt Offset Option</a></p>
+</li>
+                </ul>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4">
+            <p id="section-toc.1-1.4.1"><a href="#section-4" class="auto internal xref">4</a>.  <a href="#name-enhanced-encapsulating-secu" class="internal xref">Enhanced Encapsulating Security Protocol Processing</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.1">
+                <p id="section-toc.1-1.4.2.1.1"><a href="#section-4.1" class="auto internal xref">4.1</a>.  <a href="#name-stateless-encryption" class="internal xref">Stateless Encryption</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.1.2.1">
+                    <p id="section-toc.1-1.4.2.1.2.1.1"><a href="#section-4.1.1" class="auto internal xref">4.1.1</a>.  <a href="#name-receiving-without-sad" class="internal xref">Receiving without SAD</a></p>
+</li>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.1.2.2">
+                    <p id="section-toc.1-1.4.2.1.2.2.1"><a href="#section-4.1.2" class="auto internal xref">4.1.2</a>.  <a href="#name-sending-without-spd" class="internal xref">Sending without SPD</a></p>
+</li>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.1.2.3">
+                    <p id="section-toc.1-1.4.2.1.2.3.1"><a href="#section-4.1.3" class="auto internal xref">4.1.3</a>.  <a href="#name-peer-authentication-databas" class="internal xref">Peer Authentication Database</a></p>
+</li>
+                </ul>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5">
+            <p id="section-toc.1-1.5.1"><a href="#section-5" class="auto internal xref">5</a>.  <a href="#name-udp-encapsulation" class="internal xref">UDP Encapsulation</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6">
+            <p id="section-toc.1-1.6.1"><a href="#section-6" class="auto internal xref">6</a>.  <a href="#name-ikev2-negotiation" class="internal xref">IKEv2 Negotiation</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7">
+            <p id="section-toc.1-1.7.1"><a href="#section-7" class="auto internal xref">7</a>.  <a href="#name-iana-considerations" class="internal xref">IANA Considerations</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7.2.1">
+                <p id="section-toc.1-1.7.2.1.1"><a href="#section-7.1" class="auto internal xref">7.1</a>.  <a href="#name-eesp-ip-protocol-number" class="internal xref">EESP IP Protocol Number</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7.2.2">
+                <p id="section-toc.1-1.7.2.2.1"><a href="#section-7.2" class="auto internal xref">7.2</a>.  <a href="#name-eesp-options-registry" class="internal xref">EESP Options Registry</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.8">
+            <p id="section-toc.1-1.8.1"><a href="#section-8" class="auto internal xref">8</a>.  <a href="#name-implementation-status" class="internal xref">Implementation Status</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9">
+            <p id="section-toc.1-1.9.1"><a href="#section-9" class="auto internal xref">9</a>.  <a href="#name-security-considerations" class="internal xref">Security Considerations</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.10">
+            <p id="section-toc.1-1.10.1"><a href="#section-10" class="auto internal xref">10</a>. <a href="#name-acknowledgments" class="internal xref">Acknowledgments</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.11">
+            <p id="section-toc.1-1.11.1"><a href="#section-11" class="auto internal xref">11</a>. <a href="#name-normative-references" class="internal xref">Normative References</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.12">
+            <p id="section-toc.1-1.12.1"><a href="#section-12" class="auto internal xref">12</a>. <a href="#name-informative-references" class="internal xref">Informative References</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.13">
+            <p id="section-toc.1-1.13.1"><a href="#appendix-A" class="auto internal xref">Appendix A</a>.  <a href="#name-additional-stuff" class="internal xref">Additional Stuff</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.14">
+            <p id="section-toc.1-1.14.1"><a href="#appendix-B" class="auto internal xref"></a><a href="#name-authors-addresses" class="internal xref">Authors' Addresses</a></p>
+</li>
+        </ul>
+</nav>
+</section>
+</div>
+<section id="section-1">
+      <h2 id="name-introduction">
+<a href="#section-1" class="section-number selfRef">1. </a><a href="#name-introduction" class="section-name selfRef">Introduction</a>
+      </h2>
+<p id="section-1-1">Due to the absence of a version number in the packet header of the ESP
+protocol, ESP can't be updated in a transparent way. Any updates
+to ESP must be negotiated by IKEv2 and are therefore indiscernible to,
+intermediate devices such as routers and firewalls. In the recent
+past, several attempts were taken to introduce a Flow Identifier for
+certain use cases. Examples are
+<span>[<a href="#I-D.ponchon-ipsecme-anti-replay-subspaces" class="cite xref">I-D.ponchon-ipsecme-anti-replay-subspaces</a>]</span> and
+<span>[<a href="#I-D.he-ipsecme-vpn-shared-ipsecsa" class="cite xref">I-D.he-ipsecme-vpn-shared-ipsecsa</a>]</span>. Such a Flow Identifier could
+also be used to perform ECMP based on the inner flows at intermediate
+devices or endpoints.  Additionally to that, there exists a
+specification of the <span>[<a href="#PSP" class="cite xref">PSP</a>]</span> protocol that has the need of a Flow
+Identifier, called Network Identifier (VNI) there. PSP also defines a
+Crypt Offset to expose parts of the headers of the inner packet.
+EESP provides a solution for all the aforementioned use cases.<a href="#section-1-1" class="pilcrow">¶</a></p>
+<p id="section-1-2">This document defines Flow Identifier and Crypt Offset Options, the
+combination thereof along with the Session ID can be used for the PSP
+use case. Future documents can define the meaning of additional Options
+for their particular use-case. With this, all existing and potential new
+use cases can be covered. For instance, it can be
+used for the case of <span>[<a href="#I-D.ponchon-ipsecme-anti-replay-subspaces" class="cite xref">I-D.ponchon-ipsecme-anti-replay-subspaces</a>]</span> or
+<span>[<a href="#I-D.he-ipsecme-vpn-shared-ipsecsa" class="cite xref">I-D.he-ipsecme-vpn-shared-ipsecsa</a>]</span> etc., or combinations thereof. EESP
+does not have a trailer as ESP had, instead the Next Header an Pad
+Length values are moved to the EESP header. Additionally, an Optimized
+EESP header is defined which eliminates these 2 values when using simple
+IPv4 or IPv6 tunnel mode. EESP also does not define TFC padding, IP-TFS
+as of <span>[<a href="#RFC9347" class="cite xref">RFC9347</a>]</span> SHOULD be used instead. A detailed discussion
+about the problems of the ESP protocol can be found in
+<span>[<a href="#I-D.mrossberg-ipsecme-multiple-sequence-counters" class="cite xref">I-D.mrossberg-ipsecme-multiple-sequence-counters</a>]</span>.<a href="#section-1-2" class="pilcrow">¶</a></p>
+<p id="section-1-3">EESP follows the Security Architecture for the Internet Protocol
+<span>[<a href="#RFC4301" class="cite xref">RFC4301</a>]</span> and uses ESP as of <span>[<a href="#RFC4303" class="cite xref">RFC4303</a>]</span> as reference. That means
+this document is seen as an modern version of ESP (with new protocol
+number), but it follows the design principles of ESP. Protocol parts that
+are not mentioned here, MUST be handled exactly the way as specified
+in <span>[<a href="#RFC4303" class="cite xref">RFC4303</a>]</span>. EESP neither updates nor obsoletes <span>[<a href="#RFC4303" class="cite xref">RFC4303</a>]</span>.<a href="#section-1-3" class="pilcrow">¶</a></p>
+<p id="section-1-4">Though this document specifies IKEv2 as a negotiation protocol, EESP
+may use other protocols for negotiation and key derivation. The
+packet specification is portable to other keying protocol use cases,
+such as <span>[<a href="#PSP" class="cite xref">PSP</a>]</span>, and offers versioning at the packet level.<a href="#section-1-4" class="pilcrow">¶</a></p>
+<section id="section-1.1">
+        <h3 id="name-requirements-language">
+<a href="#section-1.1" class="section-number selfRef">1.1. </a><a href="#name-requirements-language" class="section-name selfRef">Requirements Language</a>
+        </h3>
+<p id="section-1.1-1">The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+"SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
+document are to be interpreted as described in <span>[<a href="#RFC2119" class="cite xref">RFC2119</a>]</span>.<a href="#section-1.1-1" class="pilcrow">¶</a></p>
+</section>
+<section id="section-1.2">
+        <h3 id="name-terminology">
+<a href="#section-1.2" class="section-number selfRef">1.2. </a><a href="#name-terminology" class="section-name selfRef">Terminology</a>
+        </h3>
+<p id="section-1.2-1">This document uses the following terms defined in IKEv2 <span>[<a href="#RFC7296" class="cite xref">RFC7296</a>]</span>:
+Child SA, CREATE_CHILD_SA, IKE_AUTH exchange, USE_TRANSPORT_MODE<a href="#section-1.2-1" class="pilcrow">¶</a></p>
+<p id="section-1.2-2">This document uses the following terms defined in <span>[<a href="#PSP" class="cite xref">PSP</a>]</span>: PSP (a
+recursive acronym for PSP Security Protocol), Network Identifier
+(VNI), Crypt Offset.<a href="#section-1.2-2" class="pilcrow">¶</a></p>
+<p id="section-1.2-3">This document uses the following terms defined in <span>[<a href="#RFC2992" class="cite xref">RFC2992</a>]</span>:
+Equal-cost multi-path (ECMP)<a href="#section-1.2-3" class="pilcrow">¶</a></p>
+<p id="section-1.2-4">This document uses the following terms defined in <span>[<a href="#RFC4303" class="cite xref">RFC4303</a>]</span>:
+Encapsulating Security Payload (ESP).<a href="#section-1.2-4" class="pilcrow">¶</a></p>
+<p id="section-1.2-5">This document uses the following terms defined in
+<span>[<a href="#I-D.mrossberg-ipsecme-multiple-sequence-counters" class="cite xref">I-D.mrossberg-ipsecme-multiple-sequence-counters</a>]</span>: Sub-Child SA.<a href="#section-1.2-5" class="pilcrow">¶</a></p>
+</section>
+</section>
+<section id="section-2">
+      <h2 id="name-protocol-definition">
+<a href="#section-2" class="section-number selfRef">2. </a><a href="#name-protocol-definition" class="section-name selfRef">Protocol Definition</a>
+      </h2>
+<p id="section-2-1">In this section we define the exact protocol formats and operations.
+This section is normative.<a href="#section-2-1" class="pilcrow">¶</a></p>
+<section id="section-2.1">
+        <h3 id="name-eesp-packet-format">
+<a href="#section-2.1" class="section-number selfRef">2.1. </a><a href="#name-eesp-packet-format" class="section-name selfRef">EESP packet format</a>
+        </h3>
+<p id="section-2.1-1">The (outer) protocol header (IPv4, IPv6, or Extension) that
+immediately precedes the ESP header SHALL contain the value TBD in
+its <span>[<a href="#Protocol" class="cite xref">Protocol</a>]</span> (IPv4) or Next Header (IPv6, Extension) field.
+<a href="#eesp-top-level-packet-format" class="auto internal xref">Figure 1</a> illustrates the top-level format of
+an EESP packet. The EESP header is split into multiple parts.<a href="#section-2.1-1" class="pilcrow">¶</a></p>
+<span id="name-top-level-format-of-an-eesp"></span><div id="eesp-top-level-packet-format">
+<figure id="figure-1">
+          <div class="sourcecode" id="section-2.1-2.1">
+<pre>
+ 0                   1                   2                   3
+ 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                                                               |
+~                          Base Header                          ~
+|                                                               |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                                                               |
+~                     Peer Header (variable)                    ~
+|                                                               |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                 Payload Info Header (optional)                |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                      Payload Data (variable)                  |
+~                                                               ~
+|               +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|               |          Padding (0-255 bytes)                |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                                                               |
+~              Integrity Check Value-ICV (variable)             ~
+|                                                               |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+</pre>
+</div>
+<figcaption><a href="#figure-1" class="selfRef">Figure 1</a>:
+<a href="#name-top-level-format-of-an-eesp" class="selfRef">Top-Level Format of an EESP Packet</a>
+          </figcaption></figure>
+</div>
+<p id="section-2.1-3">The packet starts with a '<code>Base Header</code>' that can be used by protocol
+parsing engines of middleboxes such as routers or firewalls in
+addition to the IPsec peer that use it to route the packet to the
+correct Crypto context.<a href="#section-2.1-3" class="pilcrow">¶</a></p>
+<p id="section-2.1-4">The '<code>Peer Header</code>' follows the '<code>Base Header</code>'. The '<code>Peer Header</code>' is
+used to support replay protection and to store cryptographic
+synchronization data, e.g., an Initialization Vector (IV)
+for the IPsec peer.<a href="#section-2.1-4" class="pilcrow">¶</a></p>
+<p id="section-2.1-5">Unlike ESP, EESP does not have a trailer. Instead, these values have
+moved to a '<code>Payload Info Header</code>' directly following the '<code>Peer Header</code>'.<a href="#section-2.1-5" class="pilcrow">¶</a></p>
+<p id="section-2.1-6">The '<code>Payload Data</code>' follows these 3 header parts, and has structure
+that depends on the choice of encryption algorithm and mode.<a href="#section-2.1-6" class="pilcrow">¶</a></p>
+<p id="section-2.1-7">'<code>Padding</code>' is an optional field following the '<code>Payload Data</code>',
+primarily for alignment when using a block cipher.<a href="#section-2.1-7" class="pilcrow">¶</a></p>
+<p id="section-2.1-8">Finally, the packet ends with an optional '<code>Integrity Check Value</code>'
+(ICV) (see Section 3.3.2 of <span>[<a href="#RFC4303" class="cite xref">RFC4303</a>]</span>). The length of this ICV depends
+on the Crypto suite.<a href="#section-2.1-8" class="pilcrow">¶</a></p>
+</section>
+<section id="section-2.2">
+        <h3 id="name-base-header">
+<a href="#section-2.2" class="section-number selfRef">2.2. </a><a href="#name-base-header" class="section-name selfRef">Base Header</a>
+        </h3>
+<p id="section-2.2-1">The '<code>Base Header</code>' is comprised of a fixed base header followed by an
+optional '<code>Options</code>' field. IPsec Peers and Middleboxes MAY act upon
+the Base Header and any possible Options.<a href="#section-2.2-1" class="pilcrow">¶</a></p>
+<section id="section-2.2.1">
+          <h4 id="name-fixed-base-header">
+<a href="#section-2.2.1" class="section-number selfRef">2.2.1. </a><a href="#name-fixed-base-header" class="section-name selfRef">Fixed Base Header</a>
+          </h4>
+<p id="section-2.2.1-1">The fixed portion of the base header is defined as follows.<a href="#section-2.2.1-1" class="pilcrow">¶</a></p>
+<span id="name-fixed-base-header-2"></span><div id="base-header">
+<figure id="figure-2">
+            <div class="sourcecode" id="section-2.2.1-2.1">
+<pre>
+ 0                   1                   2                   3
+ 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|  Version    |1|    Opt Len    |            Session ID +       |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+                               |
+|                              SPI                              |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+</pre>
+</div>
+<figcaption><a href="#figure-2" class="selfRef">Figure 2</a>:
+<a href="#name-fixed-base-header-2" class="selfRef">Fixed Base Header</a>
+            </figcaption></figure>
+</div>
+<span class="break"></span><dl class="dlParallel" id="section-2.2.1-3">
+            <dt id="section-2.2.1-3.1">Version</dt>
+            <dd style="margin-left: 1.5em" id="section-2.2.1-3.2">
+              <p id="section-2.2.1-3.2.1">7 bits: MUST be set to zero and checked by the
+receiver. If the version is different than an expected version
+number (e.g., negotiated via the control channel ), then the packet
+MUST be dropped by the receiver. Future modifications to the EESP
+header require a new version number. In particular, the version of
+EESP defined in this document does not allow for any extensions.
+Intermediate nodes dealing with unknown versions are not
+necessarily able to parse the packet correctly. Intermediate
+treatment of such packets is policy dependent (e.g., it may dictate
+dropping such packets).<a href="#section-2.2.1-3.2.1" class="pilcrow">¶</a></p>
+</dd>
+            <dd class="break"></dd>
+<dt id="section-2.2.1-3.3">Packet Format</dt>
+            <dd style="margin-left: 1.5em" id="section-2.2.1-3.4">
+              <p id="section-2.2.1-3.4.1">1 bit: Set to zero for full EESP packet Format
+(i.e., the EESP header includes the '<code>Payload Info Header</code>'), set to
+1 for Optimized EESP Packet format.<a href="#section-2.2.1-3.4.1" class="pilcrow">¶</a></p>
+</dd>
+            <dd class="break"></dd>
+<dt id="section-2.2.1-3.5">Opt Len</dt>
+            <dd style="margin-left: 1.5em" id="section-2.2.1-3.6">
+              <p id="section-2.2.1-3.6.1">8 bits: Length in bytes of the '<code>Options</code>' field.<a href="#section-2.2.1-3.6.1" class="pilcrow">¶</a></p>
+</dd>
+            <dd class="break"></dd>
+<dt id="section-2.2.1-3.7">Session ID</dt>
+            <dd style="margin-left: 1.5em" id="section-2.2.1-3.8">
+              <p id="section-2.2.1-3.8.1">16 bit: The Session ID covers additional information
+that might be needed to route the packet to the correct stateless
+crypto context. For instance, if a Key Derivation Function (KDF) is
+used do stateless key derivation, the crypto algorithm ID could be
+encoded there. The meaning of that field is opaque and MAY be
+negotiated by IKEv2.<a href="#section-2.2.1-3.8.1" class="pilcrow">¶</a></p>
+</dd>
+            <dd class="break"></dd>
+<dt id="section-2.2.1-3.9">Security Parameter Index (SPI)</dt>
+            <dd style="margin-left: 1.5em" id="section-2.2.1-3.10">
+              <p id="section-2.2.1-3.10.1">32 bits: The SPI is an arbitrary
+32-bit value that is used by a receiver to identify the SA to which
+an incoming packet is bound. This combined with the 16-bit Session
+ID is the Enhanced SPI.<a href="#section-2.2.1-3.10.1" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+</dl>
+</section>
+<section id="section-2.2.2">
+          <h4 id="name-base-header-options">
+<a href="#section-2.2.2" class="section-number selfRef">2.2.2. </a><a href="#name-base-header-options" class="section-name selfRef">Base Header Options</a>
+          </h4>
+<p id="section-2.2.2-1">The base header '<code>Options</code>' field is optional, its size is given in the
+fixed header field '<code>Opt Len</code>' and may be zero if no options are
+present.<a href="#section-2.2.2-1" class="pilcrow">¶</a></p>
+<p id="section-2.2.2-2">When present the '<code>Options</code>' field carries a variable number of
+type-length-value (TLV) encoded options. The format of these options
+has been derived from the IPv6 extension header options as defined in
+Section 4.2 of <span>[<a href="#RFC8200" class="cite xref">RFC8200</a>]</span>, with the following exceptions. No special
+meaning is attached to the top 3 bits of the option type value, and
+the processing order of the options is not restricted.<a href="#section-2.2.2-2" class="pilcrow">¶</a></p>
+<p id="section-2.2.2-3">Option type values are allocated from one of two ranges of values.
+One range is used for standardized option types and the second
+range is reserved for private options.<a href="#section-2.2.2-3" class="pilcrow">¶</a></p>
+<p id="section-2.2.2-4">This document defines 4 initial standard option types, '<code>Pad1 Option</code>',
+'<code>PadN Option</code>', '<code>Flow Identifier Option</code>', and '<code>Crypt Offset Option</code>'.
+These options are defined in section <a href="#sec-eesp-option-types" class="auto internal xref">Section 3.1</a>.<a href="#section-2.2.2-4" class="pilcrow">¶</a></p>
+<p id="section-2.2.2-5">Private options use '<code>Option Type</code>' values from the private option
+reserved range and can be used for any purposes that are out of scope
+for standardization. For example they can be used to encode hardware
+specific information, such as used encryption/authentication
+algorithms as done in <span>[<a href="#PSP" class="cite xref">PSP</a>]</span>.<a href="#section-2.2.2-5" class="pilcrow">¶</a></p>
+<section id="section-2.2.2.1">
+            <h5 id="name-options-field-end-alignment">
+<a href="#section-2.2.2.1" class="section-number selfRef">2.2.2.1. </a><a href="#name-options-field-end-alignment" class="section-name selfRef">Options Field End-Alignment</a>
+            </h5>
+<p id="section-2.2.2.1-1">When options are present, padding options (i.e., '<code>Pad1</code>' and '<code>PadN</code>')
+MUST be used to align the fields following the '<code>Options</code>' field. This
+alignment is dictated by the packet format. For the Full EESP
+packet format the '<code>Payload Info Header</code>' must be 4 byte aligned. For
+the optimized packet format the alignment is given by the contained
+packet type, namely, 4 byte alignment for an IPv4 packet, and 8 byte
+alignment for IPv6 packet.<a href="#section-2.2.2.1-1" class="pilcrow">¶</a></p>
+</section>
+</section>
+</section>
+<section id="section-2.3">
+        <h3 id="name-peer-header">
+<a href="#section-2.3" class="section-number selfRef">2.3. </a><a href="#name-peer-header" class="section-name selfRef">Peer Header</a>
+        </h3>
+<p id="section-2.3-1">The '<code>Peer Header</code>' follows the '<code>Base Header</code>' and '<code>Options</code>' field.
+The '<code>Peer Header</code>' containing an optional '<code>Sequence Number</code>' and an
+optional '<code>Initialization Vector</code>', and the format is shown below.
+The Peer Header is private to the IPsec peers, Middleboxes MUST
+NOT act upon the Peer Header fields.<a href="#section-2.3-1" class="pilcrow">¶</a></p>
+<span id="name-peer-header-2"></span><div id="peer-header">
+<figure id="figure-3">
+          <div class="sourcecode" id="section-2.3-2.1">
+<pre>
+ 0                   1                   2                   3
+ 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                    Sequence Number (optional)                 |
+|                                                               |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                          IV (optional)                        |
+|                                                               |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+</pre>
+</div>
+<figcaption><a href="#figure-3" class="selfRef">Figure 3</a>:
+<a href="#name-peer-header-2" class="selfRef">Peer Header</a>
+          </figcaption></figure>
+</div>
+<p id="section-2.3-3">When present, the '<code>Sequence Number</code>' is a full 64bit sequence number.
+EESP only support 64bit sequence numbers, a.k.a ESN and transmits the
+entire sequence number on each packet. The actual size of the
+'<code>Initialization Vector</code>' depends on the choice of the cipher suite.<a href="#section-2.3-3" class="pilcrow">¶</a></p>
+<p id="section-2.3-4">The '<code>Sequence Number</code>' and '<code>Initialization Vector</code>' fields are defined
+in the following sections.<a href="#section-2.3-4" class="pilcrow">¶</a></p>
+<section id="section-2.3.1">
+          <h4 id="name-sequence-number">
+<a href="#section-2.3.1" class="section-number selfRef">2.3.1. </a><a href="#name-sequence-number" class="section-name selfRef">Sequence Number</a>
+          </h4>
+<p id="section-2.3.1-1">This unsigned 64-bit field contains a counter value that increases by
+for each packet sent, i.e., a per-SA packet sequence number. For a
+unicast SA or a single-sender multicast SA, the sender MUST increment
+this field for every transmitted packet. The sequence number MUST
+strictly monotonic increase, sequence numbers MUST NOT repeat and
+MUST NOT cycle for any given SA. Thus, the sender's counter and the
+receiver's counter MUST be reset (by establishing a new SA and thus a
+new key) prior to the transmission of the 2^64nd packet on an SA.
+Implementations that do replay protection SHOULD increase the
+sequence number by one for each sent packet. Even if recommended to
+increase the sequence number by one, implementations MAY employ other
+methods to increase the sequence number, as long as the
+aforementioned requirements are met. Sharing an SA among multiple
+senders is permitted, though generally not recommended. EESP
+provides no means of synchronizing packet counters among multiple
+senders or meaningfully managing a receiver packet counter and window
+in the context of multiple senders. Unless any future Option
+defining this for a multi-sender SA, the anti-replay features of ESP
+are not available.<a href="#section-2.3.1-1" class="pilcrow">¶</a></p>
+</section>
+<section id="section-2.3.2">
+          <h4 id="name-initialization-vector">
+<a href="#section-2.3.2" class="section-number selfRef">2.3.2. </a><a href="#name-initialization-vector" class="section-name selfRef">Initialization Vector</a>
+          </h4>
+<p id="section-2.3.2-1">If the algorithm used to encrypt the payload requires cryptographic
+synchronization data, e.g., an Initialization Vector (IV), then this
+data is carried explicitly in front of the encrypted part of the
+packet in the '<code>Peer Header</code>'.  Any encryption algorithm that requires
+such explicit, per-packet synchronization data MUST indicate the
+length, any structure for such data, and the location of this data as
+part of an RFC specifying how the algorithm is used with EESP.
+(Typically, the IV immediately precedes the ciphertext.  See Table 1)
+If such synchronization data is implicit, the algorithm for deriving
+the data MUST be part of the algorithm definition RFC.  (If included,
+cryptographic synchronization data, e.g., an Initialization Vector
+(IV), usually is not encrypted per se (see Table 1), although it
+sometimes is referred to as being part of the ciphertext.)<a href="#section-2.3.2-1" class="pilcrow">¶</a></p>
+<p id="section-2.3.2-2">Counter mode algorithms MAY encode the 64-bit counter of the
+Initialization Vector (IV) on the Sequence number Field.  This option
+saves 8 header bytes on each packet.  Whether or not this option is
+selected is determined as part of Security Association (SA)
+establishment.<a href="#section-2.3.2-2" class="pilcrow">¶</a></p>
+</section>
+</section>
+<section id="section-2.4">
+        <h3 id="name-payload-info-header">
+<a href="#section-2.4" class="section-number selfRef">2.4. </a><a href="#name-payload-info-header" class="section-name selfRef">Payload Info Header</a>
+        </h3>
+<p id="section-2.4-1">The Payload Info Header is present in the Full EESP packet
+format. This packet format is for use when the contained payload is
+not a single IPv4 or IPv6 packet (e.g., when using Transport Mode or
+IP-TFS). IPsec Peers and Middleboxes MAY act upon the Payload Info
+Header.<a href="#section-2.4-1" class="pilcrow">¶</a></p>
+<span id="name-payload-info-header-2"></span><div id="payload-info-header">
+<figure id="figure-4">
+          <div class="sourcecode" id="section-2.4-2.1">
+<pre>
+ 0                   1                   2                   3
+ 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|  0x0  |        Reserved       | Next Header   | Pad Length    |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+</pre>
+</div>
+<figcaption><a href="#figure-4" class="selfRef">Figure 4</a>:
+<a href="#name-payload-info-header-2" class="selfRef">Payload Info Header</a>
+          </figcaption></figure>
+</div>
+<section id="section-2.4.1">
+          <h4 id="name-next-header">
+<a href="#section-2.4.1" class="section-number selfRef">2.4.1. </a><a href="#name-next-header" class="section-name selfRef">Next Header</a>
+          </h4>
+<p id="section-2.4.1-1">The Next Header is an 8-bit field that identifies the type of data
+contained in the Payload Data field, e.g., a next layer header and
+data. The value of this field is chosen from the set of IP Protocol
+Numbers defined on the web page of the IANA (e.g., a value of 6
+indicates TCP and a value of 17 indicates UDP).<a href="#section-2.4.1-1" class="pilcrow">¶</a></p>
+</section>
+<section id="section-2.4.2">
+          <h4 id="name-pad-length">
+<a href="#section-2.4.2" class="section-number selfRef">2.4.2. </a><a href="#name-pad-length" class="section-name selfRef">Pad Length</a>
+          </h4>
+<p id="section-2.4.2-1">The Pad Length field indicates the number of pad bytes immediately
+following the payload data and is used to align the ICV field. The
+range of valid values is 0 to 255, where a value of zero indicates
+that no Padding bytes are present.<a href="#section-2.4.2-1" class="pilcrow">¶</a></p>
+</section>
+</section>
+<section id="section-2.5">
+        <h3 id="name-payload-data">
+<a href="#section-2.5" class="section-number selfRef">2.5. </a><a href="#name-payload-data" class="section-name selfRef">Payload Data</a>
+        </h3>
+<p id="section-2.5-1">Payload Data is adapted from ESP <span>[<a href="#RFC4303" class="cite xref">RFC4303</a>]</span> and adjusted to apply to
+EESP.<a href="#section-2.5-1" class="pilcrow">¶</a></p>
+<p id="section-2.5-2">Payload Data is a variable-length field containing data from the
+original IP packet.  The Payload
+Data field is mandatory and is an integral number of bytes in length.<a href="#section-2.5-2" class="pilcrow">¶</a></p>
+<p id="section-2.5-3">Note that the beginning of the next layer protocol header MUST be
+aligned relative to the beginning of the EESP header as follows.  For
+IPv4, this alignment is a multiple of 4 bytes.  For IPv6, the
+alignment is a multiple of 8 bytes.<a href="#section-2.5-3" class="pilcrow">¶</a></p>
+</section>
+<section id="section-2.6">
+        <h3 id="name-padding-for-encryption">
+<a href="#section-2.6" class="section-number selfRef">2.6. </a><a href="#name-padding-for-encryption" class="section-name selfRef">Padding (for Encryption)</a>
+        </h3>
+<p id="section-2.6-1">Padding is adapted from ESP <span>[<a href="#RFC4303" class="cite xref">RFC4303</a>]</span> and adjusted to apply to
+EESP. Two primary factors require or motivate use of the Padding
+field.<a href="#section-2.6-1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-2.6-2.1">
+            <p id="section-2.6-2.1.1">If an encryption algorithm is employed that requires the
+plaintext to be a multiple of some number of bytes, e.g.,
+the block size of a block cipher, the Padding field is used
+to fill the plaintext (consisting of the Payload Data,
+Padding, Pad Length, and Next Header fields) to the size
+required by the algorithm.<a href="#section-2.6-2.1.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-2.6-2.2">
+            <p id="section-2.6-2.2.1">Padding also may be required, irrespective of encryption
+algorithm requirements, to ensure that the resulting
+ciphertext terminates on a 4-byte boundary to make sure
+the ICV is properly aligned.<a href="#section-2.6-2.2.1" class="pilcrow">¶</a></p>
+</li>
+        </ul>
+<p id="section-2.6-3">The sender MAY add 0 to 255 bytes of padding.  Inclusion of the
+Padding field in an EESP packet is optional, subject to the
+requirements noted above, but all implementations MUST support
+generation and consumption of padding.<a href="#section-2.6-3" class="pilcrow">¶</a></p>
+<p id="section-2.6-4">For the purposes of ensuring that the ICV is aligned on a
+4-byte boundary (second bullet above), the padding
+computation applies to the Payload Data inclusive of the Payload
+Info Header, if present.  If a combined mode
+algorithm is used, any replicated data and ICV-equivalent
+data are included in the Payload Data covered by the padding
+computation.<a href="#section-2.6-4" class="pilcrow">¶</a></p>
+<p id="section-2.6-5">If Padding bytes are needed but the encryption algorithm does not
+specify the padding contents, then the following default processing
+MUST be used.  The default processing follows exactly ESP as of <span>[<a href="#RFC4303" class="cite xref">RFC4303</a>]</span>.
+The Padding bytes are initialized with a series of
+(unsigned, 1-byte) integer values.  The first padding byte appended
+to the plaintext is numbered 1, with subsequent padding bytes making
+up a monotonically increasing sequence: 1, 2, 3, ....  When this
+padding scheme is employed, the receiver SHOULD inspect the Padding
+field.  (This scheme was selected because of its relative simplicity,
+ease of implementation in hardware, and because it offers limited
+protection against certain forms of "cut and paste" attacks in the
+absence of other integrity measures, if the receiver checks the
+padding values upon decryption.)<a href="#section-2.6-5" class="pilcrow">¶</a></p>
+<p id="section-2.6-6">If an encryption or combined mode algorithm imposes constraints on
+the values of the bytes used for padding, they MUST be specified by
+the RFC defining how the algorithm is employed with ESP.  If the
+algorithm requires checking of the values of the bytes used for
+padding, this too MUST be specified in that RFC.<a href="#section-2.6-6" class="pilcrow">¶</a></p>
+</section>
+<section id="section-2.7">
+        <h3 id="name-integrity-check-value-icv">
+<a href="#section-2.7" class="section-number selfRef">2.7. </a><a href="#name-integrity-check-value-icv" class="section-name selfRef">Integrity Check Value (ICV)</a>
+        </h3>
+<p id="section-2.7-1">Integrity Check Value is handled exactly as in ESP <span>[<a href="#RFC4303" class="cite xref">RFC4303</a>]</span>.<a href="#section-2.7-1" class="pilcrow">¶</a></p>
+</section>
+<section id="section-2.8">
+        <h3 id="name-full-and-optimized-packet-f">
+<a href="#section-2.8" class="section-number selfRef">2.8. </a><a href="#name-full-and-optimized-packet-f" class="section-name selfRef">Full and Optimized Packet Formats</a>
+        </h3>
+<p id="section-2.8-1">The resulting two packet formats are described in this section.
+When IPv4 or IPv6 tunnel mode is used, the '<code>Payload Info Header</code>' MAY
+be omitted. In this optimized mode the payload will always start with
+an IPv4 or IPv6 header. IPv4 or IPv6 packets always start with a
+Version field at the first nibble, so it is possible to identify IPv4
+and IPv6 by reading the first nibble of the inner packet, and there
+is no need for a next header field. Additionally, IPv4 and IPv6 also
+have a field describing the overall size of the inner packet, so a
+pad length field is also not needed as it can be derived.<a href="#section-2.8-1" class="pilcrow">¶</a></p>
+<p id="section-2.8-2">The packet format without the '<code>Payload Info Header</code>' is called the
+"Optimized EESP packet format", while the packet format containing the
+'<code>Payload Info Header</code>' is the called the "Full EESP packet format".
+Which of these two formats are chosen is encoded in the
+a '<code>Packet Format</code>' bit in the '<code>Base Header</code>'.<a href="#section-2.8-2" class="pilcrow">¶</a></p>
+<p id="section-2.8-3">The 2 packet formats are shown below. <a href="#eesp-optimized-packet-format" class="auto internal xref">Figure 5</a>
+illustrates the resulting packet format for use with IPv4 or IPv6
+Tunnel Mode when the '<code>Payload Info Header</code>' is elided, and
+<a href="#eesp-full-packet-format" class="auto internal xref">Figure 6</a> shows the full header version for use in all
+other modes of operation.<a href="#section-2.8-3" class="pilcrow">¶</a></p>
+<span id="name-optimized-eesp-packet-forma"></span><div id="eesp-optimized-packet-format">
+<figure id="figure-5">
+          <div class="sourcecode" id="section-2.8-4.1">
+<pre>
+
+ 0                   1                   2                   3
+ 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|  Version    |1|    Opt Len    |            Session ID +       |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+                               |
+|                              SPI                              |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                                                               |
+~                   Options (variable, optional)                ~
+|                                                               |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                    Sequence Number (optional)                 |
+|                                                               |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                          IV* (optional)                       |
+|                                                               |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                                                               |
+~                     IPv4/IPv6 Header                          ~
+|                                                               |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                   L4 Payload Data (variable)                  |
+~                                                               ~
+|               +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|               |          Padding (0-255 bytes)                |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                                                               |
+~              Integrity Check Value-ICV (variable)             ~
+|                                                               |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+</pre>
+</div>
+<figcaption><a href="#figure-5" class="selfRef">Figure 5</a>:
+<a href="#name-optimized-eesp-packet-forma" class="selfRef">Optimized EESP packet format</a>
+          </figcaption></figure>
+</div>
+<span id="name-full-eesp-packet-format"></span><div id="eesp-full-packet-format">
+<figure id="figure-6">
+          <div class="sourcecode" id="section-2.8-5.1">
+<pre>
+ 0                   1                   2                   3
+ 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|  Version    |0|    Opt Len    |            Session ID +       |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+                               |
+|                              SPI                              |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                                                               |
+~                   Options (variable, optional)                ~
+|                                                               |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                    Sequence Number (optional)                 |
+|                                                               |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                          IV* (optional)                       |
+|                                                               |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|  0x0  |        Reserved       | Next Header   | Pad Length    |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                   L4 Payload Data (variable)                  |
+~                                                               ~
+|               +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|               |          Padding (0-255 bytes)                |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                                                               |
+~              Integrity Check Value-ICV (variable)             ~
+|                                                               |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+</pre>
+</div>
+<figcaption><a href="#figure-6" class="selfRef">Figure 6</a>:
+<a href="#name-full-eesp-packet-format" class="selfRef">Full EESP packet format</a>
+          </figcaption></figure>
+</div>
+<p id="section-2.8-6">[*] If included, cryptographic synchronization data, e.g., an
+'<code>Initialization Vector</code>' (IV), usually is not encrypted per se, although
+it often is referred to as being part of the cipher-text. Unlike ESP,
+the IV is not considered to be a part of the payload data in EESP.<a href="#section-2.8-6" class="pilcrow">¶</a></p>
+<p id="section-2.8-7">If a combined algorithm mode is employed, the explicit IV shown in
+<a href="#eesp-packet-separate-algos" class="auto internal xref">Table 1</a> may be omitted.  Because algorithms,
+modes and options are fixed when an SA is established, the detailed
+format of EESP packets for a given SA (including the '<code>Payload Data</code>'
+substructure) is fixed for all traffic on the SA.<a href="#section-2.8-7" class="pilcrow">¶</a></p>
+<p id="section-2.8-8">The table below refers to the fields in the preceding figures and
+illustrate how several categories of algorithmic options, each with a
+different processing model, affect the fields noted above.  The
+processing details are described in later sections.<a href="#section-2.8-8" class="pilcrow">¶</a></p>
+<span id="name-high-level-layout-for-field"></span><div id="eesp-packet-separate-algos">
+<table class="center" id="table-1">
+          <caption>
+<a href="#table-1" class="selfRef">Table 1</a>:
+<a href="#name-high-level-layout-for-field" class="selfRef">High level layout for fields of an EESP packet</a>
+          </caption>
+<thead>
+            <tr>
+              <th class="text-left" rowspan="1" colspan="1">Field</th>
+              <th class="text-center" rowspan="1" colspan="1"># of bytes</th>
+              <th class="text-center" rowspan="1" colspan="1">Req'd [1]</th>
+              <th class="text-center" rowspan="1" colspan="1">Encrypt Covers</th>
+              <th class="text-center" rowspan="1" colspan="1">Integ Covers</th>
+              <th class="text-center" rowspan="1" colspan="1">Tx'd</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">Base Header</td>
+              <td class="text-center" rowspan="1" colspan="1">8</td>
+              <td class="text-center" rowspan="1" colspan="1">M</td>
+              <td class="text-center" rowspan="1" colspan="1"> </td>
+              <td class="text-center" rowspan="1" colspan="1">Y</td>
+              <td class="text-center" rowspan="1" colspan="1">plain</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">Options</td>
+              <td class="text-center" rowspan="1" colspan="1">variable</td>
+              <td class="text-center" rowspan="1" colspan="1">O</td>
+              <td class="text-center" rowspan="1" colspan="1"> </td>
+              <td class="text-center" rowspan="1" colspan="1">Y</td>
+              <td class="text-center" rowspan="1" colspan="1">plain</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">Sequence Number</td>
+              <td class="text-center" rowspan="1" colspan="1">8</td>
+              <td class="text-center" rowspan="1" colspan="1">O</td>
+              <td class="text-center" rowspan="1" colspan="1"> </td>
+              <td class="text-center" rowspan="1" colspan="1">Y</td>
+              <td class="text-center" rowspan="1" colspan="1">plain</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">IV</td>
+              <td class="text-center" rowspan="1" colspan="1">variable</td>
+              <td class="text-center" rowspan="1" colspan="1">O</td>
+              <td class="text-center" rowspan="1" colspan="1"> </td>
+              <td class="text-center" rowspan="1" colspan="1">Y</td>
+              <td class="text-center" rowspan="1" colspan="1">plain</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">Payload Info Hdr[5]</td>
+              <td class="text-center" rowspan="1" colspan="1">4</td>
+              <td class="text-center" rowspan="1" colspan="1">O</td>
+              <td class="text-center" rowspan="1" colspan="1">Y</td>
+              <td class="text-center" rowspan="1" colspan="1">Y</td>
+              <td class="text-center" rowspan="1" colspan="1">cipher [3]</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">Payload [2]</td>
+              <td class="text-center" rowspan="1" colspan="1">variable</td>
+              <td class="text-center" rowspan="1" colspan="1">M or D</td>
+              <td class="text-center" rowspan="1" colspan="1">Y</td>
+              <td class="text-center" rowspan="1" colspan="1">Y</td>
+              <td class="text-center" rowspan="1" colspan="1">cipher [3]</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">Padding</td>
+              <td class="text-center" rowspan="1" colspan="1">0-255</td>
+              <td class="text-center" rowspan="1" colspan="1">M</td>
+              <td class="text-center" rowspan="1" colspan="1">Y</td>
+              <td class="text-center" rowspan="1" colspan="1">Y</td>
+              <td class="text-center" rowspan="1" colspan="1">cipher [3]</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">ICV Padding</td>
+              <td class="text-center" rowspan="1" colspan="1">variable</td>
+              <td class="text-center" rowspan="1" colspan="1">if need</td>
+              <td class="text-center" rowspan="1" colspan="1"> </td>
+              <td class="text-center" rowspan="1" colspan="1">Y</td>
+              <td class="text-center" rowspan="1" colspan="1">not Tx'd</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">ICV</td>
+              <td class="text-center" rowspan="1" colspan="1">variable</td>
+              <td class="text-center" rowspan="1" colspan="1">M [4]</td>
+              <td class="text-center" rowspan="1" colspan="1"> </td>
+              <td class="text-center" rowspan="1" colspan="1"> </td>
+              <td class="text-center" rowspan="1" colspan="1">plain</td>
+            </tr>
+          </tbody>
+        </table>
+</div>
+<ul class="compact">
+<li class="compact" id="section-2.8-10.1">
+            <p id="section-2.8-10.1.1">[1] M = mandatory; O = optional; D = dummy<a href="#section-2.8-10.1.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="compact" id="section-2.8-10.2">
+            <p id="section-2.8-10.2.1">[2] If tunnel mode -&gt; IP datagram. If beet mode -&gt; IP datagram. If
+transport mode -&gt; next header and data. If IP-TFS, IP-TFS header
+and payload.<a href="#section-2.8-10.2.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="compact" id="section-2.8-10.3">
+            <p id="section-2.8-10.3.1">[3] Ciphertext if encryption has been selected<a href="#section-2.8-10.3.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="compact" id="section-2.8-10.4">
+            <p id="section-2.8-10.4.1">[4] Mandatory if a separate integrity algorithm is used<a href="#section-2.8-10.4.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="compact" id="section-2.8-10.5">
+            <p id="section-2.8-10.5.1">[5] Not present in Optimized Header otherwise mandatory<a href="#section-2.8-10.5.1" class="pilcrow">¶</a></p>
+</li>
+        </ul>
+<p id="section-2.8-11">In the table "optional" means that the field is omitted if the option is not
+selected, i.e., it is not present in the packet as transmitted
+or as formatted for computation of an ICV. Whether or not an option
+is selected is determined as part of Security Association (SA)
+establishment. Thus, the format of EESP packets for a given SA is
+fixed for the duration of the SA. In contrast, "mandatory" fields
+are always present in the EESP packet format for all SAs.<a href="#section-2.8-11" class="pilcrow">¶</a></p>
+</section>
+</section>
+<div id="sec-eesp-header-options">
+<section id="section-3">
+      <h2 id="name-eesp-header-options">
+<a href="#section-3" class="section-number selfRef">3. </a><a href="#name-eesp-header-options" class="section-name selfRef">EESP Header Options</a>
+      </h2>
+<p id="section-3-1">The EESP header '<code>Options</code>' field carries a variable number of
+type-length-value (TLV) encoded "options" of the following format:<a href="#section-3-1" class="pilcrow">¶</a></p>
+<span id="name-eesp-header-option-format"></span><figure id="figure-7">
+        <div class="sourcecode" id="section-3-2.1">
+<pre>
+
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+- - - - - - - - -
+|  Option Type  |  Opt Data Len |  Option Data
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+- - - - - - - - -
+
+</pre>
+</div>
+<figcaption><a href="#figure-7" class="selfRef">Figure 7</a>:
+<a href="#name-eesp-header-option-format" class="selfRef">EESP Header Option Format</a>
+        </figcaption></figure>
+<span class="break"></span><dl class="dlParallel" id="section-3-3">
+        <dt id="section-3-3.1">Option Type</dt>
+        <dd style="margin-left: 1.5em" id="section-3-3.2">
+          <p id="section-3-3.2.1">8-bit identifier of the type of option.<a href="#section-3-3.2.1" class="pilcrow">¶</a></p>
+</dd>
+        <dd class="break"></dd>
+<dt id="section-3-3.3">Opt Data Len</dt>
+        <dd style="margin-left: 1.5em" id="section-3-3.4">
+          <p id="section-3-3.4.1">8-bit unsigned integer.  Length of the Option Data
+field of this option, in octets.<a href="#section-3-3.4.1" class="pilcrow">¶</a></p>
+</dd>
+        <dd class="break"></dd>
+<dt id="section-3-3.5">Option Data</dt>
+        <dd style="margin-left: 1.5em" id="section-3-3.6">
+          <p id="section-3-3.6.1">Variable-length field. Option-Type-specific data.<a href="#section-3-3.6.1" class="pilcrow">¶</a></p>
+</dd>
+      <dd class="break"></dd>
+</dl>
+<div id="sec-eesp-option-types">
+<section id="section-3.1">
+        <h3 id="name-eesp-option-types">
+<a href="#section-3.1" class="section-number selfRef">3.1. </a><a href="#name-eesp-option-types" class="section-name selfRef">EESP Option Types</a>
+        </h3>
+<p id="section-3.1-1">This document defines two padding options '<code>Pad1</code>' and '<code>PadN</code>', a '<code>Flow
+Identifier Option</code>', and a '<code>Crypt Offset Option</code>'. Future documents can
+define additional options. Appendix A of <span>[<a href="#RFC8200" class="cite xref">RFC8200</a>]</span> contains applicable
+formatting guidelines for designing new options.<a href="#section-3.1-1" class="pilcrow">¶</a></p>
+<section id="section-3.1.1">
+          <h4 id="name-padding-options">
+<a href="#section-3.1.1" class="section-number selfRef">3.1.1. </a><a href="#name-padding-options" class="section-name selfRef">Padding Options</a>
+          </h4>
+<p id="section-3.1.1-1">Individual options may have specific alignment requirements, to
+ensure that multi-octet values within Option Data fields fall on
+natural boundaries. The alignment requirement of an option is
+specified using the notation xn+y, meaning the '<code>Option Type</code>' must
+appear at an integer multiple of x octets from the start of the
+'<code>Options</code>' field, plus y octets. For example:<a href="#section-3.1.1-1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-3.1.1-2.1">
+              <p id="section-3.1.1-2.1.1">2n means any 2-octet offset from the start of the '<code>Options</code>' field.<a href="#section-3.1.1-2.1.1" class="pilcrow">¶</a></p>
+</li>
+            <li class="normal" id="section-3.1.1-2.2">
+              <p id="section-3.1.1-2.2.1">8n+2 means any 8-octet offset from the start of the '<code>Options</code>'
+field, plus 2 octets.<a href="#section-3.1.1-2.2.1" class="pilcrow">¶</a></p>
+</li>
+          </ul>
+<p id="section-3.1.1-3">Unless otherwise specified EESP options have no alignment
+requirements.<a href="#section-3.1.1-3" class="pilcrow">¶</a></p>
+<p id="section-3.1.1-4">There are two padding options which are used when necessary to align
+subsequent options and to pad out the containing options field. These
+padding options must be recognized by all implementations:<a href="#section-3.1.1-4" class="pilcrow">¶</a></p>
+<section id="section-3.1.1.1">
+            <h5 id="name-pad1-option">
+<a href="#section-3.1.1.1" class="section-number selfRef">3.1.1.1. </a><a href="#name-pad1-option" class="section-name selfRef">Pad1 option</a>
+            </h5>
+<span id="name-pad1-option-2"></span><figure id="figure-8">
+              <div class="sourcecode" id="section-3.1.1.1-1.1">
+<pre>
++-+-+-+-+-+-+-+-+
+|       0       |
++-+-+-+-+-+-+-+-+
+</pre>
+</div>
+<figcaption><a href="#figure-8" class="selfRef">Figure 8</a>:
+<a href="#name-pad1-option-2" class="selfRef">Pad1 Option</a>
+              </figcaption></figure>
+<p id="section-3.1.1.1-2"><strong>Note:</strong> the format of the Pad1 option is a special case -- it does
+not have length and value fields.<a href="#section-3.1.1.1-2" class="pilcrow">¶</a></p>
+<p id="section-3.1.1.1-3">The '<code>Pad1</code>' option is used to insert one octet of padding into the
+Options field. If more than one octet of padding is required, the
+'<code>PadN</code>' option, described next, should be used, rather than multiple
+'<code>Pad1</code>' options.<a href="#section-3.1.1.1-3" class="pilcrow">¶</a></p>
+</section>
+<section id="section-3.1.1.2">
+            <h5 id="name-padn-option">
+<a href="#section-3.1.1.2" class="section-number selfRef">3.1.1.2. </a><a href="#name-padn-option" class="section-name selfRef">PadN option</a>
+            </h5>
+<span id="name-padn-option-2"></span><figure id="figure-9">
+              <div class="sourcecode" id="section-3.1.1.2-1.1">
+<pre>
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+- - - - - - - - -
+|       1       |  Opt Data Len |  Option Data
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+- - - - - - - - -
+</pre>
+</div>
+<figcaption><a href="#figure-9" class="selfRef">Figure 9</a>:
+<a href="#name-padn-option-2" class="selfRef">PadN Option</a>
+              </figcaption></figure>
+<p id="section-3.1.1.2-2">The '<code>PadN</code>' option is used to insert two or more octets of padding
+into the '<code>Options</code>' field. For N octets of padding, the Opt Data Len
+field contains the value N-2, and the '<code>Option Data</code>' consists of N-2
+zero-valued octets.<a href="#section-3.1.1.2-2" class="pilcrow">¶</a></p>
+</section>
+</section>
+<section id="section-3.1.2">
+          <h4 id="name-eesp-flow-identifier-option">
+<a href="#section-3.1.2" class="section-number selfRef">3.1.2. </a><a href="#name-eesp-flow-identifier-option" class="section-name selfRef">EESP Flow Identifier Option</a>
+          </h4>
+<p id="section-3.1.2-1">Flow Identifier (FID) Options are used to carry characteristic
+information of the inner flow and SHOULD NOT change on per packet
+basis inside any inner flow to avoid packet reordering.
+The Flow Identifier SHOULD be negotiated by IKEv2 or another
+suitable protocol. The detailed specification of FIDs MAY be provided
+in subsequent documents. The precise meaning of a FID is opaque to
+intermediate devices; however, intermediate devices MAY use it for
+identifying flows for ECMP or similar purposes. e.g. Sub-Child SAs,
+in <span>[<a href="#I-D.mrossberg-ipsecme-multiple-sequence-counters" class="cite xref">I-D.mrossberg-ipsecme-multiple-sequence-counters</a>]</span> could be encoded
+here.<a href="#section-3.1.2-1" class="pilcrow">¶</a></p>
+<span id="name-flow-identifier-option"></span><div id="fid-option">
+<figure id="figure-10">
+            <div class="sourcecode" id="section-3.1.2-2.1">
+<pre>
+ 0                   1                   2                   3
+ 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|  Option Type  | Option Length |                               |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+                               |
+|                                                               |
+~                    Flow Identifier (FID)                      ~
+|                                                               |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+</pre>
+</div>
+<figcaption><a href="#figure-10" class="selfRef">Figure 10</a>:
+<a href="#name-flow-identifier-option" class="selfRef">Flow Identifier Option</a>
+            </figcaption></figure>
+</div>
+<span class="break"></span><dl class="dlParallel" id="section-3.1.2-3">
+            <dt id="section-3.1.2-3.1">Option Type</dt>
+            <dd style="margin-left: 1.5em" id="section-3.1.2-3.2">
+              <p id="section-3.1.2-3.2.1">8 bits: See <a href="#sec-eesp-header-options" class="auto internal xref">Section 3</a><a href="#section-3.1.2-3.2.1" class="pilcrow">¶</a></p>
+</dd>
+            <dd class="break"></dd>
+<dt id="section-3.1.2-3.3">Option Length</dt>
+            <dd style="margin-left: 1.5em" id="section-3.1.2-3.4">
+              <p id="section-3.1.2-3.4.1">8 bits: See <a href="#sec-eesp-header-options" class="auto internal xref">Section 3</a><a href="#section-3.1.2-3.4.1" class="pilcrow">¶</a></p>
+</dd>
+            <dd class="break"></dd>
+<dt id="section-3.1.2-3.5">FID</dt>
+            <dd style="margin-left: 1.5em" id="section-3.1.2-3.6">
+              <p id="section-3.1.2-3.6.1">Variable length, carries characteristic information of the
+inner flow and MUST NOT change within a given SA.<a href="#section-3.1.2-3.6.1" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+</dl>
+</section>
+<section id="section-3.1.3">
+          <h4 id="name-eesp-crypt-offset-option">
+<a href="#section-3.1.3" class="section-number selfRef">3.1.3. </a><a href="#name-eesp-crypt-offset-option" class="section-name selfRef">EESP Crypt Offset Option</a>
+          </h4>
+<p id="section-3.1.3-1">This option is typically used for within one Datacenter use case
+such as <span>[<a href="#PSP" class="cite xref">PSP</a>]</span>.<a href="#section-3.1.3-1" class="pilcrow">¶</a></p>
+<span id="name-crypt-offset-option"></span><div id="crypt-offset-option">
+<figure id="figure-11">
+            <div class="sourcecode" id="section-3.1.3-2.1">
+<pre>
+ 0                   1                   2                   3
+ 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|  Option Type  | Option Length |Payl.Offset| R |CryptOffset| F |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+</pre>
+</div>
+<figcaption><a href="#figure-11" class="selfRef">Figure 11</a>:
+<a href="#name-crypt-offset-option" class="selfRef">Crypt Offset Option</a>
+            </figcaption></figure>
+</div>
+<span class="break"></span><dl class="dlParallel" id="section-3.1.3-3">
+            <dt id="section-3.1.3-3.1">Option Type</dt>
+            <dd style="margin-left: 1.5em" id="section-3.1.3-3.2">
+              <p id="section-3.1.3-3.2.1">8 bits: See <a href="#sec-eesp-header-options" class="auto internal xref">Section 3</a><a href="#section-3.1.3-3.2.1" class="pilcrow">¶</a></p>
+</dd>
+            <dd class="break"></dd>
+<dt id="section-3.1.3-3.3">Option Length</dt>
+            <dd style="margin-left: 1.5em" id="section-3.1.3-3.4">
+              <p id="section-3.1.3-3.4.1">8 bits: See <a href="#sec-eesp-header-options" class="auto internal xref">Section 3</a><a href="#section-3.1.3-3.4.1" class="pilcrow">¶</a></p>
+</dd>
+            <dd class="break"></dd>
+<dt id="section-3.1.3-3.5">Payload Offset</dt>
+            <dd style="margin-left: 1.5em" id="section-3.1.3-3.6">
+              <p id="section-3.1.3-3.6.1">6 bits: The offset from the start of the fixed
+header to the start of the payload header (or the payload for
+optimized packet format) measured in 4-octet units.<a href="#section-3.1.3-3.6.1" class="pilcrow">¶</a></p>
+</dd>
+            <dd class="break"></dd>
+<dt id="section-3.1.3-3.7">R[eserved]</dt>
+            <dd style="margin-left: 1.5em" id="section-3.1.3-3.8">
+              <p id="section-3.1.3-3.8.1">2-bits: Reserved MUST be sent 0 and ignored on receipt.<a href="#section-3.1.3-3.8.1" class="pilcrow">¶</a></p>
+</dd>
+            <dd class="break"></dd>
+<dt id="section-3.1.3-3.9">CryptOffset</dt>
+            <dd style="margin-left: 1.5em" id="section-3.1.3-3.10">
+              <p id="section-3.1.3-3.10.1">6 bits: The offset from the start of the payload
+header (or the payload for optimized packet format) to the start of
+the encrypted portion of the packet, measured in 4-octet units. The
+resulting value MUST NOT be larger than the size of the inner
+packet.<a href="#section-3.1.3-3.10.1" class="pilcrow">¶</a></p>
+</dd>
+            <dd class="break"></dd>
+<dt id="section-3.1.3-3.11">F[lags]</dt>
+            <dd style="margin-left: 1.5em" id="section-3.1.3-3.12">
+              <p id="section-3.1.3-3.12.1">2-bits: Flags used for stateless crypto signaling such as the
+S-bit and D-bit in the PSP specification.<a href="#section-3.1.3-3.12.1" class="pilcrow">¶</a></p>
+<p id="section-3.1.3-3.12.2"><strong>QUESTION:</strong> Is this used and thus still required by PSP, or can it be
+ removed?<a href="#section-3.1.3-3.12.2" class="pilcrow">¶</a></p>
+</dd>
+          <dd class="break"></dd>
+</dl>
+</section>
+</section>
+</div>
+</section>
+</div>
+<section id="section-4">
+      <h2 id="name-enhanced-encapsulating-secu">
+<a href="#section-4" class="section-number selfRef">4. </a><a href="#name-enhanced-encapsulating-secu" class="section-name selfRef">Enhanced Encapsulating Security Protocol Processing</a>
+      </h2>
+<section id="section-4.1">
+        <h3 id="name-stateless-encryption">
+<a href="#section-4.1" class="section-number selfRef">4.1. </a><a href="#name-stateless-encryption" class="section-name selfRef">Stateless Encryption</a>
+        </h3>
+<p id="section-4.1-1">In large-scale deployments, such as data center traffic, stateful
+IPsec using databases outlined in <span>[<a href="#RFC4301" class="cite xref">RFC4301</a>]</span> and <span>[<a href="#RFC4303" class="cite xref">RFC4303</a>]</span> can
+become a performance bottleneck. Traditional IPsec implementations
+typically maintain three databases: the Security Association
+Database (SAD), the Security Policy Database (SPD), and the Peer
+Authorization Database (PAD). SAD and SPD are used in the data path
+for each packet, while PAD is used to derive and/or exchange keys.
+Additionally, both the SAD and SPD are divided into two paths: one
+for sending and another for receiving.<a href="#section-4.1-1" class="pilcrow">¶</a></p>
+<p id="section-4.1-2">A high data rate, combined with frequent changes in the SAD and SPD,
+can slow down the system. As the data flow increases, adding and
+removing entries in the control plane creates locking issues and
+contention in both software and hardware. These operations are
+resource-intensive and can cause bottlenecks due to software locks
+or limited hardware insertion speeds, such as memory bandwidth or
+content-addressable memory limits. These problems are more noticeable
+in high-speed data paths, where delays from locking can severely affect
+performance.<a href="#section-4.1-2" class="pilcrow">¶</a></p>
+<section id="section-4.1.1">
+          <h4 id="name-receiving-without-sad">
+<a href="#section-4.1.1" class="section-number selfRef">4.1.1. </a><a href="#name-receiving-without-sad" class="section-name selfRef">Receiving without SAD</a>
+          </h4>
+<p id="section-4.1.1-1">When using Stateless Encryption, implementations can bypass the
+monolithic SAD in the receiving path. Using fields from the EESP
+packet's SPI + Session ID, the Session ID contains the <span>[<a href="#Encryption" class="cite xref">Encryption</a>]</span>
+context ID used by stateless encryption hardware to directly decrypt a
+packet at line rate, without needing to consult the receive-side SAD
+on a per-packet basis. For the receiving side, the system may be
+stateless, as specified in <span>[<a href="#PSP" class="cite xref">PSP</a>]</span>. In this approach, packets are
+decrypted and authenticated directly, without requiring SAD lookups
+for each packet. However, Security Policy validation MUST be done
+later in the stack using policies specified in the socket or route.<a href="#section-4.1.1-1" class="pilcrow">¶</a></p>
+<p id="section-4.1.1-2">stateless encryption not only reduces CPU overhead but also reduces
+stateful checks (such as anti-replay protection or sequence number
+tracking, packet limit). These checks can be offloaded to hardware
+or handled asynchronously, further optimizing performance in high-throughput
+environments like large data centers.<a href="#section-4.1.1-2" class="pilcrow">¶</a></p>
+</section>
+<section id="section-4.1.2">
+          <h4 id="name-sending-without-spd">
+<a href="#section-4.1.2" class="section-number selfRef">4.1.2. </a><a href="#name-sending-without-spd" class="section-name selfRef">Sending without SPD</a>
+          </h4>
+<p id="section-4.1.2-1">The sending-side Security Policy and symetric key can be associated
+with a local socket or route instead of a monolithic SPD and SAD.
+A send call could preappend crypto parameters for stateless
+encryption and encapsulation in hardware to plain text data.<a href="#section-4.1.2-1" class="pilcrow">¶</a></p>
+</section>
+<section id="section-4.1.3">
+          <h4 id="name-peer-authentication-databas">
+<a href="#section-4.1.3" class="section-number selfRef">4.1.3. </a><a href="#name-peer-authentication-databas" class="section-name selfRef">Peer Authentication Database</a>
+          </h4>
+<p id="section-4.1.3-1">The data path does not use the PAD, but it is used for key derivation.
+The Key Derivation Function (KDF) is outside the scope of this document.
+However, IKEv2 <span>[<a href="#RFC7296" class="cite xref">RFC7296</a>]</span> can handle key derivation.<a href="#section-4.1.3-1" class="pilcrow">¶</a></p>
+</section>
+</section>
+</section>
+<section id="section-5">
+      <h2 id="name-udp-encapsulation">
+<a href="#section-5" class="section-number selfRef">5. </a><a href="#name-udp-encapsulation" class="section-name selfRef">UDP Encapsulation</a>
+      </h2>
+<p id="section-5-1">TBD<a href="#section-5-1" class="pilcrow">¶</a></p>
+</section>
+<section id="section-6">
+      <h2 id="name-ikev2-negotiation">
+<a href="#section-6" class="section-number selfRef">6. </a><a href="#name-ikev2-negotiation" class="section-name selfRef">IKEv2 Negotiation</a>
+      </h2>
+<p id="section-6-1">TBD<a href="#section-6-1" class="pilcrow">¶</a></p>
+</section>
+<section id="section-7">
+      <h2 id="name-iana-considerations">
+<a href="#section-7" class="section-number selfRef">7. </a><a href="#name-iana-considerations" class="section-name selfRef">IANA Considerations</a>
+      </h2>
+<section id="section-7.1">
+        <h3 id="name-eesp-ip-protocol-number">
+<a href="#section-7.1" class="section-number selfRef">7.1. </a><a href="#name-eesp-ip-protocol-number" class="section-name selfRef">EESP IP Protocol Number</a>
+        </h3>
+<p id="section-7.1-1">This document requests IANA allocate an IP protocol number from
+"Protocol Numbers - Assigned Internet Protocol Numbers" registry<a href="#section-7.1-1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-7.1-2.1">
+            <p id="section-7.1-2.1.1">Decimal: TBD<a href="#section-7.1-2.1.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-7.1-2.2">
+            <p id="section-7.1-2.2.1">Keyword: EESP<a href="#section-7.1-2.2.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-7.1-2.3">
+            <p id="section-7.1-2.3.1">Protocol: Enhanced Encapsulating Security Payload<a href="#section-7.1-2.3.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-7.1-2.4">
+            <p id="section-7.1-2.4.1">Reference: This document<a href="#section-7.1-2.4.1" class="pilcrow">¶</a></p>
+</li>
+        </ul>
+</section>
+<section id="section-7.2">
+        <h3 id="name-eesp-options-registry">
+<a href="#section-7.2" class="section-number selfRef">7.2. </a><a href="#name-eesp-options-registry" class="section-name selfRef">EESP Options Registry</a>
+        </h3>
+<p id="section-7.2-1">This document requests IANA to create a registry called "EESP_OPTIONS
+Type Registry" under a new category named "EESP_OPTIONS Parameters".<a href="#section-7.2-1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-7.2-2.1">
+            <p id="section-7.2-2.1.1">Name: EESP Options Registry<a href="#section-7.2-2.1.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-7.2-2.2">
+            <p id="section-7.2-2.2.1">Description: EESP Base Header Options<a href="#section-7.2-2.2.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-7.2-2.3">
+            <p id="section-7.2-2.3.1">Reference: This document<a href="#section-7.2-2.3.1" class="pilcrow">¶</a></p>
+</li>
+        </ul>
+<p id="section-7.2-3">The initial content for this registry is as follows:<a href="#section-7.2-3" class="pilcrow">¶</a></p>
+<span id="name-initial-registry-values"></span><div id="iana_requests_reg">
+<figure id="figure-12">
+          <div class="sourcecode" id="section-7.2-4.1">
+<pre>
+Value     EESP Header Options Types         Reference
+-------   ------------------------------    ---------------
+      0   Pad1                              [this document]
+      1   PadN                              [this document]
+      2   Crypt Offset                      [this document]
+      3   FID                               [this document]
+  4-223   Unassigned                        [this document]
+224-255   Private                           [this document]
+</pre>
+</div>
+<figcaption><a href="#figure-12" class="selfRef">Figure 12</a>:
+<a href="#name-initial-registry-values" class="selfRef">Initial Registry Values</a>
+          </figcaption></figure>
+</div>
+</section>
+</section>
+<section id="section-8">
+      <h2 id="name-implementation-status">
+<a href="#section-8" class="section-number selfRef">8. </a><a href="#name-implementation-status" class="section-name selfRef">Implementation Status</a>
+      </h2>
+<p id="section-8-1">[Note to RFC Editor: Please remove this section and the reference to
+<span>[<a href="#RFC7942" class="cite xref">RFC7942</a>]</span> before publication.]<a href="#section-8-1" class="pilcrow">¶</a></p>
+<p id="section-8-2">This section records the status of known implementations of the
+protocol defined by this specification at the time of posting of this
+Internet-Draft, and is based on a proposal described in <span>[<a href="#RFC7942" class="cite xref">RFC7942</a>]</span>.
+The description of implementations in this section is intended to
+assist the IETF in its decision processes in progressing drafts to
+RFCs. Please note that the listing of any individual implementation
+here does not imply endorsement by the IETF. Furthermore, no effort
+has been spent to verify the information presented here that was
+supplied by IETF contributors. This is not intended as, and must not
+be construed to be, a catalog of available implementations or their
+features. Readers are advised to note that other implementations may
+exist.<a href="#section-8-2" class="pilcrow">¶</a></p>
+<p id="section-8-3">According to <span>[<a href="#RFC7942" class="cite xref">RFC7942</a>]</span>, "this will allow reviewers and working
+groups to assign due consideration to documents that have the benefit
+of running code, which may serve as evidence of valuable
+experimentation and feedback that have made the implemented protocols
+more mature. It is up to the individual working groups to use this
+information as they see fit".<a href="#section-8-3" class="pilcrow">¶</a></p>
+<p id="section-8-4">Authors are requested to add a note to the RFC Editor at the top of
+this section, advising the Editor to remove the entire section before
+publication, as well as the reference to <span>[<a href="#RFC7942" class="cite xref">RFC7942</a>]</span>.<a href="#section-8-4" class="pilcrow">¶</a></p>
+</section>
+<section id="section-9">
+      <h2 id="name-security-considerations">
+<a href="#section-9" class="section-number selfRef">9. </a><a href="#name-security-considerations" class="section-name selfRef">Security Considerations</a>
+      </h2>
+<p id="section-9-1">In this section we discuss the security properties of EESP: TBD<a href="#section-9-1" class="pilcrow">¶</a></p>
+</section>
+<section id="section-10">
+      <h2 id="name-acknowledgments">
+<a href="#section-10" class="section-number selfRef">10. </a><a href="#name-acknowledgments" class="section-name selfRef">Acknowledgments</a>
+      </h2>
+<p id="section-10-1">TBD<a href="#section-10-1" class="pilcrow">¶</a></p>
+</section>
+<section id="section-11">
+      <h2 id="name-normative-references">
+<a href="#section-11" class="section-number selfRef">11. </a><a href="#name-normative-references" class="section-name selfRef">Normative References</a>
+      </h2>
+<dl class="references">
+<dt id="RFC2119">[RFC2119]</dt>
+      <dd>
+<span class="refAuthor">Bradner, S.</span>, <span class="refTitle">"Key words for use in RFCs to Indicate Requirement Levels"</span>, <span class="seriesInfo">BCP 14</span>, <span class="seriesInfo">RFC 2119</span>, <span class="seriesInfo">DOI 10.17487/RFC2119</span>, <time datetime="1997-03" class="refDate">March 1997</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc2119">https://www.rfc-editor.org/info/rfc2119</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC4301">[RFC4301]</dt>
+      <dd>
+<span class="refAuthor">Kent, S.</span> and <span class="refAuthor">K. Seo</span>, <span class="refTitle">"Security Architecture for the Internet Protocol"</span>, <span class="seriesInfo">RFC 4301</span>, <span class="seriesInfo">DOI 10.17487/RFC4301</span>, <time datetime="2005-12" class="refDate">December 2005</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc4301">https://www.rfc-editor.org/info/rfc4301</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC4303">[RFC4303]</dt>
+      <dd>
+<span class="refAuthor">Kent, S.</span>, <span class="refTitle">"IP Encapsulating Security Payload (ESP)"</span>, <span class="seriesInfo">RFC 4303</span>, <span class="seriesInfo">DOI 10.17487/RFC4303</span>, <time datetime="2005-12" class="refDate">December 2005</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc4303">https://www.rfc-editor.org/info/rfc4303</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC7296">[RFC7296]</dt>
+      <dd>
+<span class="refAuthor">Kaufman, C.</span>, <span class="refAuthor">Hoffman, P.</span>, <span class="refAuthor">Nir, Y.</span>, <span class="refAuthor">Eronen, P.</span>, and <span class="refAuthor">T. Kivinen</span>, <span class="refTitle">"Internet Key Exchange Protocol Version 2 (IKEv2)"</span>, <span class="seriesInfo">STD 79</span>, <span class="seriesInfo">RFC 7296</span>, <span class="seriesInfo">DOI 10.17487/RFC7296</span>, <time datetime="2014-10" class="refDate">October 2014</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc7296">https://www.rfc-editor.org/info/rfc7296</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC8200">[RFC8200]</dt>
+      <dd>
+<span class="refAuthor">Deering, S.</span> and <span class="refAuthor">R. Hinden</span>, <span class="refTitle">"Internet Protocol, Version 6 (IPv6) Specification"</span>, <span class="seriesInfo">STD 86</span>, <span class="seriesInfo">RFC 8200</span>, <span class="seriesInfo">DOI 10.17487/RFC8200</span>, <time datetime="2017-07" class="refDate">July 2017</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc8200">https://www.rfc-editor.org/info/rfc8200</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC9347">[RFC9347]</dt>
+    <dd>
+<span class="refAuthor">Hopps, C.</span>, <span class="refTitle">"Aggregation and Fragmentation Mode for Encapsulating Security Payload (ESP) and Its Use for IP Traffic Flow Security (IP-TFS)"</span>, <span class="seriesInfo">RFC 9347</span>, <span class="seriesInfo">DOI 10.17487/RFC9347</span>, <time datetime="2023-01" class="refDate">January 2023</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc9347">https://www.rfc-editor.org/info/rfc9347</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+</dl>
+</section>
+<section id="section-12">
+      <h2 id="name-informative-references">
+<a href="#section-12" class="section-number selfRef">12. </a><a href="#name-informative-references" class="section-name selfRef">Informative References</a>
+      </h2>
+<dl class="references">
+<dt id="Encryption">[Encryption]</dt>
+      <dd>
+<span class="refAuthor">IANA</span>, <span class="refTitle">"IKEv2 Parameters"</span>, <span>&lt;<a href="https://www.iana.org/assignments/ikev2-parameters/ikev2-parameters.xhtml#ikev2-parameters-5">https://www.iana.org/assignments/ikev2-parameters/ikev2-parameters.xhtml#ikev2-parameters-5</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="I-D.he-ipsecme-vpn-shared-ipsecsa">[I-D.he-ipsecme-vpn-shared-ipsecsa]</dt>
+      <dd>
+<span class="refAuthor">He, Q.</span>, <span class="refAuthor">Pan, W.</span>, <span class="refAuthor">Chen, X.</span>, and <span class="refAuthor">B. Ding</span>, <span class="refTitle">"Shared Use of IPsec Tunnel in a Multi-VPN Environment"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-he-ipsecme-vpn-shared-ipsecsa-01</span>, <time datetime="2024-07-08" class="refDate">8 July 2024</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-he-ipsecme-vpn-shared-ipsecsa-01">https://datatracker.ietf.org/doc/html/draft-he-ipsecme-vpn-shared-ipsecsa-01</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="I-D.mrossberg-ipsecme-multiple-sequence-counters">[I-D.mrossberg-ipsecme-multiple-sequence-counters]</dt>
+      <dd>
+<span class="refAuthor">Rossberg, M.</span>, <span class="refAuthor">Klassert, S.</span>, and <span class="refAuthor">M. Pfeiffer</span>, <span class="refTitle">"Broadening the Scope of Encapsulating Security Payload (ESP) Protocol"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-mrossberg-ipsecme-multiple-sequence-counters-02</span>, <time datetime="2024-02-15" class="refDate">15 February 2024</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-mrossberg-ipsecme-multiple-sequence-counters-02">https://datatracker.ietf.org/doc/html/draft-mrossberg-ipsecme-multiple-sequence-counters-02</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="I-D.ponchon-ipsecme-anti-replay-subspaces">[I-D.ponchon-ipsecme-anti-replay-subspaces]</dt>
+      <dd>
+<span class="refAuthor">Ponchon, P.</span>, <span class="refAuthor">Shaikh, M.</span>, <span class="refAuthor">Dernaika, H.</span>, <span class="refAuthor">Pfister, P.</span>, and <span class="refAuthor">G. Solignac</span>, <span class="refTitle">"IPsec and IKE anti-replay sequence number subspaces for traffic-engineered paths and multi-core processing"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ponchon-ipsecme-anti-replay-subspaces-03</span>, <time datetime="2023-10-23" class="refDate">23 October 2023</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ponchon-ipsecme-anti-replay-subspaces-03">https://datatracker.ietf.org/doc/html/draft-ponchon-ipsecme-anti-replay-subspaces-03</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="Protocol">[Protocol]</dt>
+      <dd>
+<span class="refAuthor">IANA</span>, <span class="refTitle">"Assigned Internet Protocol Numbers"</span>, <span>&lt;<a href="https://www.iana.org/assignments/protocol-numbers/protocol-numbers.xhtml">https://www.iana.org/assignments/protocol-numbers/protocol-numbers.xhtml</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="PSP">[PSP]</dt>
+      <dd>
+<span class="refAuthor">Google</span>, <span class="refTitle">"PSP Architecture Specification"</span>, <span>&lt;<a href="https://github.com/google/psp/blob/main/doc/PSP_Arch_Spec.pdf">https://github.com/google/psp/blob/main/doc/PSP_Arch_Spec.pdf</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC2992">[RFC2992]</dt>
+      <dd>
+<span class="refAuthor">Hopps, C.</span>, <span class="refTitle">"Analysis of an Equal-Cost Multi-Path Algorithm"</span>, <span class="seriesInfo">RFC 2992</span>, <span class="seriesInfo">DOI 10.17487/RFC2992</span>, <time datetime="2000-11" class="refDate">November 2000</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc2992">https://www.rfc-editor.org/info/rfc2992</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC7942">[RFC7942]</dt>
+    <dd>
+<span class="refAuthor">Sheffer, Y.</span> and <span class="refAuthor">A. Farrel</span>, <span class="refTitle">"Improving Awareness of Running Code: The Implementation Status Section"</span>, <span class="seriesInfo">BCP 205</span>, <span class="seriesInfo">RFC 7942</span>, <span class="seriesInfo">DOI 10.17487/RFC7942</span>, <time datetime="2016-07" class="refDate">July 2016</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc7942">https://www.rfc-editor.org/info/rfc7942</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+</dl>
+</section>
+<section id="appendix-A">
+      <h2 id="name-additional-stuff">
+<a href="#appendix-A" class="section-number selfRef">Appendix A. </a><a href="#name-additional-stuff" class="section-name selfRef">Additional Stuff</a>
+      </h2>
+<p id="appendix-A-1">TBD<a href="#appendix-A-1" class="pilcrow">¶</a></p>
+</section>
+<div id="authors-addresses">
+<section id="appendix-B">
+      <h2 id="name-authors-addresses">
+<a href="#name-authors-addresses" class="section-name selfRef">Authors' Addresses</a>
+      </h2>
+<address class="vcard">
+        <div dir="auto" class="left"><span class="fn nameRole">Steffen Klassert</span></div>
+<div dir="auto" class="left"><span class="org">secunet Security Networks AG</span></div>
+<div class="email">
+<span>Email:</span>
+<a href="mailto:steffen.klassert@secunet.com" class="email">steffen.klassert@secunet.com</a>
+</div>
+</address>
+<address class="vcard">
+        <div dir="auto" class="left"><span class="fn nameRole">Antony Antony</span></div>
+<div dir="auto" class="left"><span class="org">secunet Security Networks AG</span></div>
+<div class="email">
+<span>Email:</span>
+<a href="mailto:antony.antony@secunet.com" class="email">antony.antony@secunet.com</a>
+</div>
+</address>
+<address class="vcard">
+        <div dir="auto" class="left"><span class="fn nameRole">Christian Hopps</span></div>
+<div dir="auto" class="left"><span class="org">LabN Consulting, L.L.C.</span></div>
+<div class="email">
+<span>Email:</span>
+<a href="mailto:chopps@chopps.org" class="email">chopps@chopps.org</a>
+</div>
+</address>
+</section>
+</div>
+<script>const toc = document.getElementById("toc");
+toc.querySelector("h2").addEventListener("click", e => {
+  toc.classList.toggle("active");
+});
+toc.querySelector("nav").addEventListener("click", e => {
+  toc.classList.remove("active");
+});
+</script>
+</body>
+</html>
