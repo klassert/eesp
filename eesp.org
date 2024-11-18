@@ -99,7 +99,7 @@ This document uses the following terms defined in IKEv2 [[RFC7296]]:
 Child SA, CREATE_CHILD_SA, IKE_AUTH exchange, USE_TRANSPORT_MODE
 
 This document uses the following terms defined in [[PSP]]: PSP (a
-recursive acronym for PSP Security Protocol), Network Identifier
+recursive acronym for PSP Security Protocol), Virtual Network Identifier
 (VNI), Crypt Offset.
 
 This document uses the following terms defined in [[RFC2992]]:
@@ -220,7 +220,7 @@ The fixed portion of the base header is defined as follows.
 - Session ID :: 16 bit: The Session ID covers additional information
   that might be needed to route the packet to the correct stateless
   crypto context. For instance, if a Key Derivation Function (KDF) is
-  used do stateless key derivation, the crypto algorithm ID could be
+  used to do stateless key derivation, the crypto algorithm ID could be
   encoded there. The meaning of that field is opaque and MAY be
   negotiated by IKEv2.
 - Security Parameter Index (SPI) :: 32 bits: The SPI is an arbitrary
@@ -740,7 +740,7 @@ Therefore, if a Flow Identifier is used in combination with replay
 protection, it MUST encode a 16 bit Replay Subspace ID on the
 Flow Identifier. This Replay Subspace ID MUST also be encoded
 on the 16 MSB of th sequence number to make sure that at most
-2^64 sequence numbers are used before rekeying. This This Replay
+2^64 sequence numbers are used before rekeying. This Replay
 Subspace ID encoding also makes sure that IVs constructed
 from the sequence number are unique for any given SA.
 
