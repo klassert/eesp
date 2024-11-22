@@ -859,58 +859,58 @@ here.
 # XXX I don't think this is right, I think we want to allow multiple
 # FIDs (e.g., multiple tcp connections) per SA.
 
-*** EESP Flow Identifiers combined with replay protection
-
-# XXX
-Note: This section has to be removed in favor of encoding
-the Replay Subspace ID on the Session ID.
-
-Flow Identifiers characterize the inner i.e. the protected flows.
-Packets of these flows should not be reordered while EESP protected.
-Therefore, if a Flow Identifier is used in combination with replay
-protection, it MUST encode a 16 bit Replay Subspace ID on the
-Flow Identifier. This Replay Subspace ID MUST also be encoded
-on the 16 MSB of th sequence number to make sure that at most
-2^64 sequence numbers are used before rekeying. This Replay
-Subspace ID encoding also makes sure that IVs constructed
-from the sequence number are unique for any given SA.
-
-#+caption: Flow Identifier with replay protection
-#+name: fid-replay
-#+begin_src
-    0                   1                   2                   3
-    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
-   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |  Option Type  | Option Length |     Replay Subspace ID        |
-   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-|
-   |                                                               |
-   ~                    Flow Identifier (FID)                      ~
-   |                                                               |
-   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#+end_src
-
-- Option Type :: 8 bits: See [[EESP Header Options]]
-- Option Length :: 8 bits: See [[EESP Header Options]]
-- Replay Subspace ID :: 16 bits:
-- FID :: Variable length, carries characteristic information of a
-  inner flow and MUST NOT change for a given inner flow within a SA.
-
-
-#+caption: Sequence Number with Replay Subspace ID
-#+name: seq-nr-subspace2
-#+begin_src
-    0                   1                   2                   3
-    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
-   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |      Replay Subspace ID       |                               |
-   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+                               |
-   |                        Sequence Number                        |
-   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#+end_src
-
-
-- Replay Subspace ID :: 16 bits:
-- Sequence Numbber :: 48 bits:
+#*** EESP Flow Identifiers combined with replay protection
+#
+## XXX
+#Note: This section has to be removed in favor of encoding
+#the Replay Subspace ID on the Session ID.
+#
+#Flow Identifiers characterize the inner i.e. the protected flows.
+#Packets of these flows should not be reordered while EESP protected.
+#Therefore, if a Flow Identifier is used in combination with replay
+#protection, it MUST encode a 16 bit Replay Subspace ID on the
+#Flow Identifier. This Replay Subspace ID MUST also be encoded
+#on the 16 MSB of th sequence number to make sure that at most
+#2^64 sequence numbers are used before rekeying. This Replay
+#Subspace ID encoding also makes sure that IVs constructed
+#from the sequence number are unique for any given SA.
+#
+##+caption: Flow Identifier with replay protection
+##+name: fid-replay
+##+begin_src
+#    0                   1                   2                   3
+#    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+#   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+#   |  Option Type  | Option Length |     Replay Subspace ID        |
+#   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-|
+#   |                                                               |
+#   ~                    Flow Identifier (FID)                      ~
+#   |                                                               |
+#   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+##+end_src
+#
+#- Option Type :: 8 bits: See [[EESP Header Options]]
+#- Option Length :: 8 bits: See [[EESP Header Options]]
+#- Replay Subspace ID :: 16 bits:
+#- FID :: Variable length, carries characteristic information of a
+#  inner flow and MUST NOT change for a given inner flow within a SA.
+#
+#
+##+caption: Sequence Number with Replay Subspace ID
+##+name: seq-nr-subspace2
+##+begin_src
+#    0                   1                   2                   3
+#    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+#   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+#   |      Replay Subspace ID       |                               |
+#   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+                               |
+#   |                        Sequence Number                        |
+#   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+##+end_src
+#
+#
+#- Replay Subspace ID :: 16 bits:
+#- Sequence Numbber :: 48 bits:
 
 
 #*** EESP Crypt Offset Option
