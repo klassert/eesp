@@ -913,41 +913,41 @@ from the sequence number are unique for any given SA.
 - Sequence Numbber :: 48 bits:
 
 
-*** EESP Crypt Offset Option
-This option is typically used for within one Datacenter use case
-such as [[PSP]].
+#*** EESP Crypt Offset Option
+#This option is typically used for within one Datacenter use case
+#such as [[PSP]].
 
-#+caption: Crypt Offset Option
-#+name: crypt-offset-option
-#+begin_src
-    0                   1                   2                   3
-    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
-   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |  Option Type  | Option Length |Payl.Offset| R |CryptOffset| F |
-   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#+end_src
+##+caption: Crypt Offset Option
+##+name: crypt-offset-option
+##+begin_src
+#    0                   1                   2                   3
+#    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+#   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+#   |  Option Type  | Option Length |Payl.Offset| R |CryptOffset| F |
+#   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+##+end_src
 
-- Option Type :: 8 bits: See [[EESP Header Options]]
-
-- Option Length :: 8 bits: See [[EESP Header Options]]
-
-- Payload Offset :: 6 bits: The offset from the start of the fixed
-  header to the start of the payload header (or the payload for
-  optimized packet format) measured in 4-octet units.
-
-- R[eserved] :: 2-bits: Reserved MUST be sent 0 and ignored on receipt.
-
-- CryptOffset :: 6 bits: The offset from the start of the payload
-  header (or the payload for optimized packet format) to the start of
-  the encrypted portion of the packet, measured in 4-octet units. The
-  resulting value MUST NOT be larger than the size of the inner
-  packet.
-
-- F[lags] :: 2-bits: Flags used for stateless crypto signaling such as the
-  S-bit and D-bit in the PSP specification.
-
- *QUESTION:* Is this used and thus still required by PSP, or can it be
-  removed?
+#- Option Type :: 8 bits: See [[EESP Header Options]]
+#
+#- Option Length :: 8 bits: See [[EESP Header Options]]
+#
+#- Payload Offset :: 6 bits: The offset from the start of the fixed
+#  header to the start of the payload header (or the payload for
+#  optimized packet format) measured in 4-octet units.
+#
+#- R[eserved] :: 2-bits: Reserved MUST be sent 0 and ignored on receipt.
+#
+#- CryptOffset :: 6 bits: The offset from the start of the payload
+#  header (or the payload for optimized packet format) to the start of
+#  the encrypted portion of the packet, measured in 4-octet units. The
+#  resulting value MUST NOT be larger than the size of the inner
+#  packet.
+#
+#- F[lags] :: 2-bits: Flags used for stateless crypto signaling such as the
+#  S-bit and D-bit in the PSP specification.
+#
+# *QUESTION:* Is this used and thus still required by PSP, or can it be
+#  removed?
 
 * Enhanced Encapsulating Security Protocol Processing
 
