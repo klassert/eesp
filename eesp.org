@@ -303,7 +303,7 @@ in the following sections.
 
 *** Sequence Number
 
-This unsigned 64-bit field contains a counter value that increases by
+This unsigned 64-bit field contains a counter value that increases
 for each packet sent, i.e., a per-SA packet sequence number. For a
 unicast SA or a single-sender multicast SA, the sender MUST increment
 this field for every transmitted packet. The sequence number MUST
@@ -320,7 +320,7 @@ senders is permitted, though generally not recommended. EESP
 provides no means of synchronizing packet counters among multiple
 senders or meaningfully managing a receiver packet counter and window
 in the context of multiple senders. Unless any future Option
-defining this for a multi-sender SA, the anti-replay features of ESP
+defining this for a multi-sender SA, the anti-replay features of EESP
 are not available.
 
 # Note STK: The text below needs to be reworded. It does not
@@ -624,10 +624,17 @@ are always present in the EESP packet format for all SAs.
 ** Session ID as Replay Subspace ID
 
 This section specifies the use of the Session ID as a Replay Subspace ID.
+The use of the Session ID as a Replay Subspace ID MUST be negotiated by IKEv2,
+or any other suitable protocol. In this case, Session ID is used as a
+16 bits Replay Subspace ID.
+Replay Subspaces were intially defined in [[I-D.ponchon-ipsecme-anti-replay-subspaces]].
+
 Each number of the 16 bits Replay Subspace ID encodes a single
 64 bit anti-replay sequence number space. 
 This means that each core, path, or QoS class, or any combination of
 those, can then use their own unique anti-replay sequence number subspace.
+Each anti-replay sequence number subspace uses Sequence Numbers as
+specified in section [[Sequence Number]].
 
 To make sure that at most 2^64 sequence numbers are used for a given key,
 one of the following two options MUST be implemented.
@@ -657,9 +664,61 @@ one of the following two options MUST be implemented.
 - Replay Subspace ID :: 16 bits:
 - Sequence Numbber :: 48 bits:
 
+*** Sender Behaviour
 
+This section defines the IPsec sender's behavior when transmitting
+packets using an IPsec Child SA that has been previously configured or
+negotiated with IKE to use at most N different sequence number
+subspace IDs.
 
+The sender MAY set the sequence number subspace ID to any value
+between 0 and N-1.  How the different subspace IDs are used is up to
+the implementation, but as an example, the sender could use different
+subspace ID values per path or per processing core (or combination of
+both).
 
+The sender MUST NOT use any subspace ID values greater or equal to N
+(since the IPsec Child SA has been configured to use at most N different
+values).  This requirement was introduced to improve the
+implementation performance, as opposed to allowing the sender to use
+arbitrary subspace ID values.
+
+The sender MUST maintain one sequence number counter per sequence
+number subspace that it makes use of.  But the sender MAY use only
+some (and as few as a single one) of the available N subspace ID
+values between 0 and N-1.
+
+When transmitting a packet, the sender MUST use the sequence number
+counter associated with the sequence number subspace in use for that
+packet.
+
+# The 48 bits sequence number counter associated with any subspace MUST
+# NOT be allowed to cycle.  The sender MUST establish a new SA prior to
+# the transmission of the 2^48th packet on any of the SA's sequence
+# number subspaces.
+
+*** Receiver behaviour
+
+This section defines the IPsec receiver's behavior when receiving
+packets using an IPsec SA that has been previously configured or
+negotiated to use at most N different sequence number subspace IDs.
+
+The receiver MUST maintain one anti-replay window and counter for
+each sequence number subspace being used.
+
+When receiving a packet, the receiver MUST use the anti-replay window
+and counter associated with the sequence number subspace identified
+with the subspace ID field.
+
+The receiver MUST drop any packet received with a subpace ID value
+greater or equal to N.  Such packets SHOULD be counted for reporting.
+
+Note: Since the sender may decide to only use a subset of the
+available N subspace values, the receiver MAY reactively allocate an
+anti-replay window when receiving the first packet for a given
+subspace.  When doing so, the receiver SHOULD first check the
+authenticity of the packet before allocating the new anti-replay
+window.
 
 * EESP Header Options
 
