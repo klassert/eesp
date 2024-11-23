@@ -500,6 +500,17 @@ padding, this too MUST be specified in that RFC.
 
 Integrity Check Value is handled exactly as in ESP [[RFC4303]].
 
+The Integrity Check Value is a variable-length field computed over
+the ESP header, Payload, and ESP trailer fields.  Implicit ESP
+trailer fields (integrity padding and high-order ESN bits, if
+applicable) are included in the ICV computation.  The ICV field is
+optional.  It is present only if the integrity service is selected
+and is provided by either a separate integrity algorithm or a
+combined mode algorithm that uses an ICV.  The length of the field is
+specified by the integrity algorithm selected and associated with the
+SA.  The integrity algorithm specification MUST specify the length of
+the ICV and the comparison rules and processing steps for validation.
+
 ** Full and Optimized Packet Formats
 
 The resulting two packet formats are described in this section.
@@ -531,9 +542,9 @@ other modes of operation.
     0                   1                   2                   3
     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |  Version    |1|    Opt Len    |            Session ID +       |
-   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+                               |
    |                              SPI                              |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |            Session ID         | Version |   Flags   | Opt Len |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    |                                                               |
    ~                   Options (variable, optional)                ~
@@ -566,9 +577,9 @@ other modes of operation.
     0                   1                   2                   3
     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |  Version    |0|    Opt Len    |            Session ID +       |
-   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+                               |
    |                              SPI                              |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |            Session ID         | Version |   Flags   | Opt Len |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    |                                                               |
    ~                   Options (variable, optional)                ~
