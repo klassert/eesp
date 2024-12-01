@@ -199,7 +199,7 @@ The fixed portion of the base header is defined as follows.
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    |                              SPI                              |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |           Session ID          | Version |   Flags   | Opt Len | 
+   |           Session ID          | Version |   Flags   | Opt Len |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #+end_src
 
@@ -234,7 +234,7 @@ The Flags field in the fixed Base Header is defined as follows:
 #+caption: Base Header Flags
 #+name: flags
 #+begin_src
-    0 1 2 3 4 5 6 
+    0 1 2 3 4 5 6
    +-+-+-+-+-+-+-+
    |    R  |S|C|F|
    +-+-+-+-+-+-+-+
@@ -666,7 +666,7 @@ or any other suitable protocol. In this case, Session ID is used as a
 Replay Subspaces were intially defined in [[I-D.ponchon-ipsecme-anti-replay-subspaces]].
 
 Each number of the 16 bits Replay Subspace ID encodes a single
-64 bit anti-replay sequence number space. 
+64 bit anti-replay sequence number space.
 This means that each core, path, or QoS class, or any combination of
 those, can then use their own unique anti-replay sequence number subspace.
 Each anti-replay sequence number subspace uses Sequence Numbers as
