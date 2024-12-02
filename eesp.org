@@ -1036,6 +1036,28 @@ This document requests IANA allocate an IP protocol number from
 - Protocol: Enhanced Encapsulating Security Payload
 - Reference: This document
 
+** EESP Versions Registry
+
+This document requests IANA to create a registry called "EESP_VERSIONS"
+Type Registry" under a new category named "EESP_VERSIONS Parameters".
+
+- Name: EESP Versions Registry
+- Description: EESP Base Header Version
+- Reference: This document
+
+The initial content for this registry is as follows:
+
+#+caption: EESP Version Initial Registry Values
+#+name: iana_requests_versions_reg
+#+begin_src
+    Value     EESP Header Options Types         Reference
+    -------   ------------------------------    ---------------
+          0   Unassigned                      [this document]
+          1   FOO                             [this document]
+    2-127   Private                           [this document]
+#+end_src
+
+
 ** EESP Options Registry
 
 This document requests IANA to create a registry called "EESP_OPTIONS
@@ -1048,7 +1070,7 @@ Type Registry" under a new category named "EESP_OPTIONS Parameters".
 The initial content for this registry is as follows:
 
 #+caption: Initial Registry Values
-#+name: iana_requests_reg
+#+name: iana_requests_options_reg
 #+begin_src
     Value     EESP Header Options Types         Reference
     -------   ------------------------------    ---------------
