@@ -1016,13 +1016,23 @@ The data path does not use the PAD, but it is used for key derivation.
 The Key Derivation Function (KDF) is outside the scope of this document.
 However, IKEv2 [[RFC7296]] can handle key derivation.
 
-* UDP Encapsulation
 
-TBD
+** UDP Encapsulation
+
+UDP Encapsulation packet format is identical to that of ESP. It is
+negotiated using EESP IKEv2, as specified in
+[I-D.klassert-ipsecme-eesp-ikev2]. The EESP Base Header also begins
+with a 32-bit SPI. The SPI namespace is shared between IPsec SAs for
+EESP and ESP. The SPI and destination address combination MUST be
+unique across both ESP and EESP.
+
+UDP Encapsulation of EESP allows the use of the source port for entropy
+in ECMP.
 
 * IKEv2 Negotiation
 
-TBD
+EESP IKEv2 negotiation is specified in
+I-D.klassert-ipsecme-eesp-ikev2.
 
 * IANA Considerations
 
@@ -1128,6 +1138,8 @@ TBD
 ** RFC7296
 ** RFC8200
 ** RFC9347
+
+# ** I-D.klassert-ipsecme-eesp-ikev2
 
 * Informative References
 
