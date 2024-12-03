@@ -246,11 +246,13 @@ The Flags field in the fixed Base Header is defined as follows:
   carry the sequence number field in the packet. This bit MUST be set
   to the same value for all packets on a given SA.
   (NOTE: Does that make sense?)
-- Crypto Offset :: 1 bit: Only used for transport mode. If set, the first
-  4 bytes of the following Layer 4 Header are authenticated, but not encrypted.
-  This bit MUST be set to 0 on tunnel mode. The receiver MUST drop Tunnel mode
-  packets with this bit set. (NOTE: Or, the complete first L4 header is not encrypted.
-  What's better???)
+
+- Crypto Offset :: 1 bit: Only used for payload encryption mode,
+  see [[Payload Encryption Mode Processing]]. If set, the
+  following Layer 4 Header is authenticated, but not encrypted.
+  This bit MUST be set to 0 on any mode other than payload encryption mode .
+  The receiver MUST drop packets with this bit set, if the mode is
+  different to payload encryption mode.
 - Packet Format (F) :: 1 bit: Set to zero for full EESP packet Format (i.e., the EESP header includes the
   ~Payload Info Header~), set to 1 for Optimized EESP Packet format.
 
@@ -696,7 +698,6 @@ one of the following two options MUST be implemented.
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #+end_src
 
-
 - Replay Subspace ID :: 16 bits:
 - Sequence Numbber :: 48 bits:
 
@@ -867,100 +868,425 @@ here.
 - FID :: Variable length, carries characteristic information of a
   inner flow and MUST NOT change for a given inner flow within a SA.
 
-# XXX I don't think this is right, I think we want to allow multiple
-# FIDs (e.g., multiple tcp connections) per SA.
+#  XXX I don't think this is right, I think we want to allow multiple
+#  FIDs (e.g., multiple tcp connections) per SA.
 
-#*** EESP Flow Identifiers combined with replay protection
+# *** EESP Flow Identifiers combined with replay protection
 #
-## XXX
-#Note: This section has to be removed in favor of encoding
-#the Replay Subspace ID on the Session ID.
+# # XXX
+# Note: This section has to be removed in favor of encoding
+# the Replay Subspace ID on the Session ID.
 #
-#Flow Identifiers characterize the inner i.e. the protected flows.
-#Packets of these flows should not be reordered while EESP protected.
-#Therefore, if a Flow Identifier is used in combination with replay
-#protection, it MUST encode a 16 bit Replay Subspace ID on the
-#Flow Identifier. This Replay Subspace ID MUST also be encoded
-#on the 16 MSB of th sequence number to make sure that at most
-#2^64 sequence numbers are used before rekeying. This Replay
-#Subspace ID encoding also makes sure that IVs constructed
-#from the sequence number are unique for any given SA.
+# Flow Identifiers characterize the inner i.e. the protected flows.
+# Packets of these flows should not be reordered while EESP protected.
+# Therefore, if a Flow Identifier is used in combination with replay
+# protection, it MUST encode a 16 bit Replay Subspace ID on the
+# Flow Identifier. This Replay Subspace ID MUST also be encoded
+# on the 16 MSB of th sequence number to make sure that at most
+# 2^64 sequence numbers are used before rekeying. This Replay
+# Subspace ID encoding also makes sure that IVs constructed
+# from the sequence number are unique for any given SA.
 #
-##+caption: Flow Identifier with replay protection
-##+name: fid-replay
-##+begin_src
-#    0                   1                   2                   3
-#    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
-#   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#   |  Option Type  | Option Length |     Replay Subspace ID        |
-#   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-|
-#   |                                                               |
-#   ~                    Flow Identifier (FID)                      ~
-#   |                                                               |
-#   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-##+end_src
+# #+caption: Flow Identifier with replay protection
+# #+name: fid-replay
+# #+begin_src
+#     0                   1                   2                   3
+#     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+#    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+#    |  Option Type  | Option Length |     Replay Subspace ID        |
+#    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-|
+#    |                                                               |
+#    ~                    Flow Identifier (FID)                      ~
+#    |                                                               |
+#    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+# #+end_src
 #
-#- Option Type :: 8 bits: See [[EESP Header Options]]
-#- Option Length :: 8 bits: See [[EESP Header Options]]
-#- Replay Subspace ID :: 16 bits:
-#- FID :: Variable length, carries characteristic information of a
-#  inner flow and MUST NOT change for a given inner flow within a SA.
-#
-#
-##+caption: Sequence Number with Replay Subspace ID
-##+name: seq-nr-subspace2
-##+begin_src
-#    0                   1                   2                   3
-#    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
-#   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#   |      Replay Subspace ID       |                               |
-#   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+                               |
-#   |                        Sequence Number                        |
-#   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-##+end_src
+# - Option Type :: 8 bits: See [[EESP Header Options]]
+# - Option Length :: 8 bits: See [[EESP Header Options]]
+# - Replay Subspace ID :: 16 bits:
+# - FID :: Variable length, carries characteristic information of a
+#   inner flow and MUST NOT change for a given inner flow within a SA.
 #
 #
-#- Replay Subspace ID :: 16 bits:
-#- Sequence Numbber :: 48 bits:
+# #+caption: Sequence Number with Replay Subspace ID
+# #+name: seq-nr-subspace2
+# #+begin_src
+#     0                   1                   2                   3
+#     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+#    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+#    |      Replay Subspace ID       |                               |
+#    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+                               |
+#    |                        Sequence Number                        |
+#    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+# #+end_src
+#
+#
+# - Replay Subspace ID :: 16 bits:
+# - Sequence Numbber :: 48 bits:
 
 
-#*** EESP Crypt Offset Option
-#This option is typically used for within one Datacenter use case
-#such as [[PSP]].
+# *** EESP Crypt Offset Option
+# This option is typically used for within one Datacenter use case
+# such as [[PSP]].
 
-##+caption: Crypt Offset Option
-##+name: crypt-offset-option
-##+begin_src
-#    0                   1                   2                   3
-#    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
-#   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#   |  Option Type  | Option Length |Payl.Offset| R |CryptOffset| F |
-#   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-##+end_src
+# #+caption: Crypt Offset Option
+# #+name: crypt-offset-option
+# #+begin_src
+#     0                   1                   2                   3
+#     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+#    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+#    |  Option Type  | Option Length |Payl.Offset| R |CryptOffset| F |
+#    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+# #+end_src
 
-#- Option Type :: 8 bits: See [[EESP Header Options]]
+# - Option Type :: 8 bits: See [[EESP Header Options]]
 #
-#- Option Length :: 8 bits: See [[EESP Header Options]]
+# - Option Length :: 8 bits: See [[EESP Header Options]]
 #
-#- Payload Offset :: 6 bits: The offset from the start of the fixed
-#  header to the start of the payload header (or the payload for
-#  optimized packet format) measured in 4-octet units.
+# - Payload Offset :: 6 bits: The offset from the start of the fixed
+#   header to the start of the payload header (or the payload for
+#   optimized packet format) measured in 4-octet units.
 #
-#- R[eserved] :: 2-bits: Reserved MUST be sent 0 and ignored on receipt.
+# - R[eserved] :: 2-bits: Reserved MUST be sent 0 and ignored on receipt.
 #
-#- CryptOffset :: 6 bits: The offset from the start of the payload
-#  header (or the payload for optimized packet format) to the start of
-#  the encrypted portion of the packet, measured in 4-octet units. The
-#  resulting value MUST NOT be larger than the size of the inner
-#  packet.
+# - CryptOffset :: 6 bits: The offset from the start of the payload
+#   header (or the payload for optimized packet format) to the start of
+#   the encrypted portion of the packet, measured in 4-octet units. The
+#   resulting value MUST NOT be larger than the size of the inner
+#   packet.
 #
-#- F[lags] :: 2-bits: Flags used for stateless crypto signaling such as the
-#  S-bit and D-bit in the PSP specification.
+# - F[lags] :: 2-bits: Flags used for stateless crypto signaling such as the
+#   S-bit and D-bit in the PSP specification.
 #
-# *QUESTION:* Is this used and thus still required by PSP, or can it be
-#  removed?
+#  *QUESTION:* Is this used and thus still required by PSP, or can it be
+#   removed?
 
 * Enhanced Encapsulating Security Protocol Processing
+
+** EESP Header Location
+
+EESP may be employed in multiple ways. To secure end-to-end
+network traffic, transport mode and payload encryption mode
+may be used. For the VPN usecse, tunnel and beet mode may
+be employed.
+
+*** Transport Mode Processing
+
+In transport mode, EESP is inserted after the IP header and before a
+next layer protocol, e.g., TCP, UDP, ICMP, etc.  In the context of
+IPv4, this translates to placing ESP after the IP header (and any
+options that it contains), but before the next layer protocol.  (If
+AH is also applied to a packet, it is applied to the EESP header,
+Payload and ICV, if present.)  (Note that the term
+"transport" mode should not be misconstrued as restricting its use to
+TCP and UDP.)  The following diagram illustrates EESP transport mode
+positioning for a typical IPv4 packet, on a "before and after" basis.
+(This and subsequent diagrams in this section show the ICV field, the
+presence of which is a function of the security services and the
+algorithm/mode selected.)
+
+
+#+caption: IPv4 Transport Mode
+#+name: ipv4-transport-mode
+#+begin_src
+                  BEFORE APPLYING EESP
+             ----------------------------
+       IPv4  |orig IP hdr  |     |      |
+             |(any options)| TCP | Data |
+             ----------------------------
+
+                  AFTER APPLYING EESP
+             ---------------------------------------------------
+       IPv4  |orig IP hdr  | EESP |     |               | EESP |
+             |(any options)| Hdr  | TCP | L4 pyld Data  | ICV  |
+             ---------------------------------------------------
+                                  |<---- encryption --->|
+                           |<-------- integrity ------->|
+#+end_src
+
+In the IPv6 context, EESP is viewed as an end-to-end payload, and thus
+should appear after hop-by-hop, routing, and fragmentation extension
+headers.  Destination options extension header(s) could appear
+before, after, or both before and after the EESP header depending on
+the semantics desired.  However, because EESP protects only fields
+after the EESP header, it generally will be desirable to place the
+destination options header(s) after the EESP header.  The following
+diagram illustrates EESP transport mode positioning for a typical IPv6
+packet.
+
+#+caption: IPv6 Transport Mode
+#+name: ipv6-transport-mode
+#+begin_src
+
+                      BEFORE APPLYING EESP
+             ---------------------------------------
+       IPv6  |             | ext hdrs |     |      |
+             | orig IP hdr |if present| TCP | Data |
+             ---------------------------------------
+
+                      AFTER APPLYING EESP
+             ----------------------------------------------------------
+       IPv6  | orig |hop-by-hop,dest*,|EESP|dest|   |   Layer 4  |EESP|
+             |IP hdr|routing,fragment.|Hdr |opt*|TCP|Payload Data|ICV |
+             ----------------------------------------------------------
+                                           |<--- encryption ---->|
+                                      |<------ integrity ------->|
+
+                 * = if present, could be before EESP, after EESP, or both
+#+end_src
+
+Note that in transport mode, for "bump-in-the-stack" or "bump-in-
+the-wire" implementations, as defined in the Security Architecture
+document, inbound and outbound IP fragments may require an IPsec
+implementation to perform extra IP reassembly/fragmentation in order
+to both conform to this specification and provide transparent IPsec
+support.  Special care is required to perform such operations within
+these implementations when multiple interfaces are in use.
+
+*** Payload Encryption Mode Processing
+
+In payload encryption mode, EESP is inserted exactly at the same position
+as it is done for transport mode. The only difference to transport mode
+is that the next layer protocol header following the original IP or IPv6
+header is left in cleartext. Additionally to that, the 'C' bit in the EESP
+header flags is set.
+
+
+The following diagrams illustrate EESP payload encryption mode
+positioning for a typical IPv4 and IPv6 packet, on a "before and after" basis.
+
+
+#+caption: IPv4 Payload Encryption Mode
+#+name: ipv4-pe-mode
+#+begin_src
+                  BEFORE APPLYING EESP
+             ----------------------------
+       IPv4  |orig IP hdr  |     |      |
+             |(any options)| TCP | Data |
+             ----------------------------
+
+                  AFTER APPLYING EESP
+             ----------------------------------------------------
+       IPv4  |orig IP hdr  | EESP |     |                | EESP |
+             |(any options)| Hdr  | TCP |  L4 pyld Data  | ICV  |
+             ----------------------------------------------------
+                                        |<- encryption ->|
+                           |<-------- integrity -------->|
+#+end_src
+
+#+caption: IPv6 Payload Encryption Mode
+#+name: ipv6-pe-mode
+#+begin_src
+
+                      BEFORE APPLYING EESP
+             ---------------------------------------
+       IPv6  |             | ext hdrs |     |      |
+             | orig IP hdr |if present| TCP | Data |
+             ---------------------------------------
+
+                      AFTER APPLYING EESP
+             --------------------------------------------------------------
+       IPv6  | orig |hop-by-hop,dest*,|EESP|dest|   |     Layer 4    |EESP|
+             |IP hdr|routing,fragment.|Hdr |opt*|TCP|  Payload Data  |ICV |
+             --------------------------------------------------------------
+                                                    |<- encryption ->|
+                                      |<-------- integrity --------->|
+
+                 * = if present, could be before EESP, after EESP, or both
+#+end_src
+
+*** BEET Mode Processing
+
+In BEET mode, EESP is inserted exactly at the same position
+as it is done for transport mode. The original IP or IPv6 header
+is relaced by a new one. The new header SHOULD be negotiated by IKEv2
+or any other suitable protocol.
+
+Some more text here...
+
+#+caption: IPv6 BEET Mode
+#+name: ipv4-beet-mode
+#+begin_src
+                  BEFORE APPLYING EESP
+             ----------------------------
+       IPv4  |orig IP hdr  |     |      |
+             |(any options)| TCP | Data |
+             ----------------------------
+
+                  AFTER APPLYING EESP
+             ---------------------------------------------------
+       IPv4  | new IP hdr  | EESP |     |               | EESP |
+             |(any options)| Hdr  | TCP | L4 pyld Data  | ICV  |
+             ---------------------------------------------------
+                                  |<---- encryption --->|
+                           |<-------- integrity ------->|
+#+end_src
+
+#+caption: IPv6 BEET Mode
+#+name: ipv6-beet-mode
+#+begin_src
+
+                      BEFORE APPLYING EESP
+             ---------------------------------------
+       IPv6  |             | ext hdrs |     |      |
+             | orig IP hdr |if present| TCP | Data |
+             ---------------------------------------
+
+                      AFTER APPLYING EESP
+             ----------------------------------------------------------
+       IPv6  | new  |hop-by-hop,dest*,|EESP|dest|   |   Layer 4  |EESP|
+             |IP hdr|routing,fragment.|Hdr |opt*|TCP|Payload Data|ICV |
+             ----------------------------------------------------------
+                                           |<--- encryption ---->|
+                                      |<------ integrity ------->|
+
+                 * = if present, could be before EESP, after EESP, or both
+#+end_src
+
+*** Tunnel Mode Processing
+
+In tunnel mode, the "inner" IP header carries the ultimate (IP)
+source and destination addresses, while an "outer" IP header contains
+the addresses of the IPsec "peers", e.g., addresses of security
+gateways.  Mixed inner and outer IP versions are allowed, i.e., IPv6
+over IPv4 and IPv4 over IPv6.  In tunnel mode, EESP protects the
+entire inner IP packet, including the entire inner IP header.  The
+position of EESP in tunnel mode, relative to the outer IP header, is
+the same as for EESP in transport mode.  The following diagram
+illustrates EESP tunnel mode positioning for typical IPv4 and IPv6
+packets.
+
+
+#+caption: IPv4 Tunnel Mode 
+#+name: ipv4-tunnel-mode
+#+begin_src
+                 BEFORE APPLYING ESP
+            ----------------------------
+      IPv4  |orig IP hdr  |     |      |
+            |(any options)| TCP | Data |
+            ----------------------------
+
+                 AFTER APPLYING ESP
+
+            -----------------------------------------------------------
+      IPv4  | new IP hdr* |     | orig IP hdr*  |   |    | ESP   | ESP|
+            |(any options)| ESP | (any options) |TCP|Data|Trailer| ICV|
+            -----------------------------------------------------------
+                                |<--------- encryption --------->|
+                          |<------------- integrity ------------>|
+
+#+end_src
+
+#+caption: IPv6 Tunnel Mode
+#+name: ipv6-tunnel-mode
+#+begin_src
+                      BEFORE APPLYING ESP
+            ---------------------------------------
+      IPv6  |             | ext hdrs |     |      |
+            | orig IP hdr |if present| TCP | Data |
+            ---------------------------------------
+
+                     AFTER APPLYING ESP
+
+            ------------------------------------------------------------
+      IPv6  | new* |new ext |   | orig*|orig ext |   |    | ESP   | ESP|
+            |IP hdr| hdrs*  |ESP|IP hdr| hdrs *  |TCP|Data|Trailer| ICV|
+            ------------------------------------------------------------
+                                |<--------- encryption ---------->|
+                            |<------------ integrity ------------>|
+
+            * = if present, construction of outer IP hdr/extensions and
+                modification of inner IP hdr/extensions is discussed in
+                the Security Architecture document.
+#+end_src
+
+** Algorithms
+
+The mandatory-to-implement algorithms for use with EESP are the same as
+for ESP and described in a separate RFC, to facilitate updating the
+algorithm requirements independently from the protocol per se.  Additional
+algorithms, beyond those mandated for EESP, MAY be supported.  Note that
+although both confidentiality and integrity are optional, at least one of
+these services MUST be selected, hence both algorithms MUST NOT be
+simultaneously NULL.
+
+STK NOTE: Is the above ok, or should we mandate for both
+confidentiality and integrity???
+
+*** Encryption Algorithms
+
+The encryption algorithm employed to protect an EESP packet is
+specified by the SA via which the packet is transmitted/received.
+Because IP packets may arrive out of order, and not all packets may
+arrive (packet loss), each packet must carry any data required to
+allow the receiver to establish cryptographic synchronization for
+decryption.  This data may be carried explicitly, e.g., as an
+IV (as described above), or the data may be
+derived from the plaintext portions of the (outer IP or EESP) packet
+header.  (Note that if plaintext header information is used to derive
+an IV, that information may become security critical and thus the
+protection boundary associated with the encryption process may grow.
+
+For example, if one were to use the EESP Sequence Number to derive an
+IV, the Sequence Number generation logic (hardware or software) would
+have to be evaluated as part of the encryption algorithm
+implementation.  In the case of FIPS 140-2 [[NIST01]], this could
+significantly extend the scope of a cryptographic module evaluation.)
+
+Because EESP makes provision for padding of the plaintext, encryption
+algorithms employed with EESP may exhibit either block or stream mode
+characteristics.  Note that because encryption (confidentiality) MAY
+be an optional service (e.g., integrity-only EESP), this algorithm MAY
+be "NULL" [[RFC4301]].
+
+STK NOTE Again: Is the above ok, or should we mandate for both
+confidentiality and integrity???
+
+To allow an EESP implementation to compute the encryption padding
+required by a block mode encryption algorithm, and to determine the
+MTU impact of the algorithm, the RFC for each encryption algorithm
+used with EESP must specify the padding modulus for the algorithm.
+
+*** Integrity Algorithms
+
+The integrity algorithm employed for the ICV computation is specified
+by the SA via which the packet is transmitted/received.  As was the
+case for encryption algorithms, any integrity algorithm employed with
+EESP must make provisions to permit processing of packets that arrive
+out of order and to accommodate packet loss.  The same admonition
+noted above applies to use of any plaintext data to facilitate
+receiver synchronization of integrity algorithms.  Note that because
+the integrity service MAY be optional, this algorithm may be "NULL".
+
+
+STK NOTE Again: Is the above ok, or should we mandate for both
+confidentiality and integrity???
+
+To allow an EESP implementation to compute any implicit integrity
+algorithm padding required, the RFC for each algorithm used with EESP
+must specify the padding modulus for the algorithm.
+
+*** Combined Mode Algorithms
+
+If a combined mode algorithm is employed, both confidentiality and
+integrity services are provided.  As was the case for encryption
+algorithms, a combined mode algorithm must make provisions for per-
+packet cryptographic synchronization, to permit decryption of packets
+that arrive out of order and to accommodate packet loss.  The means
+by which a combined mode algorithm provides integrity for the
+payload, and for the SPI and Sequence Number fields, may
+vary for different algorithm choices.  In order to provide a uniform,
+algorithm-independent approach to invocation of combined mode
+algorithms, no payload substructure is defined.  For example, the SPI
+and Sequence Number fields might be replicated within the ciphertext
+envelope and an ICV may be appended to the EESP payload data.  None of
+these details should be observable externally.
+
+To allow an EESP implementation to determine the MTU impact of a
+combined mode algorithm, the RFC for each algorithm used with EESP
+must specify a (simple) formula that yields encrypted payload size,
+as a function of the plaintext payload and sequence number sizes.
+
 
 ** Stateless Encryption
 
@@ -1132,6 +1458,12 @@ TBD
 :REF_TARGET: https://www.iana.org/assignments/ikev2-parameters/ikev2-parameters.xhtml#ikev2-parameters-5
 :REF_TITLE: IKEv2 Parameters
 :REF_ORG: IANA
+:END:
+
+** NIST01
+:PROPERTIES:
+:REF_TITLE: Federal Information Processing Standards Publication 140-2 (FIPS PUB 140-2), "Security Requirements for Cryptographic Modules", Information Technology Laboratory, National Institute of Standards and Technology, May 25, 2001.
+:REF_ORG: NIST
 :END:
 
 * Additional Stuff
