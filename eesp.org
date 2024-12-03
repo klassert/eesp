@@ -1290,7 +1290,7 @@ as a function of the plaintext payload and sequence number sizes.
 ** Outbound Packet Processing
 
 In transport mode, the sender encapsulates the next layer protocol
-information between the ESP header and the ESP trailer fields, and
+information behind the EESP header fields, and
 retains the specified IP header (and any IP extension headers in the
 IPv6 context).  In tunnel mode, the outer and inner IP
 header/extensions can be interrelated in a variety of ways.  The
@@ -1300,9 +1300,9 @@ document.
 
 *** Security Association Lookup
 
-ESP is applied to an outbound packet only after an IPsec
+EESP is applied to an outbound packet only after an IPsec
 implementation determines that the packet is associated with an SA
-that calls for ESP processing.  The process of determining what, if
+that calls for EESP processing.  The process of determining what, if
 any, IPsec processing is applied to outbound traffic is described in
 the Security Architecture document.
 
