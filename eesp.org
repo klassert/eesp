@@ -1287,6 +1287,32 @@ combined mode algorithm, the RFC for each algorithm used with EESP
 must specify a (simple) formula that yields encrypted payload size,
 as a function of the plaintext payload and sequence number sizes.
 
+** Outbound Packet Processing
+
+In transport mode, the sender encapsulates the next layer protocol
+information between the ESP header and the ESP trailer fields, and
+retains the specified IP header (and any IP extension headers in the
+IPv6 context).  In tunnel mode, the outer and inner IP
+header/extensions can be interrelated in a variety of ways.  The
+construction of the outer IP header/extensions during the
+encapsulation process is described in the Security Architecture
+document.
+
+*** Security Association Lookup
+
+ESP is applied to an outbound packet only after an IPsec
+implementation determines that the packet is associated with an SA
+that calls for ESP processing.  The process of determining what, if
+any, IPsec processing is applied to outbound traffic is described in
+the Security Architecture document.
+
+*** Packet Encryption and Integrity Check Value (ICV) Calculation
+
+In this section, we speak in terms of encryption always being applied
+because of the formatting implications.  This is done with the
+understanding that "no confidentiality" is offered by using the NULL
+encryption algorithm (RFC 2410).  There are several algorithmic
+options.
 
 ** Stateless Encryption
 
