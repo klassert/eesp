@@ -1,0 +1,65 @@
+name: Generate Dynamic Pages
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - .gitignore
+      - mk/README.org
+  pull_request:
+    branches: [main]
+    paths-ignore:
+      - .gitignore
+      - mk/README.org
+
+jobs:
+  build:
+    name: "Update Editor's Copy"
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up build environment
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential git emacs python3-pip pandoc
+        sudo pip install xml2rfc
+
+    - name: Generate dynamic pages
+      run: make
+
+    - name: Prepare Deployment Directory
+      run: |
+        mkdir -p deploy
+        cp draft/draft-*latest*.html draft/draft-*latest*.txt deploy/
+        cp README.org deploy/  # Optional: if you want to keep README.org in deploy
+
+    - name: "Convert README.org to index.html : optional step"
+      run: |
+        pandoc README.org -o deploy/index.html
+
+    - name: "Archive Built Drafts : Optional step"
+      uses: actions/upload-artifact@v4
+      with:
+        path: |
+          draft/draft-*latest*.html
+          draft/draft-*latest*.txt
+          index.html
+
+    - name: "Verify Draft and Deploy Directory After make : optional step"
+      run: |
+        echo "Contents of the draft directory:"
+        ls -l draft
+        echo "Contents of the deploy directory:"
+        ls -l deploy
+
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v4
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: deploy
+        publish_branch: gh-pages
+        keep_files: true
+        cname: ''
+        allow_empty_commit: false
