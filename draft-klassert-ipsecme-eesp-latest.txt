@@ -114,39 +114,41 @@ Klassert, et al.          Expires 15 June 2025                  [Page 2]
 Internet-Draft                    EESP                     December 2024
 
 
+       3.1.3.  EESP Crypt Offset Option  . . . . . . . . . . . . . .  20
    4.  Enhanced Encapsulating Security Protocol Processing . . . . .  20
-     4.1.  EESP Header Location  . . . . . . . . . . . . . . . . . .  20
-       4.1.1.  Transport Mode Processing . . . . . . . . . . . . . .  20
-       4.1.2.  Payload Encryption Mode Processing  . . . . . . . . .  21
-       4.1.3.  BEET Mode Processing  . . . . . . . . . . . . . . . .  22
-       4.1.4.  Tunnel Mode Processing  . . . . . . . . . . . . . . .  23
-     4.2.  Algorithms  . . . . . . . . . . . . . . . . . . . . . . .  24
-       4.2.1.  Encryption Algorithms . . . . . . . . . . . . . . . .  25
-       4.2.2.  Integrity Algorithms  . . . . . . . . . . . . . . . .  25
-       4.2.3.  Combined Mode Algorithms  . . . . . . . . . . . . . .  26
-     4.3.  Outbound Packet Processing  . . . . . . . . . . . . . . .  26
-       4.3.1.  Security Association Lookup . . . . . . . . . . . . .  26
+     4.1.  EESP Header Location  . . . . . . . . . . . . . . . . . .  21
+       4.1.1.  Transport Mode Processing . . . . . . . . . . . . . .  21
+       4.1.2.  Payload Encryption Mode Processing  . . . . . . . . .  22
+       4.1.3.  BEET Mode Processing  . . . . . . . . . . . . . . . .  23
+       4.1.4.  Tunnel Mode Processing  . . . . . . . . . . . . . . .  24
+     4.2.  Algorithms  . . . . . . . . . . . . . . . . . . . . . . .  25
+       4.2.1.  Encryption Algorithms . . . . . . . . . . . . . . . .  26
+       4.2.2.  Integrity Algorithms  . . . . . . . . . . . . . . . .  26
+       4.2.3.  Combined Mode Algorithms  . . . . . . . . . . . . . .  27
+     4.3.  Outbound Packet Processing  . . . . . . . . . . . . . . .  27
+       4.3.1.  Security Association Lookup . . . . . . . . . . . . .  27
        4.3.2.  Packet Encryption and Integrity Check Value (ICV)
-               Calculation . . . . . . . . . . . . . . . . . . . . .  27
-       4.3.3.  Separate Confidentiality and Integrity Algorithms . .  27
-       4.3.4.  Combined Confidentiality and Integrity Algorithms . .  28
-       4.3.5.  Sequence Number Generation  . . . . . . . . . . . . .  29
-     4.4.  Stateless Encryption  . . . . . . . . . . . . . . . . . .  30
-       4.4.1.  Receiving without SAD . . . . . . . . . . . . . . . .  30
-       4.4.2.  Sending without SPD . . . . . . . . . . . . . . . . .  31
-       4.4.3.  Peer Authentication Database  . . . . . . . . . . . .  31
-   5.  UDP Encapsulation . . . . . . . . . . . . . . . . . . . . . .  31
-   6.  IKEv2 Negotiation . . . . . . . . . . . . . . . . . . . . . .  31
-   7.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .  31
-     7.1.  EESP IP Protocol Number . . . . . . . . . . . . . . . . .  31
-     7.2.  EESP Options Registry . . . . . . . . . . . . . . . . . .  31
-   8.  Implementation Status . . . . . . . . . . . . . . . . . . . .  32
-   9.  Security Considerations . . . . . . . . . . . . . . . . . . .  32
-   10. Acknowledgments . . . . . . . . . . . . . . . . . . . . . . .  33
-   11. Normative References  . . . . . . . . . . . . . . . . . . . .  33
-   12. Informative References  . . . . . . . . . . . . . . . . . . .  33
-   Appendix A.  Additional Stuff . . . . . . . . . . . . . . . . . .  35
-   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  35
+               Calculation . . . . . . . . . . . . . . . . . . . . .  28
+       4.3.3.  Separate Confidentiality and Integrity Algorithms . .  28
+       4.3.4.  Combined Confidentiality and Integrity Algorithms . .  29
+       4.3.5.  Sequence Number Generation  . . . . . . . . . . . . .  30
+       4.3.6.  Fragmentation . . . . . . . . . . . . . . . . . . . .  31
+     4.4.  Stateless Encryption  . . . . . . . . . . . . . . . . . .  32
+       4.4.1.  Receiving without SAD . . . . . . . . . . . . . . . .  32
+       4.4.2.  Sending without SPD . . . . . . . . . . . . . . . . .  32
+       4.4.3.  Peer Authentication Database  . . . . . . . . . . . .  33
+   5.  UDP Encapsulation . . . . . . . . . . . . . . . . . . . . . .  33
+   6.  IKEv2 Negotiation . . . . . . . . . . . . . . . . . . . . . .  33
+   7.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .  33
+     7.1.  EESP IP Protocol Number . . . . . . . . . . . . . . . . .  33
+     7.2.  EESP Options Registry . . . . . . . . . . . . . . . . . .  33
+   8.  Implementation Status . . . . . . . . . . . . . . . . . . . .  34
+   9.  Security Considerations . . . . . . . . . . . . . . . . . . .  34
+   10. Acknowledgments . . . . . . . . . . . . . . . . . . . . . . .  34
+   11. Normative References  . . . . . . . . . . . . . . . . . . . .  35
+   12. Informative References  . . . . . . . . . . . . . . . . . . .  35
+   Appendix A.  Additional Stuff . . . . . . . . . . . . . . . . . .  36
+   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  36
 
 1.  Introduction
 
@@ -160,8 +162,6 @@ Internet-Draft                    EESP                     December 2024
    [I-D.he-ipsecme-vpn-shared-ipsecsa].  Such a Flow Identifier could
    also be used to perform ECMP based on the inner flows at intermediate
    devices or endpoints.  Additionally to that, there exists a
-   specification of the [PSP] protocol that has the need of a Flow
-   Identifier, called Network Identifier (VNI) there.  PSP also defines
 
 
 
@@ -170,6 +170,8 @@ Klassert, et al.          Expires 15 June 2025                  [Page 3]
 Internet-Draft                    EESP                     December 2024
 
 
+   specification of the [PSP] protocol that has the need of a Flow
+   Identifier, called Network Identifier (VNI) there.  PSP also defines
    a Crypt Offset to expose parts of the headers of the inner packet.
    EESP provides a solution for all the aforementioned use cases.
 
@@ -216,8 +218,6 @@ Internet-Draft                    EESP                     December 2024
    recursive acronym for PSP Security Protocol), Virtual Network
    Identifier (VNI), Crypt Offset.
 
-   This document uses the following terms defined in [RFC2992]: Equal-
-   cost multi-path (ECMP)
 
 
 
@@ -225,6 +225,9 @@ Klassert, et al.          Expires 15 June 2025                  [Page 4]
 
 Internet-Draft                    EESP                     December 2024
 
+
+   This document uses the following terms defined in [RFC2992]: Equal-
+   cost multi-path (ECMP)
 
    This document uses the following terms defined in [RFC4303]:
    Encapsulating Security Payload (ESP).
@@ -270,10 +273,7 @@ Internet-Draft                    EESP                     December 2024
 
                 Figure 1: Top-Level Format of an EESP Packet
 
-   The packet starts with a 'Base Header' that can be used by protocol
-   parsing engines of middleboxes such as routers or firewalls in
-   addition to the IPsec peer that use it to route the packet to the
-   correct Crypto context.
+
 
 
 
@@ -281,6 +281,11 @@ Klassert, et al.          Expires 15 June 2025                  [Page 5]
 
 Internet-Draft                    EESP                     December 2024
 
+
+   The packet starts with a 'Base Header' that can be used by protocol
+   parsing engines of middleboxes such as routers or firewalls in
+   addition to the IPsec peer that use it to route the packet to the
+   correct Crypto context.
 
    The 'Peer Header' follows the 'Base Header'.  The 'Peer Header' is
    used to support replay protection and to store cryptographic
@@ -314,22 +319,17 @@ Internet-Draft                    EESP                     December 2024
     0                   1                   2                   3
     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |                              SPI                              |
+   | Version |   Flags   | Opt Len |         Session ID            |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |           Session ID          | Version |   Flags   | Opt Len |
+   |                              SPI                              |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
                         Figure 2: Fixed Base Header
 
-   Security Parameter Index (SPI)  32 bits: The SPI is an arbitrary
-      32-bit value that is used by a receiver to identify the SA to
-      which an incoming packet is bound.  This combined with the 16-bit
-      Session ID is the Enhanced SPI.
-
-   Session ID  16 bit: The Session ID covers additional information that
-      might be used to identify the SA and to route the packet to the
-      correct stateless crypto context.  For instance, it can be used to
-      encode a Replay Subspace ID or, if a Key Derivation Function (KDF)
+   Version  5 bits: MUST be set to zero and checked by the receiver.  If
+      the version is different than an expected version number (e.g.,
+      negotiated via the control channel ), then the packet MUST be
+      dropped by the receiver.  Future modifications to the EESP header
 
 
 
@@ -338,16 +338,6 @@ Klassert, et al.          Expires 15 June 2025                  [Page 6]
 Internet-Draft                    EESP                     December 2024
 
 
-      is used to do stateless key derivation, the crypto algorithm ID
-      could be encoded there.  The meaning of that field is opaque and
-      MAY be negotiated by IKEv2.  This document defines the use of the
-      Session ID as a Replay Subspace ID.  Other usecases are not
-      covered in this document.
-
-   Version  5 bits: MUST be set to zero and checked by the receiver.  If
-      the version is different than an expected version number (e.g.,
-      negotiated via the control channel ), then the packet MUST be
-      dropped by the receiver.  Future modifications to the EESP header
       require a new version number.  In particular, the version of EESP
       defined in this document does not allow for any extensions.
       Intermediate nodes dealing with unknown versions are not
@@ -358,6 +348,21 @@ Internet-Draft                    EESP                     December 2024
    Flags  6 bit: The Flags field is used as specitied in Figure 3.
 
    Opt Len  5 bits: Length in 4 bytes of the 'Options' field.
+
+   Session ID  16 bit: The Session ID covers additional information that
+      might be used to identify the SA and to route the packet to the
+      correct stateless crypto context.  For instance, it can be used to
+      encode a Replay Subspace ID or, if a Key Derivation Function (KDF)
+      is used to do stateless key derivation, the crypto algorithm ID
+      could be encoded there.  The meaning of that field is opaque and
+      MAY be negotiated by IKEv2.  This document defines the use of the
+      Session ID as a Replay Subspace ID.  Other usecases are not
+      covered in this document.
+
+   Security Parameter Index (SPI)  32 bits: The SPI is an arbitrary
+      32-bit value that is used by a receiver to identify the SA to
+      which an incoming packet is bound.  This combined with the 16-bit
+      Session ID is the Enhanced SPI.
 
    The Flags field in the fixed Base Header is defined as follows:
 
@@ -376,16 +381,11 @@ Internet-Draft                    EESP                     December 2024
       set to the same value for all packets on a given SA.  (NOTE: Does
       that make sense?)
 
-   Crypto Offset  1 bit: Only used for payload encryption mode, see
-      Section 4.1.2.  If set, the following Layer 4 Header is
-      authenticated, but not encrypted.  This bit MUST be set to 0 on
+   Payload Encryption Mode  1 bit: If set, the following Layer 4 Header
+      is authenticated, but not encrypted.  This bit MUST be set to 0 on
       any mode other than payload encryption mode . The receiver MUST
       drop packets with this bit set, if the mode is different to
-      payload encryption mode.
-
-   Packet Format (F)  1 bit: Set to zero for full EESP packet Format
-      (i.e., the EESP header includes the 'Payload Info Header'), set to
-      1 for Optimized EESP Packet format.
+      payload encryption mode.  See Section 4.1.2
 
 
 
@@ -393,6 +393,10 @@ Klassert, et al.          Expires 15 June 2025                  [Page 7]
 
 Internet-Draft                    EESP                     December 2024
 
+
+   Packet Format (F)  1 bit: Set to zero for full EESP packet Format
+      (i.e., the EESP header includes the 'Payload Info Header'), set to
+      1 for Optimized EESP Packet format.
 
 2.2.2.  Base Header Options
 
@@ -438,10 +442,6 @@ Internet-Draft                    EESP                     December 2024
    optional 'Initialization Vector', and the format is shown below.  The
    Peer Header is private to the IPsec peers, Middleboxes MUST NOT act
    upon the Peer Header fields.
-
-
-
-
 
 
 
@@ -688,9 +688,9 @@ Internet-Draft                    EESP                     December 2024
     0                   1                   2                   3
     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |                              SPI                              |
+   | Version |   Flags   | Opt Len |        Session ID             |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |            Session ID         | Version |   Flags   | Opt Len |
+   |                              SPI                              |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    |                                                               |
    ~                   Options (variable, optional)                ~
@@ -733,9 +733,9 @@ Internet-Draft                    EESP                     December 2024
     0                   1                   2                   3
     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |                              SPI                              |
+   | Version |   Flags   | Opt Len |        Session ID             |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |            Session ID         | Version |   Flags   | Opt Len |
+   |                              SPI                              |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    |                                                               |
    ~                   Options (variable, optional)                ~
@@ -1071,7 +1071,56 @@ Internet-Draft                    EESP                     December 2024
    FID  Variable length, carries characteristic information of a inner
       flow and MUST NOT change for a given inner flow within a SA.
 
+3.1.3.  EESP Crypt Offset Option
+
+   This option is typically used for within one Datacenter use case such
+   as [PSP].
+
+   NOTE: This is for the use in Datacenters ONLY.  It might be moved to
+   a separate document that defines the 'EESP use for Datacenters'.
+
+    0                   1                   2                   3
+    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |  Option Type  | Option Length |Payl.Offset| R |CryptOffset| F |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+                       Figure 13: Crypt Offset Option
+
+   Option Type  8 bits: See Section 3
+
+   Option Length  8 bits: See Section 3
+
+   Payload Offset  6 bits: The offset from the start of the fixed header
+      to the start of the payload header (or the payload for optimized
+      packet format) measured in 4-octet units.
+
+   R[eserved]  2-bits: Reserved MUST be sent 0 and ignored on receipt.
+
+   CryptOffset  6 bits: The offset from the start of the payload header
+      (or the payload for optimized packet format) to the start of the
+      encrypted portion of the packet, measured in 4-octet units.  The
+      resulting value MUST NOT be larger than the size of the inner
+      packet.
+
+   F[lags]  2-bits: Flags used for stateless crypto signaling such as
+      the S-bit and D-bit in the PSP specification.
+
+      *QUESTION:* Is this used and thus still required by PSP, or can it
+      be removed?
+
 4.  Enhanced Encapsulating Security Protocol Processing
+
+
+
+
+
+
+
+Klassert, et al.          Expires 15 June 2025                 [Page 20]
+
+Internet-Draft                    EESP                     December 2024
+
 
 4.1.  EESP Header Location
 
@@ -1108,25 +1157,26 @@ Internet-Draft                    EESP                     December 2024
                               |<---- encryption --->|
                        |<-------- integrity ------->|
 
-                       Figure 13: IPv4 Transport Mode
+                       Figure 14: IPv4 Transport Mode
 
    In the IPv6 context, EESP is viewed as an end-to-end payload, and
    thus should appear after hop-by-hop, routing, and fragmentation
    extension headers.  Destination options extension header(s) could
    appear before, after, or both before and after the EESP header
-
-
-
-Klassert, et al.          Expires 15 June 2025                 [Page 20]
-
-Internet-Draft                    EESP                     December 2024
-
-
    depending on the semantics desired.  However, because EESP protects
    only fields after the EESP header, it generally will be desirable to
    place the destination options header(s) after the EESP header.  The
    following diagram illustrates EESP transport mode positioning for a
    typical IPv6 packet.
+
+
+
+
+
+Klassert, et al.          Expires 15 June 2025                 [Page 21]
+
+Internet-Draft                    EESP                     December 2024
+
 
                   BEFORE APPLYING EESP
          ---------------------------------------
@@ -1144,7 +1194,7 @@ Internet-Draft                    EESP                     December 2024
 
              * = if present, could be before EESP, after EESP, or both
 
-                       Figure 14: IPv6 Transport Mode
+                       Figure 15: IPv6 Transport Mode
 
    Note that in transport mode, for "bump-in-the-stack" or "bump-in-
    the-wire" implementations, as defined in the Security Architecture
@@ -1173,56 +1223,6 @@ Internet-Draft                    EESP                     December 2024
 
 
 
-Klassert, et al.          Expires 15 June 2025                 [Page 21]
-
-Internet-Draft                    EESP                     December 2024
-
-
-              BEFORE APPLYING EESP
-         ----------------------------
-   IPv4  |orig IP hdr  |     |      |
-         |(any options)| TCP | Data |
-         ----------------------------
-
-              AFTER APPLYING EESP
-         ----------------------------------------------------
-   IPv4  |orig IP hdr  | EESP |     |                | EESP |
-         |(any options)| Hdr  | TCP |  L4 pyld Data  | ICV  |
-         ----------------------------------------------------
-                                    |<- encryption ->|
-                       |<-------- integrity -------->|
-
-                  Figure 15: IPv4 Payload Encryption Mode
-
-                  BEFORE APPLYING EESP
-         ---------------------------------------
-   IPv6  |             | ext hdrs |     |      |
-         | orig IP hdr |if present| TCP | Data |
-         ---------------------------------------
-
-                  AFTER APPLYING EESP
-         --------------------------------------------------------------
-   IPv6  | orig |hop-by-hop,dest*,|EESP|dest|   |     Layer 4    |EESP|
-         |IP hdr|routing,fragment.|Hdr |opt*|TCP|  Payload Data  |ICV |
-         --------------------------------------------------------------
-                                                |<- encryption ->|
-                                  |<-------- integrity --------->|
-
-             * = if present, could be before EESP, after EESP, or both
-
-                  Figure 16: IPv6 Payload Encryption Mode
-
-4.1.3.  BEET Mode Processing
-
-   In BEET mode, EESP is inserted exactly at the same position as it is
-   done for transport mode.  The original IP or IPv6 header is relaced
-   by a new one.  The new header SHOULD be negotiated by IKEv2 or any
-   other suitable protocol.
-
-   Some more text here...
-
-
-
 
 
 
@@ -1241,6 +1241,62 @@ Internet-Draft                    EESP                     December 2024
          ----------------------------
 
               AFTER APPLYING EESP
+         ----------------------------------------------------
+   IPv4  |orig IP hdr  | EESP |     |                | EESP |
+         |(any options)| Hdr  | TCP |  L4 pyld Data  | ICV  |
+         ----------------------------------------------------
+                                    |<- encryption ->|
+                       |<-------- integrity -------->|
+
+                  Figure 16: IPv4 Payload Encryption Mode
+
+                  BEFORE APPLYING EESP
+         ---------------------------------------
+   IPv6  |             | ext hdrs |     |      |
+         | orig IP hdr |if present| TCP | Data |
+         ---------------------------------------
+
+                  AFTER APPLYING EESP
+         --------------------------------------------------------------
+   IPv6  | orig |hop-by-hop,dest*,|EESP|dest|   |     Layer 4    |EESP|
+         |IP hdr|routing,fragment.|Hdr |opt*|TCP|  Payload Data  |ICV |
+         --------------------------------------------------------------
+                                                |<- encryption ->|
+                                  |<-------- integrity --------->|
+
+             * = if present, could be before EESP, after EESP, or both
+
+                  Figure 17: IPv6 Payload Encryption Mode
+
+4.1.3.  BEET Mode Processing
+
+   In BEET mode, EESP is inserted exactly at the same position as it is
+   done for transport mode.  The original IP or IPv6 header is relaced
+   by a new one.  The new header SHOULD be negotiated by IKEv2 or any
+   other suitable protocol.
+
+   Some more text here...
+
+
+
+
+
+
+
+
+
+Klassert, et al.          Expires 15 June 2025                 [Page 23]
+
+Internet-Draft                    EESP                     December 2024
+
+
+              BEFORE APPLYING EESP
+         ----------------------------
+   IPv4  |orig IP hdr  |     |      |
+         |(any options)| TCP | Data |
+         ----------------------------
+
+              AFTER APPLYING EESP
          ---------------------------------------------------
    IPv4  | new IP hdr  | EESP |     |               | EESP |
          |(any options)| Hdr  | TCP | L4 pyld Data  | ICV  |
@@ -1248,7 +1304,7 @@ Internet-Draft                    EESP                     December 2024
                               |<---- encryption --->|
                        |<-------- integrity ------->|
 
-                         Figure 17: IPv6 BEET Mode
+                         Figure 18: IPv6 BEET Mode
 
                   BEFORE APPLYING EESP
          ---------------------------------------
@@ -1266,7 +1322,7 @@ Internet-Draft                    EESP                     December 2024
 
              * = if present, could be before EESP, after EESP, or both
 
-                         Figure 18: IPv6 BEET Mode
+                         Figure 19: IPv6 BEET Mode
 
 4.1.4.  Tunnel Mode Processing
 
@@ -1285,7 +1341,7 @@ Internet-Draft                    EESP                     December 2024
 
 
 
-Klassert, et al.          Expires 15 June 2025                 [Page 23]
+Klassert, et al.          Expires 15 June 2025                 [Page 24]
 
 Internet-Draft                    EESP                     December 2024
 
@@ -1305,7 +1361,7 @@ Internet-Draft                    EESP                     December 2024
                              |<--------- encryption --------->|
                        |<------------- integrity ------------>|
 
-                        Figure 19: IPv4 Tunnel Mode
+                        Figure 20: IPv4 Tunnel Mode
 
                    BEFORE APPLYING ESP
          ---------------------------------------
@@ -1326,7 +1382,7 @@ Internet-Draft                    EESP                     December 2024
              modification of inner IP hdr/extensions is discussed in
              the Security Architecture document.
 
-                        Figure 20: IPv6 Tunnel Mode
+                        Figure 21: IPv6 Tunnel Mode
 
 4.2.  Algorithms
 
@@ -1341,7 +1397,7 @@ Internet-Draft                    EESP                     December 2024
 
 
 
-Klassert, et al.          Expires 15 June 2025                 [Page 24]
+Klassert, et al.          Expires 15 June 2025                 [Page 25]
 
 Internet-Draft                    EESP                     December 2024
 
@@ -1397,7 +1453,7 @@ Internet-Draft                    EESP                     December 2024
 
 
 
-Klassert, et al.          Expires 15 June 2025                 [Page 25]
+Klassert, et al.          Expires 15 June 2025                 [Page 26]
 
 Internet-Draft                    EESP                     December 2024
 
@@ -1453,7 +1509,7 @@ Internet-Draft                    EESP                     December 2024
 
 
 
-Klassert, et al.          Expires 15 June 2025                 [Page 26]
+Klassert, et al.          Expires 15 June 2025                 [Page 27]
 
 Internet-Draft                    EESP                     December 2024
 
@@ -1509,7 +1565,7 @@ Internet-Draft                    EESP                     December 2024
 
 
 
-Klassert, et al.          Expires 15 June 2025                 [Page 27]
+Klassert, et al.          Expires 15 June 2025                 [Page 28]
 
 Internet-Draft                    EESP                     December 2024
 
@@ -1565,7 +1621,7 @@ Internet-Draft                    EESP                     December 2024
 
 
 
-Klassert, et al.          Expires 15 June 2025                 [Page 28]
+Klassert, et al.          Expires 15 June 2025                 [Page 29]
 
 Internet-Draft                    EESP                     December 2024
 
@@ -1621,7 +1677,7 @@ Internet-Draft                    EESP                     December 2024
 
 
 
-Klassert, et al.          Expires 15 June 2025                 [Page 29]
+Klassert, et al.          Expires 15 June 2025                 [Page 30]
 
 Internet-Draft                    EESP                     December 2024
 
@@ -1632,6 +1688,55 @@ Internet-Draft                    EESP                     December 2024
    manually keyed, the sequence number counter at the sender MUST be
    correctly maintained across local reboots, etc., until the key is
    replaced.
+
+4.3.6.  Fragmentation
+
+   If necessary, fragmentation is performed after EESP processing within
+   an IPsec implementation.  Thus, transport, beet and payload
+   encryption mode EESP is applied only to whole IP datagrams (not to IP
+   fragments).  An IP packet to which EESP has been applied may itself
+   be fragmented by routers en route, and such fragments must be
+   reassembled prior to EESP processing at a receiver.  In tunnel mode,
+   EESP is applied to an IP packet, which may be a fragment of an IP
+   datagram.  For example, a security gateway or a "bump-in-the-stack"
+   or "bump-in-the-wire" IPsec implementation (as defined in the
+   Security Architecture document) may apply tunnel mode EESP to such
+   fragments.
+
+   NOTE: For transport mode -- As mentioned at the end of Section 4.1.1,
+   bump-in-the-stack and bump-in-the-wire implementations may have to
+   first reassemble a packet fragmented by the local IP layer, then
+   apply IPsec, and then fragment the resulting packet.
+
+   NOTE: For IPv6 -- For bump-in-the-stack and bump-in-the-wire
+   implementations, it will be necessary to examine all the extension
+   headers to determine if there is a fragmentation header and hence
+   that the packet needs reassembling prior to IPsec processing.
+
+   Fragmentation, whether performed by an IPsec implementation or by
+   routers along the path between IPsec peers, significantly reduces
+   performance.  Moreover, the requirement for an EESP receiver to
+   accept fragments for reassembly creates denial of service
+   vulnerabilities.  Thus, an EESP implementation MAY choose to not
+   support fragmentation and may mark transmitted packets with the DF
+   bit, to facilitate Path MTU (PMTU) discovery.  In any case, an EESP
+   implementation MUST support generation of ICMP PMTU messages (or
+   equivalent internal signaling for native host implementations) to
+   minimize the likelihood of fragmentation.  Details of the support
+   required for MTU management are contained in the Security
+   Architecture document.
+
+
+
+
+
+
+
+
+Klassert, et al.          Expires 15 June 2025                 [Page 31]
+
+Internet-Draft                    EESP                     December 2024
+
 
 4.4.  Stateless Encryption
 
@@ -1674,20 +1779,20 @@ Internet-Draft                    EESP                     December 2024
    or handled asynchronously, further optimizing performance in high-
    throughput environments like large data centers.
 
-
-
-
-Klassert, et al.          Expires 15 June 2025                 [Page 30]
-
-Internet-Draft                    EESP                     December 2024
-
-
 4.4.2.  Sending without SPD
 
    The sending-side Security Policy and symetric key can be associated
    with a local socket or route instead of a monolithic SPD and SAD.  A
    send call could preappend crypto parameters for stateless encryption
    and encapsulation in hardware to plain text data.
+
+
+
+
+Klassert, et al.          Expires 15 June 2025                 [Page 32]
+
+Internet-Draft                    EESP                     December 2024
+
 
 4.4.3.  Peer Authentication Database
 
@@ -1730,15 +1835,20 @@ Internet-Draft                    EESP                     December 2024
 
    *  Reference: This document
 
+   The initial content for this registry is as follows:
 
 
 
-Klassert, et al.          Expires 15 June 2025                 [Page 31]
+
+
+
+
+
+
+Klassert, et al.          Expires 15 June 2025                 [Page 33]
 
 Internet-Draft                    EESP                     December 2024
 
-
-   The initial content for this registry is as follows:
 
    Value     EESP Header Options Types         Reference
    -------   ------------------------------    ---------------
@@ -1749,7 +1859,7 @@ Internet-Draft                    EESP                     December 2024
      4-223   Unassigned                        [this document]
    224-255   Private                           [this document]
 
-                     Figure 21: Initial Registry Values
+                     Figure 22: Initial Registry Values
 
 8.  Implementation Status
 
@@ -1784,19 +1894,17 @@ Internet-Draft                    EESP                     December 2024
 
    In this section we discuss the security properties of EESP: TBD
 
-
-
-
-
-
-Klassert, et al.          Expires 15 June 2025                 [Page 32]
-
-Internet-Draft                    EESP                     December 2024
-
-
 10.  Acknowledgments
 
    TBD
+
+
+
+
+Klassert, et al.          Expires 15 June 2025                 [Page 34]
+
+Internet-Draft                    EESP                     December 2024
+
 
 11.  Normative References
 
@@ -1836,20 +1944,6 @@ Internet-Draft                    EESP                     December 2024
               <https://www.iana.org/assignments/ikev2-parameters/
               ikev2-parameters.xhtml#ikev2-parameters-5>.
 
-
-
-
-
-
-
-
-
-
-Klassert, et al.          Expires 15 June 2025                 [Page 33]
-
-Internet-Draft                    EESP                     December 2024
-
-
    [I-D.he-ipsecme-vpn-shared-ipsecsa]
               He, Q., Pan, W., Chen, X., and B. Ding, "Shared Use of
               IPsec Tunnel in a Multi-VPN Environment", Work in
@@ -1857,6 +1951,16 @@ Internet-Draft                    EESP                     December 2024
               ipsecsa-01, 8 July 2024,
               <https://datatracker.ietf.org/doc/html/draft-he-ipsecme-
               vpn-shared-ipsecsa-01>.
+
+
+
+
+
+
+Klassert, et al.          Expires 15 June 2025                 [Page 35]
+
+Internet-Draft                    EESP                     December 2024
+
 
    [I-D.mrossberg-ipsecme-multiple-sequence-counters]
               Rossberg, M., Klassert, S., and M. Pfeiffer, "Broadening
@@ -1898,14 +2002,6 @@ Internet-Draft                    EESP                     December 2024
               RFC 7942, DOI 10.17487/RFC7942, July 2016,
               <https://www.rfc-editor.org/info/rfc7942>.
 
-
-
-
-Klassert, et al.          Expires 15 June 2025                 [Page 34]
-
-Internet-Draft                    EESP                     December 2024
-
-
 Appendix A.  Additional Stuff
 
    TBD
@@ -1914,6 +2010,14 @@ Authors' Addresses
 
    Steffen Klassert
    secunet Security Networks AG
+
+
+
+Klassert, et al.          Expires 15 June 2025                 [Page 36]
+
+Internet-Draft                    EESP                     December 2024
+
+
    Email: steffen.klassert@secunet.com
 
 
@@ -1957,4 +2061,12 @@ Authors' Addresses
 
 
 
-Klassert, et al.          Expires 15 June 2025                 [Page 35]
+
+
+
+
+
+
+
+
+Klassert, et al.          Expires 15 June 2025                 [Page 37]
