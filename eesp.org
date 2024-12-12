@@ -1459,6 +1459,44 @@ manually keyed, the sequence number counter at the sender MUST be
 correctly maintained across local reboots, etc., until the key is
 replaced.
 
+*** Fragmentation
+
+If necessary, fragmentation is performed after EESP processing within
+an IPsec implementation.  Thus, transport, beet and payload encryption
+mode EESP is applied only to
+whole IP datagrams (not to IP fragments).  An IP packet to which EESP
+has been applied may itself be fragmented by routers en route, and
+such fragments must be reassembled prior to EESP processing at a
+receiver.  In tunnel mode, EESP is applied to an IP packet, which may
+be a fragment of an IP datagram.  For example, a security gateway or
+a "bump-in-the-stack" or "bump-in-the-wire" IPsec implementation (as
+defined in the Security Architecture document) may apply tunnel mode
+EESP to such fragments.
+
+# FIXME: beet + payload enc mode
+NOTE: For transport mode -- As mentioned at the end of [[Transport Mode Processing]],
+bump-in-the-stack and bump-in-the-wire implementations may have to
+first reassemble a packet fragmented by the local IP layer, then
+apply IPsec, and then fragment the resulting packet.
+
+NOTE: For IPv6 -- For bump-in-the-stack and bump-in-the-wire
+implementations, it will be necessary to examine all the extension
+headers to determine if there is a fragmentation header and hence
+that the packet needs reassembling prior to IPsec processing.
+
+Fragmentation, whether performed by an IPsec implementation or by
+routers along the path between IPsec peers, significantly reduces
+performance.  Moreover, the requirement for an EESP receiver to accept
+fragments for reassembly creates denial of service vulnerabilities.
+Thus, an EESP implementation MAY choose to not support fragmentation
+and may mark transmitted packets with the DF bit, to facilitate Path
+MTU (PMTU) discovery.  In any case, an EESP implementation MUST
+support generation of ICMP PMTU messages (or equivalent internal
+signaling for native host implementations) to minimize the likelihood
+of fragmentation.  Details of the support required for MTU management
+are contained in the Security Architecture document.
+
+
 ** Stateless Encryption
 
 In large-scale deployments, such as data center traffic, stateful
