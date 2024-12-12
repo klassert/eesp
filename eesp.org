@@ -1320,7 +1320,7 @@ If separate confidentiality and integrity algorithms are employed,
 the Sender proceeds as follows:
 
 1. Encapsulate (into the EESP Payload field):
-   - for transport mode -- just the original next layer
+   - for transporti, beet and payload encryption mode -- just the original next layer
      protocol information.
    - for tunnel mode -- the entire original IP datagram.
    - XXX Add beet any payload enc mode
@@ -1358,7 +1358,7 @@ the Sender proceeds as follows:
   Number (if present), IV (if present), Payload Info
   Header (if present), Payload Data and Padding (if present). 
 # XXX On payload enc mode or positive cryptoffset, not everything is encrypted.
-#(Note that the last 3 fields will be in
+# (Note that the last 3 fields will be in
 #  ciphertext form, because encryption is performed first.)
 
 
