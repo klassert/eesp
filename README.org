@@ -10,9 +10,9 @@ Security Payload (EESP) IKEv2 draft document.
 
 * Laest Copy
 The latest version of the draft in HTML format is at:
-- [[https://klassert.github.io/eesp-ikev2/draft-klassert-ipsecme-eesp-latest.html][Editor's Copy]]
+- [[https://klassert.github.io/eesp/draft-klassert-ipsecme-eesp-latest.html][Editor's Copy]]
 # above URL, hostnmae, is replaced by .github/workflows/generate.yaml
-# sed -i "s|klassert.github.io/eesp-ikev2|$USERNAME.github.io/$REPO_NAME|g"
+# sed -i "s|klassert.github.io/eesp|$USERNAME.github.io/$REPO_NAME|g"
 
 * IETF Datatracker Copy of EESP I.D.
 - [[https://datatracker.ietf.org/doc/draft-klassert-ipsecme-eesp/][IETF Datatracker: draft-klassert-ipsecme-eesp]]
