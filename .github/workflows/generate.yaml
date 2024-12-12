@@ -16,6 +16,8 @@ jobs:
   build:
     name: "Update Editor's Copy"
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
     - uses: actions/checkout@v4
@@ -26,26 +28,31 @@ jobs:
         sudo apt-get install -y build-essential git emacs python3-pip pandoc
         sudo pip install xml2rfc
 
-    - name: Generate dynamic pages
+    - name: Generate Draft in html txt and xml from org
       run: make
 
     - name: Prepare Deployment Directory
       run: |
         mkdir -p deploy
         cp draft/draft-*latest*.html draft/draft-*latest*.txt deploy/
-        cp README.org deploy/  # Optional: if you want to keep README.org in deploy
+        cp README.org deploy/  # Optional
 
     - name: "Convert README.org to index.html : optional step"
+      run: pandoc README.org -o deploy/index.html
+
+    - name: Replace hostname with this repo hostname
       run: |
-        pandoc README.org -o deploy/index.html
+        USERNAME=$(echo $GITHUB_REPOSITORY | cut -d'/' -f1)
+        REPO_NAME=$(echo $GITHUB_REPOSITORY | cut -d'/' -f2)
+        sed -i "s|klassert.github.io/eesp|$USERNAME.github.io/$REPO_NAME|g" deploy/index.html
 
     - name: "Archive Built Drafts : Optional step"
       uses: actions/upload-artifact@v4
       with:
         path: |
-          draft/draft-*latest*.html
-          draft/draft-*latest*.txt
-          index.html
+          deploy/draft-*latest*.html
+          deploy/draft-*latest*.txt
+          deploy/index.html
 
     - name: "Verify Draft and Deploy Directory After make : optional step"
       run: |
