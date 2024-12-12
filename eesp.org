@@ -1320,7 +1320,7 @@ If separate confidentiality and integrity algorithms are employed,
 the Sender proceeds as follows:
 
 1. Encapsulate (into the EESP Payload field):
-   - for transporti, beet and payload encryption mode -- just the original next layer
+   - for transport, beet and payload encryption mode -- just the original next layer
      protocol information.
    - for tunnel mode -- the entire original IP datagram.
    - XXX Add beet any payload enc mode
@@ -1423,8 +1423,41 @@ Sender proceeds as follows:
       with EESP. NOTE STK: Do we need to update RFC4106,
       RFC 4543, RFC 6054 etc.?
 
+*** Sequence Number Generation
 
+Replay protection is negotiated by the IPsec peers. If
+a SA chooses to do replay ptotection, the sequence numbers
+are generated in the following way.
 
+The sender's counter SHOULD be initialized to 0 when an SA is established.
+The sender increments the sequence number counter for this
+SA and inserts this value into the Sequence
+Number field of the Peer Header.  Thus, the first packet sent using a given SA will
+contain a sequence number of 1. However, peers MAY choose dfferent
+replay protection algorithms, i.e. not by using sequence numbers
+that are incremented by one for each packet. In case the peers choose
+such an agloritthm, the sender MUST ensure that the sequence
+number is strictly monotonic increasing.
+
+The sender checks to ensure
+that the counter has not cycled before inserting the new value in the
+Sequence Number field.  In other words, the sender MUST NOT send a
+packet on an SA if doing so would cause the sequence number to cycle.
+An attempt to transmit a packet that would result in sequence number
+overflow is an auditable event.  The audit log entry for this event
+SHOULD include the SPI value, current date/time, Source Address,
+Destination Address, and (in IPv6) the cleartext Flow ID.
+
+Typical behavior of an EESP implementation calls for the sender to
+establish a new SA when the Sequence Number cycles, or in
+anticipation of this value cycling.
+	        
+If the key used to compute an ICV is manually distributed, a
+compliant implementation SHOULD NOT provide anti-replay service.  If
+a user chooses to employ anti-replay in conjunction with SAs that are
+manually keyed, the sequence number counter at the sender MUST be
+correctly maintained across local reboots, etc., until the key is
+replaced.
 
 ** Stateless Encryption
 
