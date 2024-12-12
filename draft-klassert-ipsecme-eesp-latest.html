@@ -1437,16 +1437,10 @@ inner flow information for middlebox use.<a href="#section-abstract-2" class="pi
                 <p id="section-toc.1-1.4.2.1.1"><a href="#section-4.1" class="auto internal xref">4.1</a>.  <a href="#name-eesp-header-location" class="internal xref">EESP Header Location</a></p>
 <ul class="compact toc ulBare ulEmpty">
 <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.1.2.1">
-                    <p id="section-toc.1-1.4.2.1.2.1.1"><a href="#section-4.1.1" class="auto internal xref">4.1.1</a>.  <a href="#name-transport-mode-processing" class="internal xref">Transport Mode Processing</a></p>
+                    <p id="section-toc.1-1.4.2.1.2.1.1"><a href="#section-4.1.1" class="auto internal xref">4.1.1</a>.  <a href="#name-layer-4-encapsulation-modes" class="internal xref">Layer 4 Encapsulation Modes</a></p>
 </li>
                   <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.1.2.2">
-                    <p id="section-toc.1-1.4.2.1.2.2.1"><a href="#section-4.1.2" class="auto internal xref">4.1.2</a>.  <a href="#name-payload-encryption-mode-pro" class="internal xref">Payload Encryption Mode Processing</a></p>
-</li>
-                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.1.2.3">
-                    <p id="section-toc.1-1.4.2.1.2.3.1"><a href="#section-4.1.3" class="auto internal xref">4.1.3</a>.  <a href="#name-beet-mode-processing" class="internal xref">BEET Mode Processing</a></p>
-</li>
-                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.1.2.4">
-                    <p id="section-toc.1-1.4.2.1.2.4.1"><a href="#section-4.1.4" class="auto internal xref">4.1.4</a>.  <a href="#name-tunnel-mode-processing" class="internal xref">Tunnel Mode Processing</a></p>
+                    <p id="section-toc.1-1.4.2.1.2.2.1"><a href="#section-4.1.2" class="auto internal xref">4.1.2</a>.  <a href="#name-tunnel-mode-processing" class="internal xref">Tunnel Mode Processing</a></p>
 </li>
                 </ul>
 </li>
@@ -1789,7 +1783,7 @@ to the same value for all packets on a given SA.
 following Layer 4 Header is authenticated, but not encrypted.
 This bit MUST be set to 0 on any mode other than payload encryption mode .
 The receiver MUST drop packets with this bit set, if the mode is
-different to payload encryption mode. See <a href="#sec-payload-encryption-mode-processing" class="auto internal xref">Section 4.1.2</a><a href="#section-2.2.1-6.6.1" class="pilcrow">¶</a></p>
+different to payload encryption mode. See <a href="#sec-payload-encryption-mode-processing" class="auto internal xref">Section 4.1.1.2</a><a href="#section-2.2.1-6.6.1" class="pilcrow">¶</a></p>
 </dd>
             <dd class="break"></dd>
 <dt id="section-2.2.1-6.7">Packet Format (F)</dt>
@@ -2639,12 +2633,34 @@ S-bit and D-bit in the PSP specification.<a href="#section-3.1.3-4.12.1" class="
 network traffic, transport mode and payload encryption mode
 may be used. For the VPN usecse, tunnel and beet mode may
 be employed.<a href="#section-4.1-1" class="pilcrow">¶</a></p>
-<div id="sec-transport-mode-processing">
+<div id="sec-layer-4-encapsulation-modes">
 <section id="section-4.1.1">
-          <h4 id="name-transport-mode-processing">
-<a href="#section-4.1.1" class="section-number selfRef">4.1.1. </a><a href="#name-transport-mode-processing" class="section-name selfRef">Transport Mode Processing</a>
+          <h4 id="name-layer-4-encapsulation-modes">
+<a href="#section-4.1.1" class="section-number selfRef">4.1.1. </a><a href="#name-layer-4-encapsulation-modes" class="section-name selfRef">Layer 4 Encapsulation Modes</a>
           </h4>
-<p id="section-4.1.1-1">In transport mode, EESP is inserted after the IP header and before a
+<p id="section-4.1.1-1">Layer 4 Encapsulation Modes are  transport mode, BEET mode
+and payload encryption mode. Layer 4 Encapsulation Modes
+distinguish from tunnel mode on the position of the EESP
+header in the packet. On Layer 4 Encapsulation Modes the
+EESP header is inserted between the original IPv4/IPv6
+header and the following Layer 4 header. In contrast to this,
+in tunnel mode the full ipv4/IPv6 dataggram is encapsulated.
+This means the the ESP header is placed in front of the
+original IPv4/IPv6 dataggram and a new 'outer IPv4/IPv6 header'
+is added in front of the EESP header. The following sections
+illustrate the positioning of the EESP header<a href="#section-4.1.1-1" class="pilcrow">¶</a></p>
+<p id="section-4.1.1-2">Note that in Layer 4 Encapsulation Modes, for "bump-in-the-stack" or "bump-in-
+the-wire" implementations, as defined in the Security Architecture
+document, inbound and outbound IP fragments may require an IPsec
+implementation to perform extra IP reassembly/fragmentation in order
+to both conform to this specification and provide transparent IPsec
+support.  Special care is required to perform such operations within
+these implementations when multiple interfaces are in use.<a href="#section-4.1.1-2" class="pilcrow">¶</a></p>
+<section id="section-4.1.1.1">
+            <h5 id="name-transport-mode-processing">
+<a href="#section-4.1.1.1" class="section-number selfRef">4.1.1.1. </a><a href="#name-transport-mode-processing" class="section-name selfRef">Transport Mode Processing</a>
+            </h5>
+<p id="section-4.1.1.1-1">In transport mode, EESP is inserted after the IP header and before a
 next layer protocol, e.g., TCP, UDP, ICMP, etc.  In the context of
 IPv4, this translates to placing ESP after the IP header (and any
 options that it contains), but before the next layer protocol.  (If
@@ -2655,10 +2671,10 @@ TCP and UDP.)  The following diagram illustrates EESP transport mode
 positioning for a typical IPv4 packet, on a "before and after" basis.
 (This and subsequent diagrams in this section show the ICV field, the
 presence of which is a function of the security services and the
-algorithm/mode selected.)<a href="#section-4.1.1-1" class="pilcrow">¶</a></p>
+algorithm/mode selected.)<a href="#section-4.1.1.1-1" class="pilcrow">¶</a></p>
 <span id="name-ipv4-transport-mode"></span><div id="ipv4-transport-mode">
 <figure id="figure-14">
-            <div class="sourcecode" id="section-4.1.1-2.1">
+              <div class="sourcecode" id="section-4.1.1.1-2.1">
 <pre>
            BEFORE APPLYING EESP
       ----------------------------
@@ -2677,9 +2693,9 @@ IPv4  |orig IP hdr  | EESP |     |               | EESP |
 </div>
 <figcaption><a href="#figure-14" class="selfRef">Figure 14</a>:
 <a href="#name-ipv4-transport-mode" class="selfRef">IPv4 Transport Mode</a>
-            </figcaption></figure>
+              </figcaption></figure>
 </div>
-<p id="section-4.1.1-3">In the IPv6 context, EESP is viewed as an end-to-end payload, and thus
+<p id="section-4.1.1.1-3">In the IPv6 context, EESP is viewed as an end-to-end payload, and thus
 should appear after hop-by-hop, routing, and fragmentation extension
 headers.  Destination options extension header(s) could appear
 before, after, or both before and after the EESP header depending on
@@ -2687,10 +2703,10 @@ the semantics desired.  However, because EESP protects only fields
 after the EESP header, it generally will be desirable to place the
 destination options header(s) after the EESP header.  The following
 diagram illustrates EESP transport mode positioning for a typical IPv6
-packet.<a href="#section-4.1.1-3" class="pilcrow">¶</a></p>
+packet.<a href="#section-4.1.1.1-3" class="pilcrow">¶</a></p>
 <span id="name-ipv6-transport-mode"></span><div id="ipv6-transport-mode">
 <figure id="figure-15">
-            <div class="sourcecode" id="section-4.1.1-4.1">
+              <div class="sourcecode" id="section-4.1.1.1-4.1">
 <pre>
 
                BEFORE APPLYING EESP
@@ -2712,32 +2728,24 @@ IPv6  | orig |hop-by-hop,dest*,|EESP|dest|   |   Layer 4  |EESP|
 </div>
 <figcaption><a href="#figure-15" class="selfRef">Figure 15</a>:
 <a href="#name-ipv6-transport-mode" class="selfRef">IPv6 Transport Mode</a>
-            </figcaption></figure>
+              </figcaption></figure>
 </div>
-<p id="section-4.1.1-5">Note that in transport mode, for "bump-in-the-stack" or "bump-in-
-the-wire" implementations, as defined in the Security Architecture
-document, inbound and outbound IP fragments may require an IPsec
-implementation to perform extra IP reassembly/fragmentation in order
-to both conform to this specification and provide transparent IPsec
-support.  Special care is required to perform such operations within
-these implementations when multiple interfaces are in use.<a href="#section-4.1.1-5" class="pilcrow">¶</a></p>
 </section>
-</div>
 <div id="sec-payload-encryption-mode-processing">
-<section id="section-4.1.2">
-          <h4 id="name-payload-encryption-mode-pro">
-<a href="#section-4.1.2" class="section-number selfRef">4.1.2. </a><a href="#name-payload-encryption-mode-pro" class="section-name selfRef">Payload Encryption Mode Processing</a>
-          </h4>
-<p id="section-4.1.2-1">In payload encryption mode, EESP is inserted exactly at the same position
+<section id="section-4.1.1.2">
+            <h5 id="name-payload-encryption-mode-pro">
+<a href="#section-4.1.1.2" class="section-number selfRef">4.1.1.2. </a><a href="#name-payload-encryption-mode-pro" class="section-name selfRef">Payload Encryption Mode Processing</a>
+            </h5>
+<p id="section-4.1.1.2-1">In payload encryption mode, EESP is inserted exactly at the same position
 as it is done for transport mode. The only difference to transport mode
 is that the next layer protocol header following the original IP or IPv6
 header is left in cleartext. Additionally to that, the 'C' bit in the EESP
-header flags is set.<a href="#section-4.1.2-1" class="pilcrow">¶</a></p>
-<p id="section-4.1.2-2">The following diagrams illustrate EESP payload encryption mode
-positioning for a typical IPv4 and IPv6 packet, on a "before and after" basis.<a href="#section-4.1.2-2" class="pilcrow">¶</a></p>
+header flags is set.<a href="#section-4.1.1.2-1" class="pilcrow">¶</a></p>
+<p id="section-4.1.1.2-2">The following diagrams illustrate EESP payload encryption mode
+positioning for a typical IPv4 and IPv6 packet, on a "before and after" basis.<a href="#section-4.1.1.2-2" class="pilcrow">¶</a></p>
 <span id="name-ipv4-payload-encryption-mod"></span><div id="ipv4-pe-mode">
 <figure id="figure-16">
-            <div class="sourcecode" id="section-4.1.2-3.1">
+              <div class="sourcecode" id="section-4.1.1.2-3.1">
 <pre>
            BEFORE APPLYING EESP
       ----------------------------
@@ -2756,11 +2764,11 @@ IPv4  |orig IP hdr  | EESP |     |                | EESP |
 </div>
 <figcaption><a href="#figure-16" class="selfRef">Figure 16</a>:
 <a href="#name-ipv4-payload-encryption-mod" class="selfRef">IPv4 Payload Encryption Mode</a>
-            </figcaption></figure>
+              </figcaption></figure>
 </div>
 <span id="name-ipv6-payload-encryption-mod"></span><div id="ipv6-pe-mode">
 <figure id="figure-17">
-            <div class="sourcecode" id="section-4.1.2-4.1">
+              <div class="sourcecode" id="section-4.1.1.2-4.1">
 <pre>
 
                BEFORE APPLYING EESP
@@ -2782,22 +2790,22 @@ IPv6  | orig |hop-by-hop,dest*,|EESP|dest|   |     Layer 4    |EESP|
 </div>
 <figcaption><a href="#figure-17" class="selfRef">Figure 17</a>:
 <a href="#name-ipv6-payload-encryption-mod" class="selfRef">IPv6 Payload Encryption Mode</a>
-            </figcaption></figure>
+              </figcaption></figure>
 </div>
 </section>
 </div>
-<section id="section-4.1.3">
-          <h4 id="name-beet-mode-processing">
-<a href="#section-4.1.3" class="section-number selfRef">4.1.3. </a><a href="#name-beet-mode-processing" class="section-name selfRef">BEET Mode Processing</a>
-          </h4>
-<p id="section-4.1.3-1">In BEET mode, EESP is inserted exactly at the same position
+<section id="section-4.1.1.3">
+            <h5 id="name-beet-mode-processing">
+<a href="#section-4.1.1.3" class="section-number selfRef">4.1.1.3. </a><a href="#name-beet-mode-processing" class="section-name selfRef">BEET Mode Processing</a>
+            </h5>
+<p id="section-4.1.1.3-1">In BEET mode, EESP is inserted exactly at the same position
 as it is done for transport mode. The original IP or IPv6 header
 is relaced by a new one. The new header SHOULD be negotiated by IKEv2
-or any other suitable protocol.<a href="#section-4.1.3-1" class="pilcrow">¶</a></p>
-<p id="section-4.1.3-2">Some more text here...<a href="#section-4.1.3-2" class="pilcrow">¶</a></p>
+or any other suitable protocol.<a href="#section-4.1.1.3-1" class="pilcrow">¶</a></p>
+<p id="section-4.1.1.3-2">Some more text here...<a href="#section-4.1.1.3-2" class="pilcrow">¶</a></p>
 <span id="name-ipv6-beet-mode"></span><div id="ipv4-beet-mode">
 <figure id="figure-18">
-            <div class="sourcecode" id="section-4.1.3-3.1">
+              <div class="sourcecode" id="section-4.1.1.3-3.1">
 <pre>
            BEFORE APPLYING EESP
       ----------------------------
@@ -2816,11 +2824,11 @@ IPv4  | new IP hdr  | EESP |     |               | EESP |
 </div>
 <figcaption><a href="#figure-18" class="selfRef">Figure 18</a>:
 <a href="#name-ipv6-beet-mode" class="selfRef">IPv6 BEET Mode</a>
-            </figcaption></figure>
+              </figcaption></figure>
 </div>
 <span id="name-ipv6-beet-mode-2"></span><div id="ipv6-beet-mode">
 <figure id="figure-19">
-            <div class="sourcecode" id="section-4.1.3-4.1">
+              <div class="sourcecode" id="section-4.1.1.3-4.1">
 <pre>
 
                BEFORE APPLYING EESP
@@ -2842,14 +2850,16 @@ IPv6  | new  |hop-by-hop,dest*,|EESP|dest|   |   Layer 4  |EESP|
 </div>
 <figcaption><a href="#figure-19" class="selfRef">Figure 19</a>:
 <a href="#name-ipv6-beet-mode-2" class="selfRef">IPv6 BEET Mode</a>
-            </figcaption></figure>
+              </figcaption></figure>
 </div>
 </section>
-<section id="section-4.1.4">
+</section>
+</div>
+<section id="section-4.1.2">
           <h4 id="name-tunnel-mode-processing">
-<a href="#section-4.1.4" class="section-number selfRef">4.1.4. </a><a href="#name-tunnel-mode-processing" class="section-name selfRef">Tunnel Mode Processing</a>
+<a href="#section-4.1.2" class="section-number selfRef">4.1.2. </a><a href="#name-tunnel-mode-processing" class="section-name selfRef">Tunnel Mode Processing</a>
           </h4>
-<p id="section-4.1.4-1">In tunnel mode, the "inner" IP header carries the ultimate (IP)
+<p id="section-4.1.2-1">In tunnel mode, the "inner" IP header carries the ultimate (IP)
 source and destination addresses, while an "outer" IP header contains
 the addresses of the IPsec "peers", e.g., addresses of security
 gateways.  Mixed inner and outer IP versions are allowed, i.e., IPv6
@@ -2858,10 +2868,10 @@ entire inner IP packet, including the entire inner IP header.  The
 position of EESP in tunnel mode, relative to the outer IP header, is
 the same as for EESP in transport mode.  The following diagram
 illustrates EESP tunnel mode positioning for typical IPv4 and IPv6
-packets.<a href="#section-4.1.4-1" class="pilcrow">¶</a></p>
+packets.<a href="#section-4.1.2-1" class="pilcrow">¶</a></p>
 <span id="name-ipv4-tunnel-mode"></span><div id="ipv4-tunnel-mode">
 <figure id="figure-20">
-            <div class="sourcecode" id="section-4.1.4-2.1">
+            <div class="sourcecode" id="section-4.1.2-2.1">
 <pre>
            BEFORE APPLYING ESP
       ----------------------------
@@ -2886,7 +2896,7 @@ IPv4  | new IP hdr* |     | orig IP hdr*  |   |    | ESP   | ESP|
 </div>
 <span id="name-ipv6-tunnel-mode"></span><div id="ipv6-tunnel-mode">
 <figure id="figure-21">
-            <div class="sourcecode" id="section-4.1.4-3.1">
+            <div class="sourcecode" id="section-4.1.2-3.1">
 <pre>
                 BEFORE APPLYING ESP
       ---------------------------------------
@@ -3230,7 +3240,7 @@ be a fragment of an IP datagram.  For example, a security gateway or
 a "bump-in-the-stack" or "bump-in-the-wire" IPsec implementation (as
 defined in the Security Architecture document) may apply tunnel mode
 EESP to such fragments.<a href="#section-4.3.6-1" class="pilcrow">¶</a></p>
-<p id="section-4.3.6-2">NOTE: For transport mode -- As mentioned at the end of <a href="#sec-transport-mode-processing" class="auto internal xref">Section 4.1.1</a>,
+<p id="section-4.3.6-2">NOTE: For transport mode -- As mentioned at the end of <a href="#sec-layer-4-encapsulation-modes" class="auto internal xref">Section 4.1.1</a>,
 bump-in-the-stack and bump-in-the-wire implementations may have to
 first reassemble a packet fragmented by the local IP layer, then
 apply IPsec, and then fragment the resulting packet.<a href="#section-4.3.6-2" class="pilcrow">¶</a></p>
