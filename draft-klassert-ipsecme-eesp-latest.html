@@ -1476,6 +1476,9 @@ inner flow information for middlebox use.<a href="#section-abstract-2" class="pi
                   <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.3.2.4">
                     <p id="section-toc.1-1.4.2.3.2.4.1"><a href="#section-4.3.4" class="auto internal xref">4.3.4</a>.  <a href="#name-combined-confidentiality-an" class="internal xref">Combined Confidentiality and Integrity Algorithms</a></p>
 </li>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.3.2.5">
+                    <p id="section-toc.1-1.4.2.3.2.5.1"><a href="#section-4.3.5" class="auto internal xref">4.3.5</a>.  <a href="#name-sequence-number-generation" class="internal xref">Sequence Number Generation</a></p>
+</li>
                 </ul>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.4">
@@ -2968,7 +2971,7 @@ the Sender proceeds as follows:<a href="#section-4.3.3-1" class="pilcrow">¶</a>
               <p id="section-4.3.3-2.1.1">Encapsulate (into the EESP Payload field):<a href="#section-4.3.3-2.1.1" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-4.3.3-2.1.2.1">
-                  <p id="section-4.3.3-2.1.2.1.1">for transporti, beet and payload encryption mode -- just the original next layer
+                  <p id="section-4.3.3-2.1.2.1.1">for transport, beet and payload encryption mode -- just the original next layer
 protocol information.<a href="#section-4.3.3-2.1.2.1.1" class="pilcrow">¶</a></p>
 </li>
                 <li class="normal" id="section-4.3.3-2.1.2.2">
@@ -3105,6 +3108,40 @@ RFC 4543, RFC 6054 etc.?<a href="#section-4.3.4-2.3.2.4.1" class="pilcrow">¶</a
               </ul>
 </li>
           </ol>
+</section>
+<section id="section-4.3.5">
+          <h4 id="name-sequence-number-generation">
+<a href="#section-4.3.5" class="section-number selfRef">4.3.5. </a><a href="#name-sequence-number-generation" class="section-name selfRef">Sequence Number Generation</a>
+          </h4>
+<p id="section-4.3.5-1">Replay protection is negotiated by the IPsec peers. If
+a SA chooses to do replay ptotection, the sequence numbers
+are generated in the following way.<a href="#section-4.3.5-1" class="pilcrow">¶</a></p>
+<p id="section-4.3.5-2">The sender's counter SHOULD be initialized to 0 when an SA is established.
+The sender increments the sequence number counter for this
+SA and inserts this value into the Sequence
+Number field of the Peer Header.  Thus, the first packet sent using a given SA will
+contain a sequence number of 1. However, peers MAY choose dfferent
+replay protection algorithms, i.e. not by using sequence numbers
+that are incremented by one for each packet. In case the peers choose
+such an agloritthm, the sender MUST ensure that the sequence
+number is strictly monotonic increasing.<a href="#section-4.3.5-2" class="pilcrow">¶</a></p>
+<p id="section-4.3.5-3">The sender checks to ensure
+that the counter has not cycled before inserting the new value in the
+Sequence Number field.  In other words, the sender MUST NOT send a
+packet on an SA if doing so would cause the sequence number to cycle.
+An attempt to transmit a packet that would result in sequence number
+overflow is an auditable event.  The audit log entry for this event
+SHOULD include the SPI value, current date/time, Source Address,
+Destination Address, and (in IPv6) the cleartext Flow ID.<a href="#section-4.3.5-3" class="pilcrow">¶</a></p>
+<p id="section-4.3.5-4">Typical behavior of an EESP implementation calls for the sender to
+establish a new SA when the Sequence Number cycles, or in
+anticipation of this value cycling.<a href="#section-4.3.5-4" class="pilcrow">¶</a></p>
+<p id="section-4.3.5-5">If the key used to compute an ICV is manually distributed, a
+compliant implementation SHOULD NOT provide anti-replay service.  If
+a user chooses to employ anti-replay in conjunction with SAs that are
+manually keyed, the sequence number counter at the sender MUST be
+correctly maintained across local reboots, etc., until the key is
+replaced.<a href="#section-4.3.5-5" class="pilcrow">¶</a></p>
 </section>
 </section>
 <section id="section-4.4">

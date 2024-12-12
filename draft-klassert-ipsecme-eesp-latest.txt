@@ -130,22 +130,23 @@ Internet-Draft                    EESP                     December 2024
                Calculation . . . . . . . . . . . . . . . . . . . . .  27
        4.3.3.  Separate Confidentiality and Integrity Algorithms . .  27
        4.3.4.  Combined Confidentiality and Integrity Algorithms . .  28
-     4.4.  Stateless Encryption  . . . . . . . . . . . . . . . . . .  29
+       4.3.5.  Sequence Number Generation  . . . . . . . . . . . . .  29
+     4.4.  Stateless Encryption  . . . . . . . . . . . . . . . . . .  30
        4.4.1.  Receiving without SAD . . . . . . . . . . . . . . . .  30
-       4.4.2.  Sending without SPD . . . . . . . . . . . . . . . . .  30
-       4.4.3.  Peer Authentication Database  . . . . . . . . . . . .  30
-   5.  UDP Encapsulation . . . . . . . . . . . . . . . . . . . . . .  30
-   6.  IKEv2 Negotiation . . . . . . . . . . . . . . . . . . . . . .  30
-   7.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .  30
-     7.1.  EESP IP Protocol Number . . . . . . . . . . . . . . . . .  30
+       4.4.2.  Sending without SPD . . . . . . . . . . . . . . . . .  31
+       4.4.3.  Peer Authentication Database  . . . . . . . . . . . .  31
+   5.  UDP Encapsulation . . . . . . . . . . . . . . . . . . . . . .  31
+   6.  IKEv2 Negotiation . . . . . . . . . . . . . . . . . . . . . .  31
+   7.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .  31
+     7.1.  EESP IP Protocol Number . . . . . . . . . . . . . . . . .  31
      7.2.  EESP Options Registry . . . . . . . . . . . . . . . . . .  31
-   8.  Implementation Status . . . . . . . . . . . . . . . . . . . .  31
+   8.  Implementation Status . . . . . . . . . . . . . . . . . . . .  32
    9.  Security Considerations . . . . . . . . . . . . . . . . . . .  32
-   10. Acknowledgments . . . . . . . . . . . . . . . . . . . . . . .  32
-   11. Normative References  . . . . . . . . . . . . . . . . . . . .  32
+   10. Acknowledgments . . . . . . . . . . . . . . . . . . . . . . .  33
+   11. Normative References  . . . . . . . . . . . . . . . . . . . .  33
    12. Informative References  . . . . . . . . . . . . . . . . . . .  33
-   Appendix A.  Additional Stuff . . . . . . . . . . . . . . . . . .  34
-   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  34
+   Appendix A.  Additional Stuff . . . . . . . . . . . . . . . . . .  35
+   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  35
 
 1.  Introduction
 
@@ -161,7 +162,6 @@ Internet-Draft                    EESP                     December 2024
    devices or endpoints.  Additionally to that, there exists a
    specification of the [PSP] protocol that has the need of a Flow
    Identifier, called Network Identifier (VNI) there.  PSP also defines
-   a Crypt Offset to expose parts of the headers of the inner packet.
 
 
 
@@ -170,6 +170,7 @@ Klassert, et al.          Expires 15 June 2025                  [Page 3]
 Internet-Draft                    EESP                     December 2024
 
 
+   a Crypt Offset to expose parts of the headers of the inner packet.
    EESP provides a solution for all the aforementioned use cases.
 
    This document defines Flow Identifier and Crypt Offset Options, the
@@ -217,7 +218,6 @@ Internet-Draft                    EESP                     December 2024
 
    This document uses the following terms defined in [RFC2992]: Equal-
    cost multi-path (ECMP)
-
 
 
 
@@ -1473,7 +1473,7 @@ Internet-Draft                    EESP                     December 2024
 
    1.  Encapsulate (into the EESP Payload field):
 
-       *  for transporti, beet and payload encryption mode -- just the
+       *  for transport, beet and payload encryption mode -- just the
           original next layer protocol information.
 
        *  for tunnel mode -- the entire original IP datagram.
@@ -1590,6 +1590,49 @@ Internet-Draft                    EESP                     December 2024
           NOTE STK: Do we need to update RFC4106, RFC 4543, RFC 6054
           etc.?
 
+4.3.5.  Sequence Number Generation
+
+   Replay protection is negotiated by the IPsec peers.  If a SA chooses
+   to do replay ptotection, the sequence numbers are generated in the
+   following way.
+
+   The sender's counter SHOULD be initialized to 0 when an SA is
+   established.  The sender increments the sequence number counter for
+   this SA and inserts this value into the Sequence Number field of the
+   Peer Header.  Thus, the first packet sent using a given SA will
+   contain a sequence number of 1.  However, peers MAY choose dfferent
+   replay protection algorithms, i.e. not by using sequence numbers that
+   are incremented by one for each packet.  In case the peers choose
+   such an agloritthm, the sender MUST ensure that the sequence number
+   is strictly monotonic increasing.
+
+   The sender checks to ensure that the counter has not cycled before
+   inserting the new value in the Sequence Number field.  In other
+   words, the sender MUST NOT send a packet on an SA if doing so would
+   cause the sequence number to cycle.  An attempt to transmit a packet
+   that would result in sequence number overflow is an auditable event.
+   The audit log entry for this event SHOULD include the SPI value,
+   current date/time, Source Address, Destination Address, and (in IPv6)
+   the cleartext Flow ID.
+
+   Typical behavior of an EESP implementation calls for the sender to
+   establish a new SA when the Sequence Number cycles, or in
+   anticipation of this value cycling.
+
+
+
+Klassert, et al.          Expires 15 June 2025                 [Page 29]
+
+Internet-Draft                    EESP                     December 2024
+
+
+   If the key used to compute an ICV is manually distributed, a
+   compliant implementation SHOULD NOT provide anti-replay service.  If
+   a user chooses to employ anti-replay in conjunction with SAs that are
+   manually keyed, the sequence number counter at the sender MUST be
+   correctly maintained across local reboots, etc., until the key is
+   replaced.
+
 4.4.  Stateless Encryption
 
    In large-scale deployments, such as data center traffic, stateful
@@ -1612,20 +1655,6 @@ Internet-Draft                    EESP                     December 2024
    noticeable in high-speed data paths, where delays from locking can
    severely affect performance.
 
-
-
-
-
-
-
-
-
-
-Klassert, et al.          Expires 15 June 2025                 [Page 29]
-
-Internet-Draft                    EESP                     December 2024
-
-
 4.4.1.  Receiving without SAD
 
    When using Stateless Encryption, implementations can bypass the
@@ -1644,6 +1673,14 @@ Internet-Draft                    EESP                     December 2024
    tracking, packet limit).  These checks can be offloaded to hardware
    or handled asynchronously, further optimizing performance in high-
    throughput environments like large data centers.
+
+
+
+
+Klassert, et al.          Expires 15 June 2025                 [Page 30]
+
+Internet-Draft                    EESP                     December 2024
+
 
 4.4.2.  Sending without SPD
 
@@ -1674,14 +1711,6 @@ Internet-Draft                    EESP                     December 2024
    This document requests IANA allocate an IP protocol number from
    "Protocol Numbers - Assigned Internet Protocol Numbers" registry
 
-
-
-
-Klassert, et al.          Expires 15 June 2025                 [Page 30]
-
-Internet-Draft                    EESP                     December 2024
-
-
    *  Decimal: TBD
 
    *  Keyword: EESP
@@ -1701,6 +1730,14 @@ Internet-Draft                    EESP                     December 2024
 
    *  Reference: This document
 
+
+
+
+Klassert, et al.          Expires 15 June 2025                 [Page 31]
+
+Internet-Draft                    EESP                     December 2024
+
+
    The initial content for this registry is as follows:
 
    Value     EESP Header Options Types         Reference
@@ -1718,25 +1755,6 @@ Internet-Draft                    EESP                     December 2024
 
    [Note to RFC Editor: Please remove this section and the reference to
    [RFC7942] before publication.]
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Klassert, et al.          Expires 15 June 2025                 [Page 31]
-
-Internet-Draft                    EESP                     December 2024
-
 
    This section records the status of known implementations of the
    protocol defined by this specification at the time of posting of this
@@ -1766,6 +1784,16 @@ Internet-Draft                    EESP                     December 2024
 
    In this section we discuss the security properties of EESP: TBD
 
+
+
+
+
+
+Klassert, et al.          Expires 15 June 2025                 [Page 32]
+
+Internet-Draft                    EESP                     December 2024
+
+
 10.  Acknowledgments
 
    TBD
@@ -1784,15 +1812,6 @@ Internet-Draft                    EESP                     December 2024
    [RFC4303]  Kent, S., "IP Encapsulating Security Payload (ESP)",
               RFC 4303, DOI 10.17487/RFC4303, December 2005,
               <https://www.rfc-editor.org/info/rfc4303>.
-
-
-
-
-
-Klassert, et al.          Expires 15 June 2025                 [Page 32]
-
-Internet-Draft                    EESP                     December 2024
-
 
    [RFC7296]  Kaufman, C., Hoffman, P., Nir, Y., Eronen, P., and T.
               Kivinen, "Internet Key Exchange Protocol Version 2
@@ -1816,6 +1835,20 @@ Internet-Draft                    EESP                     December 2024
               IANA, "IKEv2 Parameters",
               <https://www.iana.org/assignments/ikev2-parameters/
               ikev2-parameters.xhtml#ikev2-parameters-5>.
+
+
+
+
+
+
+
+
+
+
+Klassert, et al.          Expires 15 June 2025                 [Page 33]
+
+Internet-Draft                    EESP                     December 2024
+
 
    [I-D.he-ipsecme-vpn-shared-ipsecsa]
               He, Q., Pan, W., Chen, X., and B. Ding, "Shared Use of
@@ -1842,14 +1875,6 @@ Internet-Draft                    EESP                     December 2024
               <https://datatracker.ietf.org/doc/html/draft-ponchon-
               ipsecme-anti-replay-subspaces-03>.
 
-
-
-
-Klassert, et al.          Expires 15 June 2025                 [Page 33]
-
-Internet-Draft                    EESP                     December 2024
-
-
    [NIST01]   NIST, "Federal Information Processing Standards
               Publication 140-2 (FIPS PUB 140-2), "Security Requirements
               for Cryptographic Modules", Information Technology
@@ -1872,6 +1897,14 @@ Internet-Draft                    EESP                     December 2024
               Code: The Implementation Status Section", BCP 205,
               RFC 7942, DOI 10.17487/RFC7942, July 2016,
               <https://www.rfc-editor.org/info/rfc7942>.
+
+
+
+
+Klassert, et al.          Expires 15 June 2025                 [Page 34]
+
+Internet-Draft                    EESP                     December 2024
+
 
 Appendix A.  Additional Stuff
 
@@ -1901,4 +1934,27 @@ Authors' Addresses
 
 
 
-Klassert, et al.          Expires 15 June 2025                 [Page 34]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Klassert, et al.          Expires 15 June 2025                 [Page 35]
