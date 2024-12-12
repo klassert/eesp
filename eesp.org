@@ -972,7 +972,30 @@ network traffic, transport mode and payload encryption mode
 may be used. For the VPN usecse, tunnel and beet mode may
 be employed.
 
-*** Transport Mode Processing
+
+*** Layer 4 Encapsulation Modes
+
+Layer 4 Encapsulation Modes are  transport mode, BEET mode
+and payload encryption mode. Layer 4 Encapsulation Modes
+distinguish from tunnel mode on the position of the EESP
+header in the packet. On Layer 4 Encapsulation Modes the
+EESP header is inserted between the original IPv4/IPv6
+header and the following Layer 4 header. In contrast to this,
+in tunnel mode the full ipv4/IPv6 dataggram is encapsulated.
+This means the the ESP header is placed in front of the
+original IPv4/IPv6 dataggram and a new 'outer IPv4/IPv6 header'
+is added in front of the EESP header. The following sections
+illustrate the positioning of the EESP header
+
+Note that in Layer 4 Encapsulation Modes, for "bump-in-the-stack" or "bump-in-
+the-wire" implementations, as defined in the Security Architecture
+document, inbound and outbound IP fragments may require an IPsec
+implementation to perform extra IP reassembly/fragmentation in order
+to both conform to this specification and provide transparent IPsec
+support.  Special care is required to perform such operations within
+these implementations when multiple interfaces are in use.
+
+**** Transport Mode Processing
 
 In transport mode, EESP is inserted after the IP header and before a
 next layer protocol, e.g., TCP, UDP, ICMP, etc.  In the context of
@@ -1037,15 +1060,7 @@ packet.
                  * = if present, could be before EESP, after EESP, or both
 #+end_src
 
-Note that in transport mode, for "bump-in-the-stack" or "bump-in-
-the-wire" implementations, as defined in the Security Architecture
-document, inbound and outbound IP fragments may require an IPsec
-implementation to perform extra IP reassembly/fragmentation in order
-to both conform to this specification and provide transparent IPsec
-support.  Special care is required to perform such operations within
-these implementations when multiple interfaces are in use.
-
-*** Payload Encryption Mode Processing
+**** Payload Encryption Mode Processing
 
 In payload encryption mode, EESP is inserted exactly at the same position
 as it is done for transport mode. The only difference to transport mode
@@ -1097,7 +1112,7 @@ positioning for a typical IPv4 and IPv6 packet, on a "before and after" basis.
                  * = if present, could be before EESP, after EESP, or both
 #+end_src
 
-*** BEET Mode Processing
+**** BEET Mode Processing
 
 In BEET mode, EESP is inserted exactly at the same position
 as it is done for transport mode. The original IP or IPv6 header
@@ -1476,7 +1491,7 @@ defined in the Security Architecture document) may apply tunnel mode
 EESP to such fragments.
 
 # FIXME: beet + payload enc mode
-NOTE: For transport mode -- As mentioned at the end of [[Transport Mode Processing]],
+NOTE: For transport mode -- As mentioned at the end of [[Layer 4 Encapsulation Modes]],
 bump-in-the-stack and bump-in-the-wire implementations may have to
 first reassemble a packet fragmented by the local IP layer, then
 apply IPsec, and then fragment the resulting packet.
