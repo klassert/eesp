@@ -197,25 +197,12 @@ The fixed portion of the base header is defined as follows.
     0                   1                   2                   3
     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |                              SPI                              |
+   | Version |   Flags   | Opt Len |         Session ID            |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |           Session ID          | Version |   Flags   | Opt Len | 
+   |                              SPI                              |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #+end_src
 
-- Security Parameter Index (SPI) :: 32 bits: The SPI is an arbitrary
-  32-bit value that is used by a receiver to identify the SA to which
-  an incoming packet is bound. This combined with the 16-bit Session
-  ID is the Enhanced SPI.
-- Session ID :: 16 bit: The Session ID covers additional information
-  that might be used to identify the SA and to route the packet to the
-  correct stateless crypto context.
-  For instance, it can be used to encode a Replay Subspace ID or,
-  if a Key Derivation Function (KDF) is
-  used to do stateless key derivation, the crypto algorithm ID could be
-  encoded there. The meaning of that field is opaque and MAY be
-  negotiated by IKEv2. This document defines the use of the Session ID
-  as a Replay Subspace ID. Other usecases are not covered in this document.
 - Version :: 5 bits: MUST be set to zero and checked by the
   receiver. If the version is different than an expected version
   number (e.g., negotiated via the control channel ), then the packet
@@ -228,6 +215,19 @@ The fixed portion of the base header is defined as follows.
   dropping such packets).
 - Flags :: 6 bit: The Flags field is used as specitied in [[flags]].
 - Opt Len :: 5 bits: Length in 4 bytes of the ~Options~ field.
+- Session ID :: 16 bit: The Session ID covers additional information
+  that might be used to identify the SA and to route the packet to the
+  correct stateless crypto context.
+  For instance, it can be used to encode a Replay Subspace ID or,
+  if a Key Derivation Function (KDF) is
+  used to do stateless key derivation, the crypto algorithm ID could be
+  encoded there. The meaning of that field is opaque and MAY be
+  negotiated by IKEv2. This document defines the use of the Session ID
+  as a Replay Subspace ID. Other usecases are not covered in this document.
+- Security Parameter Index (SPI) :: 32 bits: The SPI is an arbitrary
+  32-bit value that is used by a receiver to identify the SA to which
+  an incoming packet is bound. This combined with the 16-bit Session
+  ID is the Enhanced SPI.
 
 The Flags field in the fixed Base Header is defined as follows:
 
@@ -247,12 +247,11 @@ The Flags field in the fixed Base Header is defined as follows:
   to the same value for all packets on a given SA.
   (NOTE: Does that make sense?)
 
-- Crypto Offset :: 1 bit: Only used for payload encryption mode,
-  see [[Payload Encryption Mode Processing]]. If set, the
+- Payload Encryption Mode :: 1 bit: If set, the
   following Layer 4 Header is authenticated, but not encrypted.
   This bit MUST be set to 0 on any mode other than payload encryption mode .
   The receiver MUST drop packets with this bit set, if the mode is
-  different to payload encryption mode.
+  different to payload encryption mode. See [[Payload Encryption Mode Processing]]
 - Packet Format (F) :: 1 bit: Set to zero for full EESP packet Format (i.e., the EESP header includes the
   ~Payload Info Header~), set to 1 for Optimized EESP Packet format.
 
