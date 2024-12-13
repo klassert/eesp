@@ -1631,7 +1631,7 @@ the minimum) MAY be chosen by the receiver.  (The receiver does NOT
 notify the sender of the window size.)  The receive window size
 should be increased for higher-speed environments, irrespective of
 assurance issues.  Values for minimum and recommended receive window
-sizes for very high-speed (e.g., multi-gigabit/second) devices are
+sizes for very high-speed (e.g., multi-terabit/second) devices are
 not specified by this standard.
 
 
