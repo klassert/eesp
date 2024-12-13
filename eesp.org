@@ -1634,6 +1634,100 @@ assurance issues.  Values for minimum and recommended receive window
 sizes for very high-speed (e.g., multi-terabit/second) devices are
 not specified by this standard.
 
+*** Integrity Check Value Verification
+
+As with outbound processing, there are several options for inbound
+processing, based on features of the algorithms employed.
+
+**** Separate Confidentiality and Integrity Algorithms
+
+If separate confidentiality and integrity algorithms are employed
+processing proceeds as follows:
+
+1. If integrity has been selected, the receiver computes the
+   ICV over the EESP packet minus the ICV, using the specified
+   integrity algorithm and verifies that it is the same as the
+   ICV carried in the packet.  Details of the computation are
+   provided below.
+
+   If the computed and received ICVs match, then the datagram
+   is valid, and it is accepted.  If the test fails, then the
+   receiver MUST discard the received IP datagram as invalid;
+   this is an auditable event.  The log data SHOULD include the
+   SPI value, date/time received, Source Address, Destination
+   Address, the Sequence Number, and (for IPv6) the cleartext
+   Flow ID.
+
+   Implementation Note:
+
+   Implementations can use any set of steps that results in the
+   same result as the following set of steps.  Begin by
+   removing and saving the ICV field.  Next check the overall
+   length of the EESP packet minus the ICV field.  If implicit
+   padding is required, based on the block size of the
+   integrity algorithm, append zero-filled bytes to the end of
+   the ESP packet directly after the Next Header field.
+   Perform the ICV computation and compare the
+   result with the saved value, using the comparison rules
+   defined by the algorithm specification.
+
+-  The receiver decrypts the EESP the paylod info header (if
+   present) and the Payload Data using the key, encryption algorithm,
+   algorithm mode, and cryptographic synchronization data (if
+   any), indicated by the SA.  As in [[Packet Encryption and Integrity Check Value (ICV) Calculation]], we speak
+   here in terms of encryption always being applied because of
+   the formatting implications.  This is done with the
+   understanding that "no confidentiality" is offered by using
+   the NULL encryption algorithm (RFC 2410).
+# FIXME: Should NULL encryption algorithm be allowed?
+
+   - If explicit cryptographic synchronization data, e.g.,
+     an IV, is indicated, it is taken from the IP
+     field of the peer header and input to the decryption algorithm as per
+     the algorithm specification.
+
+   - If implicit cryptographic synchronization data is
+     indicated, a local version of the IV is constructed
+     and input to the decryption algorithm as per the
+     algorithm specification.
+
+-  The receiver processes any Padding as specified in the
+   encryption algorithm specification.  If the default padding
+   scheme (see [[Padding (for Encryption)]]) has been employed, the receiver
+   SHOULD inspect the Padding field before removing the padding
+   prior to passing the decrypted data to the next layer.
+
+-  The receiver checks the Next Header field.  If the value is
+   "59" (no next header), the (dummy) packet is discarded
+   without further processing.
+
+-  The receiver reconstructs the original IP datagram from:
+
+   - for layer 4 payload encapsulation modes -- outer IP header plus the
+     original next layer protocol information in the ESP
+     Payload field
+   - for tunnel mode -- the entire IP datagram in the ESP
+     Payload field.
+
+   The exact steps for reconstructing the original datagram
+   depend on the mode (transport or tunnel) and are described
+   in the Security Architecture document.
+# FIXME: What to do here?
+   At a minimum, in an
+   IPv6 context, the receiver SHOULD ensure that the decrypted
+   data is 8-byte aligned, to facilitate processing by the
+   protocol identified in the Next Header field.
+
+If integrity checking and encryption are performed in parallel,
+integrity checking MUST be completed before the decrypted packet is
+passed on for further processing.  This order of processing
+facilitates rapid detection and rejection of replayed or bogus
+packets by the receiver, prior to decrypting the packet, hence
+potentially reducing the impact of denial of service attacks.
+
+Note: If the receiver performs decryption in parallel with integrity
+checking, care must be taken to avoid possible race conditions with
+regard to packet access and extraction of the decrypted packet.
 
 
 
