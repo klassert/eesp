@@ -1513,6 +1513,25 @@ signaling for native host implementations) to minimize the likelihood
 of fragmentation.  Details of the support required for MTU management
 are contained in the Security Architecture document.
 
+** Inbound Packet Processing
+
+*** Reassembly
+
+If required, reassembly is performed prior to EESP processing.  If a
+packet offered to EESP for processing appears to be an IP fragment,
+i.e., the OFFSET field is non-zero or the MORE FRAGMENTS flag is set,
+the receiver MUST discard the packet; this is an auditable event.
+The audit log entry for this event SHOULD include the SPI value,
+date/time received, Source Address, Destination Address, Sequence
+Number, and (in IPv6) the Flow ID.
+
+NOTE: For packet reassembly, the current IPv4 spec does NOT require
+either the zeroing of the OFFSET field or the clearing of the MORE
+FRAGMENTS flag.  In order for a reassembled packet to be processed by
+IPsec (as opposed to discarded as an apparent fragment), the IP code
+must do these two things after it reassembles a packet.
+
+
 
 ** Stateless Encryption
 
