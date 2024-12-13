@@ -1531,6 +1531,32 @@ FRAGMENTS flag.  In order for a reassembled packet to be processed by
 IPsec (as opposed to discarded as an apparent fragment), the IP code
 must do these two things after it reassembles a packet.
 
+*** Security Association Lookup
+
+Upon receipt of a packet containing an EESP Header, the receiver
+determines the appropriate (unidirectional) SA via lookup in the SAD.
+For a unicast SA, this determination is based on the SPI or the SPI
+plus protocol field, as described in Section 2.1.  If an
+implementation supports multicast traffic, the destination address is
+also employed in the lookup (in addition to the SPI), and the sender
+address also may be employed, as described in Section 2.1.  (This
+process is described in more detail in the Security Architecture
+document.)  The SAD entry for the SA also indicates whether the
+Sequence Number field is present, and whether the (explicit) ICV field
+should be present (and if so, its size).  Also, the SAD entry will
+specify the algorithms and keys to be employed for decryption and ICV
+computation (if applicable).
+
+If no valid Security Association exists for this packet, the receiver
+MUST discard the packet; this is an auditable event.  The audit log
+entry for this event SHOULD include the SPI value, date/time
+received, Source Address, Destination Address, Sequence Number, and
+(in IPv6) the cleartext Flow ID.
+
+*** Sequence Number Verification
+
+
+
 
 
 ** Stateless Encryption
