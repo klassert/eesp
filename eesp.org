@@ -1819,6 +1819,43 @@ no requirement for the receiver to transmit any message to the
 purported sender in response to the detection of an auditable event,
 because of the potential to induce denial of service via such action.
 
+* Conformance Requirements
+
+Implementations that claim conformance or compliance with this
+specification MUST implement the EESP syntax and processing described
+here for unicast traffic, and MUST comply with all additional packet
+processing requirements levied by the Security Architecture document
+[[RFC4301]].  Additionally, if an implementation claims to support
+multicast traffic, it MUST comply with the additional requirements
+specified for support of such traffic.  If the key used to compute an
+ICV is manually distributed, correct provision of the anti-replay
+service requires correct maintenance of the counter state at the
+sender (across local reboots, etc.), until the key is replaced, and
+there likely would be no automated recovery provision if counter
+overflow were imminent.  Thus, a compliant implementation SHOULD NOT
+provide anti-replay service in conjunction with SAs that are manually
+keyed.
+
+The mandatory-to-implement algorithms for use with EESP are described
+in a separate document [[RFC4305]], to facilitate updating the algorithm
+requirements independently from the protocol per se.  Additional
+algorithms, beyond those mandated for EESP, MAY be supported.
+
+Because use of encryption in EESP is optional, support for the "NULL"
+encryption algorithm also is required to maintain consistency with
+the way ESP services are negotiated.  Support for the
+confidentiality-only service version of EESP is optional.  If an
+implementation offers this service, it MUST also support the
+negotiation of the "NULL" integrity algorithm.  NOTE that although
+integrity and encryption may each be "NULL" under the circumstances
+noted above, they MUST NOT both be "NULL".
+
+* Security Considerations
+
+Security is central to the design of this protocol, and thus security
+considerations permeate the specification.  Additional security-
+relevant aspects of using the IPsec protocol are discussed in the
+Security Architecture document.
 
 
 ** Stateless Encryption
@@ -1964,6 +2001,7 @@ TBD
 ** RFC2119
 ** RFC4301
 ** RFC4303
+** RFC4305
 ** RFC7296
 ** RFC8200
 ** RFC9347
