@@ -1574,15 +1574,6 @@ recommended that sender and receiver checking of the sequence number
 for the SA be disabled (via negotiation or manual configuration), as
 noted below.
 
-If the receiver does not enable anti-replay for an SA, no inbound
-checks are performed on the Sequence Number.  However, from the
-perspective of the sender, the default is to assume that anti-replay
-is enabled at the receiver.  To avoid having the sender do
-unnecessary sequence number monitoring and SA setup (see section
-3.3.3), if an SA establishment protocol is employed, the receiver
-SHOULD notify the sender, during SA establishment, if the receiver
-will not provide anti-replay protection.
-
 If anti-replay service is enabled for this SA, the
 receive packet counter for the SA MUST be initialized to zero when
 the SA is established.  For each received packet, the receiver MUST
