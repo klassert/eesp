@@ -1555,6 +1555,93 @@ received, Source Address, Destination Address, Sequence Number, and
 
 *** Sequence Number Verification
 
+# FIXME: This section needs review.
+
+All EESP implementations MUST support the anti-replay service, though
+its use may be enabled or disabled by negotiation on a per-SA basis.
+This service MUST NOT be enabled unless the EESP integrity service
+also is enabled for the SA, because otherwise the Sequence Number
+field has not been integrity protected.  Anti-replay is applicable to
+unicast as well as multicast SAs.
+
+
+# Note STK: This might chenge when we introduce the Sender ID option.
+However, this standard specifies
+no mechanisms for providing anti-replay for a multi-sender SA
+(unicast or multicast).  In the absence of negotiation (or manual
+configuration) of an anti-replay mechanism for such an SA, it is
+recommended that sender and receiver checking of the sequence number
+for the SA be disabled (via negotiation or manual configuration), as
+noted below.
+
+If the receiver does not enable anti-replay for an SA, no inbound
+checks are performed on the Sequence Number.  However, from the
+perspective of the sender, the default is to assume that anti-replay
+is enabled at the receiver.  To avoid having the sender do
+unnecessary sequence number monitoring and SA setup (see section
+3.3.3), if an SA establishment protocol is employed, the receiver
+SHOULD notify the sender, during SA establishment, if the receiver
+will not provide anti-replay protection.
+
+If anti-replay service is enabled for this SA, the
+receive packet counter for the SA MUST be initialized to zero when
+the SA is established.  For each received packet, the receiver MUST
+verify that the packet contains a Sequence Number that does not
+duplicate the Sequence Number of any other packets received during
+the life of this SA.  This SHOULD be the first ESP check applied to a
+packet after it has been matched to an SA, to speed rejection of
+duplicate packets.
+
+EESP permits two-stage verification of packet sequence numbers.  This
+capability is important whenever an ESP implementation (typically the
+cryptographic module portion thereof) is not capable of performing
+decryption and/or integrity checking at the same rate as the
+interface(s) to unprotected networks.  If the implementation is
+capable of such "line rate" operation, then it is not necessary to
+perform the preliminary verification stage described below.
+
+The preliminary Sequence Number check is effected utilizing the
+Sequence Number value in the EESP Header and is performed prior to
+integrity checking and decryption.  If this preliminary check fails,
+
+the packet is discarded, thus avoiding the need for any cryptographic
+operations by the receiver.  If the preliminary check is successful,
+the receiver cannot yet modify its local counter, because the
+integrity of the Sequence Number has not been verified at this point.
+
+Duplicates are rejected through the use of a sliding receive window.
+How the window is implemented is a local matter, but the following
+text describes the functionality that the implementation must
+exhibit.
+
+The "right" edge of the window represents the highest, validated
+Sequence Number value received on this SA.  Packets that contain
+sequence numbers lower than the "left" edge of the window are
+rejected.  Packets falling within the window are checked against a
+list of received packets within the window.
+
+If the received packet falls within the window and is not a
+duplicate, or if the packet is to the right of the window, and if a
+separate integrity algorithm is employed, then the receiver proceeds
+to integrity verification.  If a combined mode algorithm is employed,
+the integrity check is performed along with decryption.  In either
+case, if the integrity check fails, the receiver MUST discard the
+received IP datagram as invalid; this is an auditable event.  The
+audit log entry for this event SHOULD include the SPI value,
+date/time received, Source Address, Destination Address, the Sequence
+Number, and (in IPv6) the Flow ID.  The receive window is updated
+only if the integrity verification succeeds.  (If a combined mode
+algorithm is being used, then the integrity protected Sequence Number
+must also match the Sequence Number used for anti-replay protection.)
+
+A minimum window size of 64 packets MUST be supported.
+Another window size (larger than
+the minimum) MAY be chosen by the receiver.  (The receiver does NOT
+notify the sender of the window size.)  The receive window size
+should be increased for higher-speed environments, irrespective of
+assurance issues.  Values for minimum and recommended receive window
+sizes for very high-speed (e.g., multi-gigabit/second) devices are
+not specified by this standard.
 
 
 
