@@ -1491,7 +1491,7 @@ defined in the Security Architecture document) may apply tunnel mode
 EESP to such fragments.
 
 # FIXME: beet + payload enc mode
-NOTE: For transport mode -- As mentioned at the end of [[Layer 4 Encapsulation Modes]],
+NOTE: For Layer 4 Encapsulation Modes -- As mentioned at the end of [[Layer 4 Encapsulation Modes]],
 bump-in-the-stack and bump-in-the-wire implementations may have to
 first reassemble a packet fragmented by the local IP layer, then
 apply IPsec, and then fragment the resulting packet.
