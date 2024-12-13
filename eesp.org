@@ -1672,7 +1672,7 @@ processing proceeds as follows:
    defined by the algorithm specification.
 
 -  The receiver decrypts the EESP the paylod info header (if
-   present) and the Payload Data using the key, encryption algorithm,
+   present), Payload Data, Padding, using the key, encryption algorithm,
    algorithm mode, and cryptographic synchronization data (if
    any), indicated by the SA.  As in [[Packet Encryption and Integrity Check Value (ICV) Calculation]], we speak
    here in terms of encryption always being applied because of
@@ -1729,6 +1729,96 @@ Note: If the receiver performs decryption in parallel with integrity
 checking, care must be taken to avoid possible race conditions with
 regard to packet access and extraction of the decrypted packet.
 
+**** Combined Confidentiality and Integrity Algorithms
+
+
+If a combined confidentiality and integrity algorithm is employed,
+then the receiver proceeds as follows:
+
+1. Decrypts and integrity checks the EESP Payload Info Header (if present),
+   Payload Data, Padding, using the key, algorithm,
+   algorithm mode, and cryptographic synchronization data (if
+   any), indicated by the SA.  The SPI from the EESP header, and
+   the (receiver) packet counter value (adjusted as required
+   from the processing described in Section 3.4.3) are inputs
+   to this algorithm, as they are required for the integrity
+   check.
+# FIXEM: EESP has more inputs than SPI ans seq NR
+
+   - If explicit cryptographic synchronization data, e.g.,
+     an IV, is indicated, it is taken from the IV
+     field and input to the decryption algorithm as per
+     the algorithm specification.
+
+   - If implicit cryptographic synchronization data, e.g.,
+     an IV, is indicated, a local version of the IV is
+     constructed and input to the decryption algorithm as
+     per the algorithm specification.
+
+-  If the integrity check performed by the combined mode
+   algorithm fails, the receiver MUST discard the received IP
+   datagram as invalid; this is an auditable event.  The log
+   data SHOULD include the SPI value, date/time received,
+   Source Address, Destination Address, the Sequence Number,
+   and (in IPv6) the cleartext Flow ID.
+
+-  Process any Padding as specified in the encryption algorithm
+   specification, if the algorithm has not already done so.
+
+-  The receiver checks the Next Header field.  If the value is
+   "59" (no next header), the (dummy) packet is discarded
+   without further processing.
+
+-  Extract the original IP datagram (tunnel mode) or
+   transport-layer frame (layer 4 payload encapsulation modes) from the ESP Payload
+   Data field.
+
+* Auditing
+
+Not all systems that implement EESP will implement auditing.  However,
+if EESP is incorporated into a system that supports auditing, then the
+EESP implementation MUST also support auditing and MUST allow a system
+administrator to enable or disable auditing for EESP.  For the most
+part, the granularity of auditing is a local matter.  However,
+several auditable events are identified in this specification and for
+each of these events a minimum set of information that SHOULD be
+included in an audit log is defined.
+
+- No valid Security Association exists for a session.  The
+  audit log entry for this event SHOULD include the SPI value,
+  date/time received, Source Address, Destination Address,
+  Sequence Number, and (for IPv6) the cleartext Flow ID.
+
+- A packet offered to EESP for processing appears to be an IP
+  fragment, i.e., the OFFSET field is non-zero or the MORE
+  FRAGMENTS flag is set.  The audit log entry for this event
+  SHOULD include the SPI value, date/time received, Source
+  Address, Destination Address, Sequence Number, and (in IPv6)
+  the Flow ID.
+
+- Attempt to transmit a packet that would result in Sequence
+  Number overflow.  The audit log entry for this event SHOULD
+  include the SPI value, current date/time, Source Address,
+  Destination Address, Sequence Number, and (for IPv6) the
+  cleartext Flow ID.
+
+- The received packet fails the anti-replay checks.  The audit
+  log entry for this event SHOULD include the SPI value,
+  date/time received, Source Address, Destination Address, the
+  Sequence Number, and (in IPv6) the Flow ID.
+
+- The integrity check fails.  The audit log entry for this
+  event SHOULD include the SPI value, date/time received,
+  Source Address, Destination Address, the Sequence Number, and
+  (for IPv6) the Flow ID.
+
+Additional information also MAY be included in the audit log for each
+of these events, and additional events, not explicitly called out in
+this specification, also MAY result in audit log entries.  There is
+no requirement for the receiver to transmit any message to the
+purported sender in response to the detection of an auditable event,
+because of the potential to induce denial of service via such action.
+
 
 
 ** Stateless Encryption
@@ -1752,6 +1842,8 @@ or limited hardware insertion speeds, such as memory bandwidth or
 content-addressable memory limits. These problems are more noticeable
 in high-speed data paths, where delays from locking can severely affect
 performance.
+
+
 
 *** Receiving without SAD
 
