@@ -1782,7 +1782,7 @@ ID is the Enhanced SPI.<a href="#section-2.2.1-3.10.1" class="pilcrow">¶</a></p
 <pre>
  0 1 2 3 4 5 6
 +-+-+-+-+-+-+-+
-|S|C|F|   R   |
+|F|C|S|   R   |
 +-+-+-+-+-+-+-+
 </pre>
 </div>
@@ -1791,12 +1791,10 @@ ID is the Enhanced SPI.<a href="#section-2.2.1-3.10.1" class="pilcrow">¶</a></p
             </figcaption></figure>
 </div>
 <span class="break"></span><dl class="dlParallel" id="section-2.2.1-6">
-            <dt id="section-2.2.1-6.1">Sequence Number absent (S)</dt>
+            <dt id="section-2.2.1-6.1">Packet Format (F)</dt>
             <dd style="margin-left: 1.5em" id="section-2.2.1-6.2">
-              <p id="section-2.2.1-6.2.1">1 bit: If set, the peer header does not
-carry the sequence number field in the packet. This bit MUST be set
-to the same value for all packets on a given SA.
-(NOTE: Does that make sense?)<a href="#section-2.2.1-6.2.1" class="pilcrow">¶</a></p>
+              <p id="section-2.2.1-6.2.1">1 bit: Set to zero for full EESP packet Format (i.e., the EESP header includes the
+'<code>Payload Info Header</code>'), set to 1 for Optimized EESP Packet format.<a href="#section-2.2.1-6.2.1" class="pilcrow">¶</a></p>
 </dd>
             <dd class="break"></dd>
 <dt id="section-2.2.1-6.3">Payload Encryption Mode</dt>
@@ -1808,10 +1806,11 @@ The receiver MUST drop packets with this bit set, if the mode is
 different to payload encryption mode. See <a href="#sec-payload-encryption-mode-processing" class="auto internal xref">Section 4.1.1.2</a><a href="#section-2.2.1-6.4.1" class="pilcrow">¶</a></p>
 </dd>
             <dd class="break"></dd>
-<dt id="section-2.2.1-6.5">Packet Format (F)</dt>
+<dt id="section-2.2.1-6.5">Sequence Number absent (S)</dt>
             <dd style="margin-left: 1.5em" id="section-2.2.1-6.6">
-              <p id="section-2.2.1-6.6.1">1 bit: Set to zero for full EESP packet Format (i.e., the EESP header includes the
-'<code>Payload Info Header</code>'), set to 1 for Optimized EESP Packet format.<a href="#section-2.2.1-6.6.1" class="pilcrow">¶</a></p>
+              <p id="section-2.2.1-6.6.1">1 bit: If set, the peer header does not
+carry the sequence number field in the packet. This bit MUST be set
+to the same value for all packets on a given SA.<a href="#section-2.2.1-6.6.1" class="pilcrow">¶</a></p>
 </dd>
             <dd class="break"></dd>
 <dt id="section-2.2.1-6.7">Reserved (R)</dt>
