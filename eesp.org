@@ -236,21 +236,20 @@ The Flags field in the fixed Base Header is defined as follows:
 #+begin_src
     0 1 2 3 4 5 6 
    +-+-+-+-+-+-+-+
-   |S|C|F|   R   |
+   |F|C|S|   R   |
    +-+-+-+-+-+-+-+
 #+end_src
 
-- Sequence Number absent (S) :: 1 bit: If set, the peer header does not
-  carry the sequence number field in the packet. This bit MUST be set
-  to the same value for all packets on a given SA.
-  (NOTE: Does that make sense?)
+- Packet Format (F) :: 1 bit: Set to zero for full EESP packet Format (i.e., the EESP header includes the
+  ~Payload Info Header~), set to 1 for Optimized EESP Packet format.
 - Payload Encryption Mode :: 1 bit: If set, the
   following Layer 4 Header is authenticated, but not encrypted.
   This bit MUST be set to 0 on any mode other than payload encryption mode .
   The receiver MUST drop packets with this bit set, if the mode is
   different to payload encryption mode. See [[Payload Encryption Mode Processing]]
-- Packet Format (F) :: 1 bit: Set to zero for full EESP packet Format (i.e., the EESP header includes the
-  ~Payload Info Header~), set to 1 for Optimized EESP Packet format.
+- Sequence Number absent (S) :: 1 bit: If set, the peer header does not
+  carry the sequence number field in the packet. This bit MUST be set
+  to the same value for all packets on a given SA.
 - Reserved (R) :: 4 bits: Reserved for future versions, MUST be set to 0,
   and ignored by the receiver.
 
