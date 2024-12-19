@@ -1749,7 +1749,7 @@ then the receiver proceeds as follows:
    transport-layer frame (layer 4 payload encapsulation modes) from the ESP Payload
    Data field.
 
-* Stateless Encryption
+* Stateless Decryption
 
 In large-scale deployments, such as data center traffic, stateful
 IPsec using databases outlined in [[RFC4301]] and [[RFC4303]] can
@@ -1771,7 +1771,20 @@ content-addressable memory limits. These problems are more noticeable
 in high-speed data paths, where delays from locking can severely affect
 performance.
 
+** Key Derivation
 
+To avoid storing per-SA decryption keys on the receiver side,
+the decryption keys MAY be derived from the SPI plus a secret
+known only to the receiver side. Both peers need to agree on a
+commonly used cipher, key and KDF. This is usually done by using IKEv2,
+or any other suitalbe protocol. The sender MUST remember the encryption
+key for the SA, but the receiver can re-derive it for each packet.
+The same arrangement is repeated in reverse, to provide encryption
+for response packets flowing from the receiver to the sender.
+
+The KDF used to derive the key for decryption MUST be one
+of the KDFs specified in [[NIST02]] section 4, and used in the way
+described there.
 
 ** Receiving without SAD
 
@@ -2009,6 +2022,14 @@ TBD
 :REF_TITLE: Federal Information Processing Standards Publication 140-2 (FIPS PUB 140-2), "Security Requirements for Cryptographic Modules", Information Technology Laboratory, National Institute of Standards and Technology, May 25, 2001.
 :REF_ORG: NIST
 :END:
+
+** NIST02
+:PROPERTIES:
+:REF_TITLE: NIST Special Publication 800 NIST SP 800-108r1-upd1, "Recommendation for Key Derivation Using Pseudorandom Functions", National Institute of Standards and Technology, August, 2022.
+:REF_TARGET: https://doi.org/10.6028/NIST.SP.800-108r1-upd1
+:REF_ORG: NIST
+:END:
+
 
 * Additional Stuff
 
