@@ -213,7 +213,7 @@ The fixed portion of the base header is defined as follows.
   necessarily able to parse the packet correctly. Intermediate
   treatment of such packets is policy dependent (e.g., it may dictate
   dropping such packets).
-- Flags :: 6 bit: The Flags field is used as specitied in [[flags]].
+- Flags :: 6 bit: The Flags field is used as specified in [[flags]].
 - Opt Len :: 5 bits: Length in 4 bytes of the ~Options~ field.
 - Session ID :: 16 bit: The Session ID covers additional information
   that might be used to identify the SA and to route the packet to the
@@ -236,17 +236,14 @@ The Flags field in the fixed Base Header is defined as follows:
 #+begin_src
     0 1 2 3 4 5 6 
    +-+-+-+-+-+-+-+
-   |    R  |S|C|F|
+   |S|C|F|   R   |
    +-+-+-+-+-+-+-+
 #+end_src
 
-- Reserved (R) :: 4 bits: Reserved for future versions, MUST be set to 0,
-  and ignored by the receiver.
 - Sequence Number absent (S) :: 1 bit: If set, the peer header does not
   carry the sequence number field in the packet. This bit MUST be set
   to the same value for all packets on a given SA.
   (NOTE: Does that make sense?)
-
 - Payload Encryption Mode :: 1 bit: If set, the
   following Layer 4 Header is authenticated, but not encrypted.
   This bit MUST be set to 0 on any mode other than payload encryption mode .
@@ -254,6 +251,8 @@ The Flags field in the fixed Base Header is defined as follows:
   different to payload encryption mode. See [[Payload Encryption Mode Processing]]
 - Packet Format (F) :: 1 bit: Set to zero for full EESP packet Format (i.e., the EESP header includes the
   ~Payload Info Header~), set to 1 for Optimized EESP Packet format.
+- Reserved (R) :: 4 bits: Reserved for future versions, MUST be set to 0,
+  and ignored by the receiver.
 
 
 
