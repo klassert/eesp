@@ -178,8 +178,8 @@ that depends on the choice of encryption algorithm and mode.
 primarily for alignment when using a block cipher.
 
 Finally, the packet ends with an optional ~Integrity Check Value~
-(ICV) (see Section 3.3.2 of [[RFC4303]]). The length of this ICV depends
-on the Crypto suite.
+(ICV) (see [[Packet Encryption and Integrity Check Value (ICV) Calculation]]).
+The length of this ICV depends on the Crypto suite.
 
 ** Base Header
 
@@ -681,20 +681,20 @@ sequence number subspace can be used.
 #  number subspace. In this case, the full 64 bits of each anti-replay
 #  sequence number subspace can be used.
 #
-##+caption: Sequence Number with Replay Subspace ID
-##+name: seq-nr-subspace
-##+begin_src
-#    0                   1                   2                   3
-#    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
-#   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#   |      Replay Subspace ID       |                               |
-#   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+                               |
-#   |                        Sequence Number                        |
-#   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-##+end_src
-#
-#- Replay Subspace ID :: 16 bits:
-#- Sequence Numbber :: 48 bits:
+# #+caption: Sequence Number with Replay Subspace ID
+# #+name: seq-nr-subspace
+# #+begin_src
+#     0                   1                   2                   3
+#     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+#    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+#    |      Replay Subspace ID       |                               |
+#    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+                               |
+#    |                        Sequence Number                        |
+#    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+# #+end_src
+# 
+# - Replay Subspace ID :: 16 bits:
+# - Sequence Numbber :: 48 bits:
 
 *** Sender Behaviour
 
@@ -1312,7 +1312,6 @@ the Sender proceeds as follows:
    - for transport, beet and payload encryption mode -- just the original next layer
      protocol information.
    - for tunnel mode -- the entire original IP datagram.
-   - XXX Add beet any payload enc mode
 
 - Add any necessary encryption padding
 
@@ -1774,7 +1773,7 @@ performance.
 ** Key Derivation
 
 To avoid storing per-SA decryption keys on the receiver side,
-the decryption keys MAY be derived from the SPI plus a secret
+the decryption keys MAY be derived from the EESP header plus a secret
 known only to the receiver side. Both peers need to agree on a
 commonly used cipher, key and KDF. This is usually done by using IKEv2,
 or any other suitalbe protocol. The sender MUST remember the encryption
