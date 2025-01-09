@@ -234,7 +234,7 @@ The Flags field in the fixed Base Header is defined as follows:
 #+caption: Base Header Flags
 #+name: flags
 #+begin_src
-    0 1 2 3 4 5 6 
+    0 1 2 3 4 5 6
    +-+-+-+-+-+-+-+
    |F|C|S|   R   |
    +-+-+-+-+-+-+-+
@@ -661,7 +661,7 @@ or any other suitable protocol. In this case, Session ID is used as a
 Replay Subspaces were intially defined in [[I-D.ponchon-ipsecme-anti-replay-subspaces]].
 
 Each number of the 16 bits Replay Subspace ID encodes a single
-64 bit anti-replay sequence number space. 
+64 bit anti-replay sequence number space.
 This means that each core, path, or QoS class, or any combination of
 those, can then use their own unique anti-replay sequence number subspace.
 Each anti-replay sequence number subspace uses Sequence Numbers as
@@ -692,7 +692,7 @@ sequence number subspace can be used.
 #    |                        Sequence Number                        |
 #    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 # #+end_src
-# 
+#
 # - Replay Subspace ID :: 16 bits:
 # - Sequence Numbber :: 48 bits:
 
@@ -1146,7 +1146,7 @@ illustrates EESP tunnel mode positioning for typical IPv4 and IPv6
 packets.
 
 
-#+caption: IPv4 Tunnel Mode 
+#+caption: IPv4 Tunnel Mode
 #+name: ipv4-tunnel-mode
 #+begin_src
                  BEFORE APPLYING ESP
@@ -1344,7 +1344,7 @@ the Sender proceeds as follows:
   Thus, the ICV computation encompasses the, base header
   including any options (if present), SPI, Sequence
   Number (if present), IV (if present), Payload Info
-  Header (if present), Payload Data and Padding (if present). 
+  Header (if present), Payload Data and Padding (if present).
 # XXX On payload enc mode or positive cryptoffset, not everything is encrypted.
 # (Note that the last 3 fields will be in
 #  ciphertext form, because encryption is performed first.)
@@ -1439,7 +1439,7 @@ Destination Address, and (in IPv6) the cleartext Flow ID.
 Typical behavior of an EESP implementation calls for the sender to
 establish a new SA when the Sequence Number cycles, or in
 anticipation of this value cycling.
-	        
+
 If the key used to compute an ICV is manually distributed, a
 compliant implementation SHOULD NOT provide anti-replay service.  If
 a user chooses to employ anti-replay in conjunction with SAs that are
