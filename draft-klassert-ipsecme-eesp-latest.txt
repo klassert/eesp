@@ -149,15 +149,15 @@ Internet-Draft                    EESP                      January 2025
    9.  Security Considerations . . . . . . . . . . . . . . . . . . .  42
    10. IANA Considerations . . . . . . . . . . . . . . . . . . . . .  42
      10.1.  EESP IP Protocol Number  . . . . . . . . . . . . . . . .  42
-     10.2.  EESP Options Registry  . . . . . . . . . . . . . . . . .  42
+     10.2.  EESP Versions Registry . . . . . . . . . . . . . . . . .  42
+     10.3.  EESP Options Registry  . . . . . . . . . . . . . . . . .  43
    11. Implementation Status . . . . . . . . . . . . . . . . . . . .  43
-   12. Security Considerations . . . . . . . . . . . . . . . . . . .  43
-   13. Acknowledgments . . . . . . . . . . . . . . . . . . . . . . .  43
+   12. Security Considerations . . . . . . . . . . . . . . . . . . .  44
+   13. Acknowledgments . . . . . . . . . . . . . . . . . . . . . . .  44
    14. Normative References  . . . . . . . . . . . . . . . . . . . .  44
-   15. Informative References  . . . . . . . . . . . . . . . . . . .  44
+   15. Informative References  . . . . . . . . . . . . . . . . . . .  45
    Appendix A.  Additional Stuff . . . . . . . . . . . . . . . . . .  46
    Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  46
-
 
 
 
@@ -2326,7 +2326,35 @@ Internet-Draft                    EESP                      January 2025
 
    *  Reference: This document
 
-10.2.  EESP Options Registry
+10.2.  EESP Versions Registry
+
+   This document requests IANA to create a registry called
+   "EESP_VERSIONS" Type Registry" under a new category named
+   "EESP_VERSIONS Parameters".
+
+   *  Name: EESP Versions Registry
+
+   *  Description: EESP Base Header Version
+
+   *  Reference: This document
+
+   The initial content for this registry is as follows:
+
+   Value     EESP Vesion                        Reference
+   -------   ------------------------------    ---------------
+       0      V0                              [this document]
+     1-31     Private                         [this document]
+
+              Figure 22: EESP Version Initial Registry Values
+
+
+
+Klassert, et al.          Expires 13 July 2025                 [Page 42]
+
+Internet-Draft                    EESP                      January 2025
+
+
+10.3.  EESP Options Registry
 
    This document requests IANA to create a registry called "EESP_OPTIONS
    Type Registry" under a new category named "EESP_OPTIONS Parameters".
@@ -2339,21 +2367,6 @@ Internet-Draft                    EESP                      January 2025
 
    The initial content for this registry is as follows:
 
-
-
-
-
-
-
-
-
-
-
-Klassert, et al.          Expires 13 July 2025                 [Page 42]
-
-Internet-Draft                    EESP                      January 2025
-
-
    Value     EESP Header Options Types         Reference
    -------   ------------------------------    ---------------
          0   Pad1                              [this document]
@@ -2363,7 +2376,7 @@ Internet-Draft                    EESP                      January 2025
      4-223   Unassigned                        [this document]
    224-255   Private                           [this document]
 
-                     Figure 22: Initial Registry Values
+                     Figure 23: Initial Registry Values
 
 11.  Implementation Status
 
@@ -2390,6 +2403,13 @@ Internet-Draft                    EESP                      January 2025
    It is up to the individual working groups to use this information as
    they see fit".
 
+
+
+Klassert, et al.          Expires 13 July 2025                 [Page 43]
+
+Internet-Draft                    EESP                      January 2025
+
+
    Authors are requested to add a note to the RFC Editor at the top of
    this section, advising the Editor to remove the entire section before
    publication, as well as the reference to [RFC7942].
@@ -2401,14 +2421,6 @@ Internet-Draft                    EESP                      January 2025
 13.  Acknowledgments
 
    TBD
-
-
-
-
-Klassert, et al.          Expires 13 July 2025                 [Page 43]
-
-Internet-Draft                    EESP                      January 2025
-
 
 14.  Normative References
 
@@ -2447,6 +2459,13 @@ Internet-Draft                    EESP                      January 2025
               DOI 10.17487/RFC9347, January 2023,
               <https://www.rfc-editor.org/info/rfc9347>.
 
+
+
+Klassert, et al.          Expires 13 July 2025                 [Page 44]
+
+Internet-Draft                    EESP                      January 2025
+
+
 15.  Informative References
 
    [Encryption]
@@ -2458,14 +2477,6 @@ Internet-Draft                    EESP                      January 2025
               He, Q., Pan, W., Chen, X., and B. Ding, "Shared Use of
               IPsec Tunnel in a Multi-VPN Environment", Work in
               Progress, Internet-Draft, draft-he-ipsecme-vpn-shared-
-
-
-
-Klassert, et al.          Expires 13 July 2025                 [Page 44]
-
-Internet-Draft                    EESP                      January 2025
-
-
               ipsecsa-01, 8 July 2024,
               <https://datatracker.ietf.org/doc/html/draft-he-ipsecme-
               vpn-shared-ipsecsa-01>.
@@ -2503,17 +2514,6 @@ Internet-Draft                    EESP                      January 2025
               <https://www.iana.org/assignments/protocol-numbers/
               protocol-numbers.xhtml>.
 
-   [PSP]      Google, "PSP Architecture Specification",
-              <https://github.com/google/psp/blob/main/doc/
-              PSP_Arch_Spec.pdf>.
-
-   [RFC2992]  Hopps, C., "Analysis of an Equal-Cost Multi-Path
-              Algorithm", RFC 2992, DOI 10.17487/RFC2992, November 2000,
-              <https://www.rfc-editor.org/info/rfc2992>.
-
-
-
-
 
 
 
@@ -2521,6 +2521,14 @@ Klassert, et al.          Expires 13 July 2025                 [Page 45]
 
 Internet-Draft                    EESP                      January 2025
 
+
+   [PSP]      Google, "PSP Architecture Specification",
+              <https://github.com/google/psp/blob/main/doc/
+              PSP_Arch_Spec.pdf>.
+
+   [RFC2992]  Hopps, C., "Analysis of an Equal-Cost Multi-Path
+              Algorithm", RFC 2992, DOI 10.17487/RFC2992, November 2000,
+              <https://www.rfc-editor.org/info/rfc2992>.
 
    [RFC7942]  Sheffer, Y. and A. Farrel, "Improving Awareness of Running
               Code: The Implementation Status Section", BCP 205,
@@ -2546,14 +2554,6 @@ Authors' Addresses
    Christian Hopps
    LabN Consulting, L.L.C.
    Email: chopps@chopps.org
-
-
-
-
-
-
-
-
 
 
 

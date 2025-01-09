@@ -1539,7 +1539,10 @@ inner flow information for middlebox use.<a href="#section-abstract-2" class="pi
                 <p id="section-toc.1-1.10.2.1.1"><a href="#section-10.1" class="auto internal xref">10.1</a>.  <a href="#name-eesp-ip-protocol-number" class="internal xref">EESP IP Protocol Number</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.10.2.2">
-                <p id="section-toc.1-1.10.2.2.1"><a href="#section-10.2" class="auto internal xref">10.2</a>.  <a href="#name-eesp-options-registry" class="internal xref">EESP Options Registry</a></p>
+                <p id="section-toc.1-1.10.2.2.1"><a href="#section-10.2" class="auto internal xref">10.2</a>.  <a href="#name-eesp-versions-registry" class="internal xref">EESP Versions Registry</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.10.2.3">
+                <p id="section-toc.1-1.10.2.3.1"><a href="#section-10.3" class="auto internal xref">10.3</a>.  <a href="#name-eesp-options-registry" class="internal xref">EESP Options Registry</a></p>
 </li>
             </ul>
 </li>
@@ -3783,26 +3786,59 @@ Security Architecture document.<a href="#section-9-1" class="pilcrow">¶</a></p>
         </ul>
 </section>
 <section id="section-10.2">
-        <h3 id="name-eesp-options-registry">
-<a href="#section-10.2" class="section-number selfRef">10.2. </a><a href="#name-eesp-options-registry" class="section-name selfRef">EESP Options Registry</a>
+        <h3 id="name-eesp-versions-registry">
+<a href="#section-10.2" class="section-number selfRef">10.2. </a><a href="#name-eesp-versions-registry" class="section-name selfRef">EESP Versions Registry</a>
         </h3>
-<p id="section-10.2-1">This document requests IANA to create a registry called "EESP_OPTIONS
-Type Registry" under a new category named "EESP_OPTIONS Parameters".<a href="#section-10.2-1" class="pilcrow">¶</a></p>
+<p id="section-10.2-1">This document requests IANA to create a registry called "EESP_VERSIONS"
+Type Registry" under a new category named "EESP_VERSIONS Parameters".<a href="#section-10.2-1" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-10.2-2.1">
-            <p id="section-10.2-2.1.1">Name: EESP Options Registry<a href="#section-10.2-2.1.1" class="pilcrow">¶</a></p>
+            <p id="section-10.2-2.1.1">Name: EESP Versions Registry<a href="#section-10.2-2.1.1" class="pilcrow">¶</a></p>
 </li>
           <li class="normal" id="section-10.2-2.2">
-            <p id="section-10.2-2.2.1">Description: EESP Base Header Options<a href="#section-10.2-2.2.1" class="pilcrow">¶</a></p>
+            <p id="section-10.2-2.2.1">Description: EESP Base Header Version<a href="#section-10.2-2.2.1" class="pilcrow">¶</a></p>
 </li>
           <li class="normal" id="section-10.2-2.3">
             <p id="section-10.2-2.3.1">Reference: This document<a href="#section-10.2-2.3.1" class="pilcrow">¶</a></p>
 </li>
         </ul>
 <p id="section-10.2-3">The initial content for this registry is as follows:<a href="#section-10.2-3" class="pilcrow">¶</a></p>
-<span id="name-initial-registry-values"></span><div id="iana_requests_reg">
+<span id="name-eesp-version-initial-regist"></span><div id="iana_requests_versions_reg">
 <figure id="figure-22">
           <div class="sourcecode" id="section-10.2-4.1">
+<pre>
+Value     EESP Vesion                        Reference
+-------   ------------------------------    ---------------
+    0      V0                              [this document]
+  1-31     Private                         [this document]
+</pre>
+</div>
+<figcaption><a href="#figure-22" class="selfRef">Figure 22</a>:
+<a href="#name-eesp-version-initial-regist" class="selfRef">EESP Version Initial Registry Values</a>
+          </figcaption></figure>
+</div>
+</section>
+<section id="section-10.3">
+        <h3 id="name-eesp-options-registry">
+<a href="#section-10.3" class="section-number selfRef">10.3. </a><a href="#name-eesp-options-registry" class="section-name selfRef">EESP Options Registry</a>
+        </h3>
+<p id="section-10.3-1">This document requests IANA to create a registry called "EESP_OPTIONS
+Type Registry" under a new category named "EESP_OPTIONS Parameters".<a href="#section-10.3-1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-10.3-2.1">
+            <p id="section-10.3-2.1.1">Name: EESP Options Registry<a href="#section-10.3-2.1.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-10.3-2.2">
+            <p id="section-10.3-2.2.1">Description: EESP Base Header Options<a href="#section-10.3-2.2.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-10.3-2.3">
+            <p id="section-10.3-2.3.1">Reference: This document<a href="#section-10.3-2.3.1" class="pilcrow">¶</a></p>
+</li>
+        </ul>
+<p id="section-10.3-3">The initial content for this registry is as follows:<a href="#section-10.3-3" class="pilcrow">¶</a></p>
+<span id="name-initial-registry-values"></span><div id="iana_requests_options_reg">
+<figure id="figure-23">
+          <div class="sourcecode" id="section-10.3-4.1">
 <pre>
 Value     EESP Header Options Types         Reference
 -------   ------------------------------    ---------------
@@ -3814,7 +3850,7 @@ Value     EESP Header Options Types         Reference
 224-255   Private                           [this document]
 </pre>
 </div>
-<figcaption><a href="#figure-22" class="selfRef">Figure 22</a>:
+<figcaption><a href="#figure-23" class="selfRef">Figure 23</a>:
 <a href="#name-initial-registry-values" class="selfRef">Initial Registry Values</a>
           </figcaption></figure>
 </div>
