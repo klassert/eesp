@@ -250,6 +250,9 @@ Internet-Draft                    EESP                      January 2025
    This document uses the following terms defined in
    [I-D.mrossberg-ipsecme-multiple-sequence-counters]: Sub-Child SA.
 
+   This document uses the following terms defined in [RFC3948]: Non-ESP
+   Marker.
+
 2.  Protocol Definition
 
    In this section we define the exact protocol formats and operations.
@@ -262,9 +265,6 @@ Internet-Draft                    EESP                      January 2025
    its [Protocol] (IPv4) or Next Header (IPv6, Extension) field.
    Figure 1 illustrates the top-level format of an EESP packet.  The
    EESP header is split into multiple parts.
-
-
-
 
 
 
@@ -398,6 +398,9 @@ Internet-Draft                    EESP                      January 2025
       which an incoming packet is bound.  This combined with the 16-bit
       Session ID is the Enhanced SPI.
 
+   Version 0 is is Reserved to avoid conflict with Non-ESP Marker of IKE
+   packet.
+
    The Flags field in the fixed Base Header is defined as follows:
 
     0 1 2 3 4 5 6
@@ -437,9 +440,6 @@ Internet-Draft                    EESP                      January 2025
    meaning is attached to the top 3 bits of the option type value, and
    the processing order of the options is not restricted.
 
-   Option type values are allocated from one of two ranges of values.
-   One range is used for standardized option types and the second range
-   is reserved for private options.
 
 
 
@@ -449,6 +449,10 @@ Klassert, et al.          Expires 14 July 2025                  [Page 8]
 
 Internet-Draft                    EESP                      January 2025
 
+
+   Option type values are allocated from one of two ranges of values.
+   One range is used for standardized option types and the second range
+   is reserved for private options.
 
    This document defines 4 initial standard option types, 'Pad1 Option',
    'PadN Option', 'Flow Identifier Option', and 'Crypt Offset Option'.
@@ -495,16 +499,15 @@ Internet-Draft                    EESP                      January 2025
    entire sequence number on each packet.  The actual size of the
    'Initialization Vector' depends on the choice of the cipher suite.
 
-   The 'Sequence Number' and 'Initialization Vector' fields are defined
-   in the following sections.
-
-
 
 
 Klassert, et al.          Expires 14 July 2025                  [Page 9]
 
 Internet-Draft                    EESP                      January 2025
 
+
+   The 'Sequence Number' and 'Initialization Vector' fields are defined
+   in the following sections.
 
 2.3.1.  Sequence Number
 
@@ -549,9 +552,6 @@ Internet-Draft                    EESP                      January 2025
    saves 8 header bytes on each packet.  Whether or not this option is
    selected is determined as part of Security Association (SA)
    establishment.
-
-
-
 
 
 
@@ -2342,10 +2342,10 @@ Internet-Draft                    EESP                      January 2025
 
    Value     EESP Vesion                        Reference
    -------   ------------------------------    ---------------
-       0      V0                              [this document]
-     1-31     Private                         [this document]
-
-              Figure 22: EESP Version Initial Registry Values
+       0      Reserved                        [this document]
+       1      V1                              [this document]
+     2-29     Unassigned                      [this document]
+    30-31     Private                         [this document]
 
 
 
@@ -2353,6 +2353,8 @@ Klassert, et al.          Expires 14 July 2025                 [Page 42]
 
 Internet-Draft                    EESP                      January 2025
 
+
+              Figure 22: EESP Version Initial Registry Values
 
 10.3.  EESP Options Registry
 
@@ -2396,12 +2398,10 @@ Internet-Draft                    EESP                      January 2025
    features.  Readers are advised to note that other implementations may
    exist.
 
-   According to [RFC7942], "this will allow reviewers and working groups
-   to assign due consideration to documents that have the benefit of
-   running code, which may serve as evidence of valuable experimentation
-   and feedback that have made the implemented protocols more mature.
-   It is up to the individual working groups to use this information as
-   they see fit".
+
+
+
+
 
 
 
@@ -2409,6 +2409,13 @@ Klassert, et al.          Expires 14 July 2025                 [Page 43]
 
 Internet-Draft                    EESP                      January 2025
 
+
+   According to [RFC7942], "this will allow reviewers and working groups
+   to assign due consideration to documents that have the benefit of
+   running code, which may serve as evidence of valuable experimentation
+   and feedback that have made the implemented protocols more mature.
+   It is up to the individual working groups to use this information as
+   they see fit".
 
    Authors are requested to add a note to the RFC Editor at the top of
    this section, advising the Editor to remove the entire section before
@@ -2448,6 +2455,17 @@ Internet-Draft                    EESP                      January 2025
               (IKEv2)", STD 79, RFC 7296, DOI 10.17487/RFC7296, October
               2014, <https://www.rfc-editor.org/info/rfc7296>.
 
+
+
+
+
+
+
+Klassert, et al.          Expires 14 July 2025                 [Page 44]
+
+Internet-Draft                    EESP                      January 2025
+
+
    [RFC8200]  Deering, S. and R. Hinden, "Internet Protocol, Version 6
               (IPv6) Specification", STD 86, RFC 8200,
               DOI 10.17487/RFC8200, July 2017,
@@ -2458,13 +2476,6 @@ Internet-Draft                    EESP                      January 2025
               Traffic Flow Security (IP-TFS)", RFC 9347,
               DOI 10.17487/RFC9347, January 2023,
               <https://www.rfc-editor.org/info/rfc9347>.
-
-
-
-Klassert, et al.          Expires 14 July 2025                 [Page 44]
-
-Internet-Draft                    EESP                      January 2025
-
 
 15.  Informative References
 
@@ -2504,6 +2515,13 @@ Internet-Draft                    EESP                      January 2025
               Laboratory, National Institute of Standards and
               Technology, May 25, 2001.".
 
+
+
+Klassert, et al.          Expires 14 July 2025                 [Page 45]
+
+Internet-Draft                    EESP                      January 2025
+
+
    [NIST02]   NIST, "NIST Special Publication 800 NIST SP
               800-108r1-upd1, "Recommendation for Key Derivation Using
               Pseudorandom Functions", National Institute of Standards
@@ -2514,14 +2532,6 @@ Internet-Draft                    EESP                      January 2025
               <https://www.iana.org/assignments/protocol-numbers/
               protocol-numbers.xhtml>.
 
-
-
-
-Klassert, et al.          Expires 14 July 2025                 [Page 45]
-
-Internet-Draft                    EESP                      January 2025
-
-
    [PSP]      Google, "PSP Architecture Specification",
               <https://github.com/google/psp/blob/main/doc/
               PSP_Arch_Spec.pdf>.
@@ -2529,6 +2539,11 @@ Internet-Draft                    EESP                      January 2025
    [RFC2992]  Hopps, C., "Analysis of an Equal-Cost Multi-Path
               Algorithm", RFC 2992, DOI 10.17487/RFC2992, November 2000,
               <https://www.rfc-editor.org/info/rfc2992>.
+
+   [RFC3948]  Huttunen, A., Swander, B., Volpe, V., DiBurro, L., and M.
+              Stenberg, "UDP Encapsulation of IPsec ESP Packets",
+              RFC 3948, DOI 10.17487/RFC3948, January 2005,
+              <https://www.rfc-editor.org/info/rfc3948>.
 
    [RFC7942]  Sheffer, Y. and A. Farrel, "Improving Awareness of Running
               Code: The Implementation Status Section", BCP 205,
@@ -2554,21 +2569,6 @@ Authors' Addresses
    Christian Hopps
    LabN Consulting, L.L.C.
    Email: chopps@chopps.org
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
