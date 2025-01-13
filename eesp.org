@@ -200,7 +200,7 @@ The fixed portion of the base header is defined as follows.
     0                   1                   2                   3
     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   | Version |   Flags   | Opt Len |         Session ID            |
+   | Version | Opt Len |   Flags   |         Session ID            |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    |                              SPI                              |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -240,10 +240,10 @@ The Flags field in the fixed Base Header is defined as follows:
 #+caption: Base Header Flags
 #+name: flags
 #+begin_src
-    0 1 2 3 4 5 6
-   +-+-+-+-+-+-+-+
-   |F|C|S|   R   |
-   +-+-+-+-+-+-+-+
+    0 1 2 3 4 5
+   +-+-+-+-+-+-+
+   |F|C|S|   R |
+   +-+-+-+-+-+-+
 #+end_src
 
 - Packet Format (F) :: 1 bit: Set to zero for full EESP packet Format (i.e., the EESP header includes the
@@ -256,7 +256,7 @@ The Flags field in the fixed Base Header is defined as follows:
 - Sequence Number absent (S) :: 1 bit: If set, the peer header does not
   carry the sequence number field in the packet. This bit MUST be set
   to the same value for all packets on a given SA.
-- Reserved (R) :: 4 bits: Reserved for future versions, MUST be set to 0,
+- Reserved (R) :: 3 bits: Reserved for future versions, MUST be set to 0,
   and ignored by the receiver.
 
 
