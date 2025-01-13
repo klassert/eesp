@@ -1539,7 +1539,10 @@ inner flow information for middlebox use.<a href="#section-abstract-2" class="pi
                 <p id="section-toc.1-1.10.2.1.1"><a href="#section-10.1" class="auto internal xref">10.1</a>.  <a href="#name-eesp-ip-protocol-number" class="internal xref">EESP IP Protocol Number</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.10.2.2">
-                <p id="section-toc.1-1.10.2.2.1"><a href="#section-10.2" class="auto internal xref">10.2</a>.  <a href="#name-eesp-options-registry" class="internal xref">EESP Options Registry</a></p>
+                <p id="section-toc.1-1.10.2.2.1"><a href="#section-10.2" class="auto internal xref">10.2</a>.  <a href="#name-eesp-versions-registry" class="internal xref">EESP Versions Registry</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.10.2.3">
+                <p id="section-toc.1-1.10.2.3.1"><a href="#section-10.3" class="auto internal xref">10.3</a>.  <a href="#name-eesp-options-registry" class="internal xref">EESP Options Registry</a></p>
 </li>
             </ul>
 </li>
@@ -1633,6 +1636,8 @@ Equal-cost multi-path (ECMP)<a href="#section-1.2-3" class="pilcrow">¶</a></p>
 Encapsulating Security Payload (ESP).<a href="#section-1.2-4" class="pilcrow">¶</a></p>
 <p id="section-1.2-5">This document uses the following terms defined in
 <span>[<a href="#I-D.mrossberg-ipsecme-multiple-sequence-counters" class="cite xref">I-D.mrossberg-ipsecme-multiple-sequence-counters</a>]</span>: Sub-Child SA.<a href="#section-1.2-5" class="pilcrow">¶</a></p>
+<p id="section-1.2-6">This document uses the following terms defined in <span>[<a href="#RFC3948" class="cite xref">RFC3948</a>]</span>:
+Non-ESP Marker.<a href="#section-1.2-6" class="pilcrow">¶</a></p>
 </section>
 </section>
 <section id="section-2">
@@ -1719,7 +1724,7 @@ the Base Header and any possible Options.<a href="#section-2.2-1" class="pilcrow
  0                   1                   2                   3
  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-| Version | Opt Len |   Flags   |         Session ID            |
+| Version |   Flags   | Opt Len |         Session ID            |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                              SPI                              |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -1732,9 +1737,9 @@ the Base Header and any possible Options.<a href="#section-2.2-1" class="pilcrow
 <span class="break"></span><dl class="dlParallel" id="section-2.2.1-3">
             <dt id="section-2.2.1-3.1">Version</dt>
             <dd style="margin-left: 1.5em" id="section-2.2.1-3.2">
-              <p id="section-2.2.1-3.2.1">5 bits: MUST be set to zero and checked by the
-receiver. If the version is different than an expected version
-number (e.g., negotiated via the control channel ), then the packet
+              <p id="section-2.2.1-3.2.1">5 bits: Validated by the receiver.
+If the version is different than an expected version
+number (e.g., negotiated via the control channel), then the packet
 MUST be dropped by the receiver. Future modifications to the EESP
 header require a new version number. In particular, the version of
 EESP defined in this document does not allow for any extensions.
@@ -1744,19 +1749,19 @@ treatment of such packets is policy dependent (e.g., it may dictate
 dropping such packets).<a href="#section-2.2.1-3.2.1" class="pilcrow">¶</a></p>
 </dd>
             <dd class="break"></dd>
-<dt id="section-2.2.1-3.3">Opt Len</dt>
+<dt id="section-2.2.1-3.3">Flags</dt>
             <dd style="margin-left: 1.5em" id="section-2.2.1-3.4">
-              <p id="section-2.2.1-3.4.1">5 bits: Length in 4 bytes of the '<code>Options</code>' field.<a href="#section-2.2.1-3.4.1" class="pilcrow">¶</a></p>
+              <p id="section-2.2.1-3.4.1">6 bits: The Flags field is used as specified in <a href="#flags" class="auto internal xref">Figure 3</a>.<a href="#section-2.2.1-3.4.1" class="pilcrow">¶</a></p>
 </dd>
             <dd class="break"></dd>
-<dt id="section-2.2.1-3.5">Flags</dt>
+<dt id="section-2.2.1-3.5">Opt Len</dt>
             <dd style="margin-left: 1.5em" id="section-2.2.1-3.6">
-              <p id="section-2.2.1-3.6.1">6 bits: The Flags field is used as specified in <a href="#flags" class="auto internal xref">Figure 3</a>.<a href="#section-2.2.1-3.6.1" class="pilcrow">¶</a></p>
+              <p id="section-2.2.1-3.6.1">5 bits: Length in 4 bytes of the '<code>Options</code>' field.<a href="#section-2.2.1-3.6.1" class="pilcrow">¶</a></p>
 </dd>
             <dd class="break"></dd>
 <dt id="section-2.2.1-3.7">Session ID</dt>
             <dd style="margin-left: 1.5em" id="section-2.2.1-3.8">
-              <p id="section-2.2.1-3.8.1">16 bit: The Session ID covers additional information
+              <p id="section-2.2.1-3.8.1">16 bits: The Session ID covers additional information
 that might be used to identify the SA and to route the packet to the
 correct stateless crypto context.
 For instance, it can be used to encode a Replay Subspace ID or,
@@ -1776,48 +1781,50 @@ ID is the Enhanced SPI.<a href="#section-2.2.1-3.10.1" class="pilcrow">¶</a></p
 </dd>
           <dd class="break"></dd>
 </dl>
-<p id="section-2.2.1-4">The Flags field in the fixed Base Header is defined as follows:<a href="#section-2.2.1-4" class="pilcrow">¶</a></p>
+<p id="section-2.2.1-4">Version 0 is is Reserved to avoid conflict with Non-ESP Marker of IKE
+packet.<a href="#section-2.2.1-4" class="pilcrow">¶</a></p>
+<p id="section-2.2.1-5">The Flags field in the fixed Base Header is defined as follows:<a href="#section-2.2.1-5" class="pilcrow">¶</a></p>
 <span id="name-base-header-flags"></span><div id="flags">
 <figure id="figure-3">
-            <div class="sourcecode" id="section-2.2.1-5.1">
+            <div class="sourcecode" id="section-2.2.1-6.1">
 <pre>
- 0 1 2 3 4 5
-+-+-+-+-+-+-+
-|F|C|S|   R |
-+-+-+-+-+-+-+
+ 0 1 2 3 4 5 6
++-+-+-+-+-+-+-+
+|F|C|S|   R   |
++-+-+-+-+-+-+-+
 </pre>
 </div>
 <figcaption><a href="#figure-3" class="selfRef">Figure 3</a>:
 <a href="#name-base-header-flags" class="selfRef">Base Header Flags</a>
             </figcaption></figure>
 </div>
-<span class="break"></span><dl class="dlParallel" id="section-2.2.1-6">
-            <dt id="section-2.2.1-6.1">Packet Format (F)</dt>
-            <dd style="margin-left: 1.5em" id="section-2.2.1-6.2">
-              <p id="section-2.2.1-6.2.1">1 bit: Set to zero for full EESP packet Format (i.e., the EESP header includes the
-'<code>Payload Info Header</code>'), set to 1 for Optimized EESP Packet format.<a href="#section-2.2.1-6.2.1" class="pilcrow">¶</a></p>
+<span class="break"></span><dl class="dlParallel" id="section-2.2.1-7">
+            <dt id="section-2.2.1-7.1">Packet Format (F)</dt>
+            <dd style="margin-left: 1.5em" id="section-2.2.1-7.2">
+              <p id="section-2.2.1-7.2.1">1 bit: Set to zero for full EESP packet Format (i.e., the EESP header includes the
+'<code>Payload Info Header</code>'), set to 1 for Optimized EESP Packet format.<a href="#section-2.2.1-7.2.1" class="pilcrow">¶</a></p>
 </dd>
             <dd class="break"></dd>
-<dt id="section-2.2.1-6.3">Payload Encryption Mode</dt>
-            <dd style="margin-left: 1.5em" id="section-2.2.1-6.4">
-              <p id="section-2.2.1-6.4.1">1 bit: If set, the
+<dt id="section-2.2.1-7.3">Payload Encryption Mode</dt>
+            <dd style="margin-left: 1.5em" id="section-2.2.1-7.4">
+              <p id="section-2.2.1-7.4.1">1 bit: If set, the
 following Layer 4 Header is authenticated, but not encrypted.
 This bit MUST be set to 0 on any mode other than payload encryption mode .
 The receiver MUST drop packets with this bit set, if the mode is
-different to payload encryption mode. See <a href="#sec-payload-encryption-mode-processing" class="auto internal xref">Section 4.1.1.2</a><a href="#section-2.2.1-6.4.1" class="pilcrow">¶</a></p>
+different to payload encryption mode. See <a href="#sec-payload-encryption-mode-processing" class="auto internal xref">Section 4.1.1.2</a><a href="#section-2.2.1-7.4.1" class="pilcrow">¶</a></p>
 </dd>
             <dd class="break"></dd>
-<dt id="section-2.2.1-6.5">Sequence Number absent (S)</dt>
-            <dd style="margin-left: 1.5em" id="section-2.2.1-6.6">
-              <p id="section-2.2.1-6.6.1">1 bit: If set, the peer header does not
+<dt id="section-2.2.1-7.5">Sequence Number absent (S)</dt>
+            <dd style="margin-left: 1.5em" id="section-2.2.1-7.6">
+              <p id="section-2.2.1-7.6.1">1 bit: If set, the peer header does not
 carry the sequence number field in the packet. This bit MUST be set
-to the same value for all packets on a given SA.<a href="#section-2.2.1-6.6.1" class="pilcrow">¶</a></p>
+to the same value for all packets on a given SA.<a href="#section-2.2.1-7.6.1" class="pilcrow">¶</a></p>
 </dd>
             <dd class="break"></dd>
-<dt id="section-2.2.1-6.7">Reserved (R)</dt>
-            <dd style="margin-left: 1.5em" id="section-2.2.1-6.8">
-              <p id="section-2.2.1-6.8.1">3 bits: Reserved for future versions, MUST be set to 0,
-and ignored by the receiver.<a href="#section-2.2.1-6.8.1" class="pilcrow">¶</a></p>
+<dt id="section-2.2.1-7.7">Reserved (R)</dt>
+            <dd style="margin-left: 1.5em" id="section-2.2.1-7.8">
+              <p id="section-2.2.1-7.8.1">4 bits: Reserved for future versions, MUST be set to 0,
+and ignored by the receiver.<a href="#section-2.2.1-7.8.1" class="pilcrow">¶</a></p>
 </dd>
           <dd class="break"></dd>
 </dl>
@@ -3783,26 +3790,61 @@ Security Architecture document.<a href="#section-9-1" class="pilcrow">¶</a></p>
         </ul>
 </section>
 <section id="section-10.2">
-        <h3 id="name-eesp-options-registry">
-<a href="#section-10.2" class="section-number selfRef">10.2. </a><a href="#name-eesp-options-registry" class="section-name selfRef">EESP Options Registry</a>
+        <h3 id="name-eesp-versions-registry">
+<a href="#section-10.2" class="section-number selfRef">10.2. </a><a href="#name-eesp-versions-registry" class="section-name selfRef">EESP Versions Registry</a>
         </h3>
-<p id="section-10.2-1">This document requests IANA to create a registry called "EESP_OPTIONS
-Type Registry" under a new category named "EESP_OPTIONS Parameters".<a href="#section-10.2-1" class="pilcrow">¶</a></p>
+<p id="section-10.2-1">This document requests IANA to create a registry called "EESP_VERSIONS"
+Type Registry" under a new category named "EESP_VERSIONS Parameters".<a href="#section-10.2-1" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-10.2-2.1">
-            <p id="section-10.2-2.1.1">Name: EESP Options Registry<a href="#section-10.2-2.1.1" class="pilcrow">¶</a></p>
+            <p id="section-10.2-2.1.1">Name: EESP Versions Registry<a href="#section-10.2-2.1.1" class="pilcrow">¶</a></p>
 </li>
           <li class="normal" id="section-10.2-2.2">
-            <p id="section-10.2-2.2.1">Description: EESP Base Header Options<a href="#section-10.2-2.2.1" class="pilcrow">¶</a></p>
+            <p id="section-10.2-2.2.1">Description: EESP Base Header Version<a href="#section-10.2-2.2.1" class="pilcrow">¶</a></p>
 </li>
           <li class="normal" id="section-10.2-2.3">
             <p id="section-10.2-2.3.1">Reference: This document<a href="#section-10.2-2.3.1" class="pilcrow">¶</a></p>
 </li>
         </ul>
 <p id="section-10.2-3">The initial content for this registry is as follows:<a href="#section-10.2-3" class="pilcrow">¶</a></p>
-<span id="name-initial-registry-values"></span><div id="iana_requests_reg">
+<span id="name-eesp-version-initial-regist"></span><div id="iana_requests_versions_reg">
 <figure id="figure-22">
           <div class="sourcecode" id="section-10.2-4.1">
+<pre>
+Value     EESP Vesion                        Reference
+-------   ------------------------------    ---------------
+    0      Reserved                        [this document]
+    1      V1                              [this document]
+  2-29     Unassigned                      [this document]
+ 30-31     Private                         [this document]
+</pre>
+</div>
+<figcaption><a href="#figure-22" class="selfRef">Figure 22</a>:
+<a href="#name-eesp-version-initial-regist" class="selfRef">EESP Version Initial Registry Values</a>
+          </figcaption></figure>
+</div>
+</section>
+<section id="section-10.3">
+        <h3 id="name-eesp-options-registry">
+<a href="#section-10.3" class="section-number selfRef">10.3. </a><a href="#name-eesp-options-registry" class="section-name selfRef">EESP Options Registry</a>
+        </h3>
+<p id="section-10.3-1">This document requests IANA to create a registry called "EESP_OPTIONS
+Type Registry" under a new category named "EESP_OPTIONS Parameters".<a href="#section-10.3-1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-10.3-2.1">
+            <p id="section-10.3-2.1.1">Name: EESP Options Registry<a href="#section-10.3-2.1.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-10.3-2.2">
+            <p id="section-10.3-2.2.1">Description: EESP Base Header Options<a href="#section-10.3-2.2.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-10.3-2.3">
+            <p id="section-10.3-2.3.1">Reference: This document<a href="#section-10.3-2.3.1" class="pilcrow">¶</a></p>
+</li>
+        </ul>
+<p id="section-10.3-3">The initial content for this registry is as follows:<a href="#section-10.3-3" class="pilcrow">¶</a></p>
+<span id="name-initial-registry-values"></span><div id="iana_requests_options_reg">
+<figure id="figure-23">
+          <div class="sourcecode" id="section-10.3-4.1">
 <pre>
 Value     EESP Header Options Types         Reference
 -------   ------------------------------    ---------------
@@ -3814,7 +3856,7 @@ Value     EESP Header Options Types         Reference
 224-255   Private                           [this document]
 </pre>
 </div>
-<figcaption><a href="#figure-22" class="selfRef">Figure 22</a>:
+<figcaption><a href="#figure-23" class="selfRef">Figure 23</a>:
 <a href="#name-initial-registry-values" class="selfRef">Initial Registry Values</a>
           </figcaption></figure>
 </div>
@@ -3935,6 +3977,10 @@ publication, as well as the reference to <span>[<a href="#RFC7942" class="cite x
 <dt id="RFC2992">[RFC2992]</dt>
       <dd>
 <span class="refAuthor">Hopps, C.</span>, <span class="refTitle">"Analysis of an Equal-Cost Multi-Path Algorithm"</span>, <span class="seriesInfo">RFC 2992</span>, <span class="seriesInfo">DOI 10.17487/RFC2992</span>, <time datetime="2000-11" class="refDate">November 2000</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc2992">https://www.rfc-editor.org/info/rfc2992</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC3948">[RFC3948]</dt>
+      <dd>
+<span class="refAuthor">Huttunen, A.</span>, <span class="refAuthor">Swander, B.</span>, <span class="refAuthor">Volpe, V.</span>, <span class="refAuthor">DiBurro, L.</span>, and <span class="refAuthor">M. Stenberg</span>, <span class="refTitle">"UDP Encapsulation of IPsec ESP Packets"</span>, <span class="seriesInfo">RFC 3948</span>, <span class="seriesInfo">DOI 10.17487/RFC3948</span>, <time datetime="2005-01" class="refDate">January 2005</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc3948">https://www.rfc-editor.org/info/rfc3948</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="RFC7942">[RFC7942]</dt>
     <dd>

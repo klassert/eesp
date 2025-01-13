@@ -149,15 +149,15 @@ Internet-Draft                    EESP                      January 2025
    9.  Security Considerations . . . . . . . . . . . . . . . . . . .  42
    10. IANA Considerations . . . . . . . . . . . . . . . . . . . . .  42
      10.1.  EESP IP Protocol Number  . . . . . . . . . . . . . . . .  42
-     10.2.  EESP Options Registry  . . . . . . . . . . . . . . . . .  42
+     10.2.  EESP Versions Registry . . . . . . . . . . . . . . . . .  42
+     10.3.  EESP Options Registry  . . . . . . . . . . . . . . . . .  43
    11. Implementation Status . . . . . . . . . . . . . . . . . . . .  43
-   12. Security Considerations . . . . . . . . . . . . . . . . . . .  43
-   13. Acknowledgments . . . . . . . . . . . . . . . . . . . . . . .  43
+   12. Security Considerations . . . . . . . . . . . . . . . . . . .  44
+   13. Acknowledgments . . . . . . . . . . . . . . . . . . . . . . .  44
    14. Normative References  . . . . . . . . . . . . . . . . . . . .  44
-   15. Informative References  . . . . . . . . . . . . . . . . . . .  44
+   15. Informative References  . . . . . . . . . . . . . . . . . . .  45
    Appendix A.  Additional Stuff . . . . . . . . . . . . . . . . . .  46
    Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  46
-
 
 
 
@@ -250,6 +250,9 @@ Internet-Draft                    EESP                      January 2025
    This document uses the following terms defined in
    [I-D.mrossberg-ipsecme-multiple-sequence-counters]: Sub-Child SA.
 
+   This document uses the following terms defined in [RFC3948]: Non-ESP
+   Marker.
+
 2.  Protocol Definition
 
    In this section we define the exact protocol formats and operations.
@@ -262,9 +265,6 @@ Internet-Draft                    EESP                      January 2025
    its [Protocol] (IPv4) or Next Header (IPv6, Extension) field.
    Figure 1 illustrates the top-level format of an EESP packet.  The
    EESP header is split into multiple parts.
-
-
-
 
 
 
@@ -351,37 +351,37 @@ Internet-Draft                    EESP                      January 2025
     0                   1                   2                   3
     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   | Version | Opt Len |   Flags   |         Session ID            |
+   | Version |   Flags   | Opt Len |         Session ID            |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    |                              SPI                              |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
                         Figure 2: Fixed Base Header
 
-   Version  5 bits: MUST be set to zero and checked by the receiver.  If
-      the version is different than an expected version number (e.g.,
-      negotiated via the control channel ), then the packet MUST be
-      dropped by the receiver.  Future modifications to the EESP header
-      require a new version number.  In particular, the version of EESP
-      defined in this document does not allow for any extensions.
-      Intermediate nodes dealing with unknown versions are not
-      necessarily able to parse the packet correctly.  Intermediate
-      treatment of such packets is policy dependent (e.g., it may
-      dictate dropping such packets).
-
-   Opt Len  5 bits: Length in 4 bytes of the 'Options' field.
+   Version  5 bits: Validated by the receiver.  If the version is
+      different than an expected version number (e.g., negotiated via
+      the control channel), then the packet MUST be dropped by the
+      receiver.  Future modifications to the EESP header require a new
+      version number.  In particular, the version of EESP defined in
+      this document does not allow for any extensions.  Intermediate
+      nodes dealing with unknown versions are not necessarily able to
+      parse the packet correctly.  Intermediate treatment of such
+      packets is policy dependent (e.g., it may dictate dropping such
+      packets).
 
    Flags  6 bits: The Flags field is used as specified in Figure 3.
 
-   Session ID  16 bit: The Session ID covers additional information that
-      might be used to identify the SA and to route the packet to the
-      correct stateless crypto context.  For instance, it can be used to
-      encode a Replay Subspace ID or, if a Key Derivation Function (KDF)
-      is used to do stateless key derivation, the crypto algorithm ID
-      could be encoded there.  The meaning of that field is opaque and
-      MAY be negotiated by IKEv2.  This document defines the use of the
-      Session ID as a Replay Subspace ID.  Other usecases are not
-      covered in this document.
+   Opt Len  5 bits: Length in 4 bytes of the 'Options' field.
+
+   Session ID  16 bits: The Session ID covers additional information
+      that might be used to identify the SA and to route the packet to
+      the correct stateless crypto context.  For instance, it can be
+      used to encode a Replay Subspace ID or, if a Key Derivation
+      Function (KDF) is used to do stateless key derivation, the crypto
+      algorithm ID could be encoded there.  The meaning of that field is
+      opaque and MAY be negotiated by IKEv2.  This document defines the
+      use of the Session ID as a Replay Subspace ID.  Other usecases are
+      not covered in this document.
 
    Security Parameter Index (SPI)  32 bits: The SPI is an arbitrary
 
@@ -398,12 +398,15 @@ Internet-Draft                    EESP                      January 2025
       which an incoming packet is bound.  This combined with the 16-bit
       Session ID is the Enhanced SPI.
 
+   Version 0 is is Reserved to avoid conflict with Non-ESP Marker of IKE
+   packet.
+
    The Flags field in the fixed Base Header is defined as follows:
 
-    0 1 2 3 4 5
-   +-+-+-+-+-+-+
-   |F|C|S|   R |
-   +-+-+-+-+-+-+
+    0 1 2 3 4 5 6
+   +-+-+-+-+-+-+-+
+   |F|C|S|   R   |
+   +-+-+-+-+-+-+-+
 
                         Figure 3: Base Header Flags
 
@@ -421,7 +424,7 @@ Internet-Draft                    EESP                      January 2025
       carry the sequence number field in the packet.  This bit MUST be
       set to the same value for all packets on a given SA.
 
-   Reserved (R)  3 bits: Reserved for future versions, MUST be set to 0,
+   Reserved (R)  4 bits: Reserved for future versions, MUST be set to 0,
       and ignored by the receiver.
 
 2.2.2.  Base Header Options
@@ -437,9 +440,6 @@ Internet-Draft                    EESP                      January 2025
    meaning is attached to the top 3 bits of the option type value, and
    the processing order of the options is not restricted.
 
-   Option type values are allocated from one of two ranges of values.
-   One range is used for standardized option types and the second range
-   is reserved for private options.
 
 
 
@@ -449,6 +449,10 @@ Klassert, et al.          Expires 17 July 2025                  [Page 8]
 
 Internet-Draft                    EESP                      January 2025
 
+
+   Option type values are allocated from one of two ranges of values.
+   One range is used for standardized option types and the second range
+   is reserved for private options.
 
    This document defines 4 initial standard option types, 'Pad1 Option',
    'PadN Option', 'Flow Identifier Option', and 'Crypt Offset Option'.
@@ -495,16 +499,15 @@ Internet-Draft                    EESP                      January 2025
    entire sequence number on each packet.  The actual size of the
    'Initialization Vector' depends on the choice of the cipher suite.
 
-   The 'Sequence Number' and 'Initialization Vector' fields are defined
-   in the following sections.
-
-
 
 
 Klassert, et al.          Expires 17 July 2025                  [Page 9]
 
 Internet-Draft                    EESP                      January 2025
 
+
+   The 'Sequence Number' and 'Initialization Vector' fields are defined
+   in the following sections.
 
 2.3.1.  Sequence Number
 
@@ -549,9 +552,6 @@ Internet-Draft                    EESP                      January 2025
    saves 8 header bytes on each packet.  Whether or not this option is
    selected is determined as part of Security Association (SA)
    establishment.
-
-
-
 
 
 
@@ -2326,7 +2326,37 @@ Internet-Draft                    EESP                      January 2025
 
    *  Reference: This document
 
-10.2.  EESP Options Registry
+10.2.  EESP Versions Registry
+
+   This document requests IANA to create a registry called
+   "EESP_VERSIONS" Type Registry" under a new category named
+   "EESP_VERSIONS Parameters".
+
+   *  Name: EESP Versions Registry
+
+   *  Description: EESP Base Header Version
+
+   *  Reference: This document
+
+   The initial content for this registry is as follows:
+
+   Value     EESP Vesion                        Reference
+   -------   ------------------------------    ---------------
+       0      Reserved                        [this document]
+       1      V1                              [this document]
+     2-29     Unassigned                      [this document]
+    30-31     Private                         [this document]
+
+
+
+Klassert, et al.          Expires 17 July 2025                 [Page 42]
+
+Internet-Draft                    EESP                      January 2025
+
+
+              Figure 22: EESP Version Initial Registry Values
+
+10.3.  EESP Options Registry
 
    This document requests IANA to create a registry called "EESP_OPTIONS
    Type Registry" under a new category named "EESP_OPTIONS Parameters".
@@ -2339,21 +2369,6 @@ Internet-Draft                    EESP                      January 2025
 
    The initial content for this registry is as follows:
 
-
-
-
-
-
-
-
-
-
-
-Klassert, et al.          Expires 17 July 2025                 [Page 42]
-
-Internet-Draft                    EESP                      January 2025
-
-
    Value     EESP Header Options Types         Reference
    -------   ------------------------------    ---------------
          0   Pad1                              [this document]
@@ -2363,7 +2378,7 @@ Internet-Draft                    EESP                      January 2025
      4-223   Unassigned                        [this document]
    224-255   Private                           [this document]
 
-                     Figure 22: Initial Registry Values
+                     Figure 23: Initial Registry Values
 
 11.  Implementation Status
 
@@ -2383,6 +2398,18 @@ Internet-Draft                    EESP                      January 2025
    features.  Readers are advised to note that other implementations may
    exist.
 
+
+
+
+
+
+
+
+Klassert, et al.          Expires 17 July 2025                 [Page 43]
+
+Internet-Draft                    EESP                      January 2025
+
+
    According to [RFC7942], "this will allow reviewers and working groups
    to assign due consideration to documents that have the benefit of
    running code, which may serve as evidence of valuable experimentation
@@ -2401,14 +2428,6 @@ Internet-Draft                    EESP                      January 2025
 13.  Acknowledgments
 
    TBD
-
-
-
-
-Klassert, et al.          Expires 17 July 2025                 [Page 43]
-
-Internet-Draft                    EESP                      January 2025
-
 
 14.  Normative References
 
@@ -2436,6 +2455,17 @@ Internet-Draft                    EESP                      January 2025
               (IKEv2)", STD 79, RFC 7296, DOI 10.17487/RFC7296, October
               2014, <https://www.rfc-editor.org/info/rfc7296>.
 
+
+
+
+
+
+
+Klassert, et al.          Expires 17 July 2025                 [Page 44]
+
+Internet-Draft                    EESP                      January 2025
+
+
    [RFC8200]  Deering, S. and R. Hinden, "Internet Protocol, Version 6
               (IPv6) Specification", STD 86, RFC 8200,
               DOI 10.17487/RFC8200, July 2017,
@@ -2458,14 +2488,6 @@ Internet-Draft                    EESP                      January 2025
               He, Q., Pan, W., Chen, X., and B. Ding, "Shared Use of
               IPsec Tunnel in a Multi-VPN Environment", Work in
               Progress, Internet-Draft, draft-he-ipsecme-vpn-shared-
-
-
-
-Klassert, et al.          Expires 17 July 2025                 [Page 44]
-
-Internet-Draft                    EESP                      January 2025
-
-
               ipsecsa-01, 8 July 2024,
               <https://datatracker.ietf.org/doc/html/draft-he-ipsecme-
               vpn-shared-ipsecsa-01>.
@@ -2493,6 +2515,13 @@ Internet-Draft                    EESP                      January 2025
               Laboratory, National Institute of Standards and
               Technology, May 25, 2001.".
 
+
+
+Klassert, et al.          Expires 17 July 2025                 [Page 45]
+
+Internet-Draft                    EESP                      January 2025
+
+
    [NIST02]   NIST, "NIST Special Publication 800 NIST SP
               800-108r1-upd1, "Recommendation for Key Derivation Using
               Pseudorandom Functions", National Institute of Standards
@@ -2511,16 +2540,10 @@ Internet-Draft                    EESP                      January 2025
               Algorithm", RFC 2992, DOI 10.17487/RFC2992, November 2000,
               <https://www.rfc-editor.org/info/rfc2992>.
 
-
-
-
-
-
-
-Klassert, et al.          Expires 17 July 2025                 [Page 45]
-
-Internet-Draft                    EESP                      January 2025
-
+   [RFC3948]  Huttunen, A., Swander, B., Volpe, V., DiBurro, L., and M.
+              Stenberg, "UDP Encapsulation of IPsec ESP Packets",
+              RFC 3948, DOI 10.17487/RFC3948, January 2005,
+              <https://www.rfc-editor.org/info/rfc3948>.
 
    [RFC7942]  Sheffer, Y. and A. Farrel, "Improving Awareness of Running
               Code: The Implementation Status Section", BCP 205,
@@ -2546,29 +2569,6 @@ Authors' Addresses
    Christian Hopps
    LabN Consulting, L.L.C.
    Email: chopps@chopps.org
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
