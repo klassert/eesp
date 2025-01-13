@@ -111,6 +111,9 @@ Encapsulating Security Payload (ESP).
 This document uses the following terms defined in
 [[I-D.mrossberg-ipsecme-multiple-sequence-counters]]: Sub-Child SA.
 
+This document uses the following terms defined in [[RFC3948]]:
+Non-ESP Marker.
+
 
 * Protocol Definition
 
@@ -197,15 +200,15 @@ The fixed portion of the base header is defined as follows.
     0                   1                   2                   3
     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   | Version |   Flags   | Opt Len |         Session ID            |
+   | Version | Opt Len |   Flags   |         Session ID            |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    |                              SPI                              |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #+end_src
 
-- Version :: 5 bits: MUST be set to zero and checked by the
-  receiver. If the version is different than an expected version
-  number (e.g., negotiated via the control channel ), then the packet
+- Version :: 5 bits: Validated by the receiver.
+  If the version is different than an expected version
+  number (e.g., negotiated via the control channel), then the packet
   MUST be dropped by the receiver. Future modifications to the EESP
   header require a new version number. In particular, the version of
   EESP defined in this document does not allow for any extensions.
@@ -213,9 +216,9 @@ The fixed portion of the base header is defined as follows.
   necessarily able to parse the packet correctly. Intermediate
   treatment of such packets is policy dependent (e.g., it may dictate
   dropping such packets).
-- Flags :: 6 bit: The Flags field is used as specified in [[flags]].
+- Flags :: 6 bits: The Flags field is used as specified in [[flags]].
 - Opt Len :: 5 bits: Length in 4 bytes of the ~Options~ field.
-- Session ID :: 16 bit: The Session ID covers additional information
+- Session ID :: 16 bits: The Session ID covers additional information
   that might be used to identify the SA and to route the packet to the
   correct stateless crypto context.
   For instance, it can be used to encode a Replay Subspace ID or,
@@ -229,15 +232,18 @@ The fixed portion of the base header is defined as follows.
   an incoming packet is bound. This combined with the 16-bit Session
   ID is the Enhanced SPI.
 
+Version 0 is is Reserved to avoid conflict with Non-ESP Marker of IKE
+packet.
+
 The Flags field in the fixed Base Header is defined as follows:
 
 #+caption: Base Header Flags
 #+name: flags
 #+begin_src
-    0 1 2 3 4 5 6
-   +-+-+-+-+-+-+-+
-   |F|C|S|   R   |
-   +-+-+-+-+-+-+-+
+    0 1 2 3 4 5
+   +-+-+-+-+-+-+
+   |F|C|S|   R |
+   +-+-+-+-+-+-+
 #+end_src
 
 - Packet Format (F) :: 1 bit: Set to zero for full EESP packet Format (i.e., the EESP header includes the
@@ -250,7 +256,7 @@ The Flags field in the fixed Base Header is defined as follows:
 - Sequence Number absent (S) :: 1 bit: If set, the peer header does not
   carry the sequence number field in the packet. This bit MUST be set
   to the same value for all packets on a given SA.
-- Reserved (R) :: 4 bits: Reserved for future versions, MUST be set to 0,
+- Reserved (R) :: 3 bits: Reserved for future versions, MUST be set to 0,
   and ignored by the receiver.
 
 
@@ -1917,6 +1923,29 @@ This document requests IANA allocate an IP protocol number from
 - Protocol: Enhanced Encapsulating Security Payload
 - Reference: This document
 
+** EESP Versions Registry
+
+This document requests IANA to create a registry called "EESP_VERSIONS"
+Type Registry" under a new category named "EESP_VERSIONS Parameters".
+
+- Name: EESP Versions Registry
+- Description: EESP Base Header Version
+- Reference: This document
+
+The initial content for this registry is as follows:
+
+#+caption: EESP Version Initial Registry Values
+#+name: iana_requests_versions_reg
+#+begin_src
+    Value     EESP Vesion                        Reference
+    -------   ------------------------------    ---------------
+        0      Reserved                        [this document]
+        1      V1                              [this document]
+      2-29     Unassigned                      [this document]
+     30-31     Private                         [this document]
+#+end_src
+
+
 ** EESP Options Registry
 
 This document requests IANA to create a registry called "EESP_OPTIONS
@@ -1929,7 +1958,7 @@ Type Registry" under a new category named "EESP_OPTIONS Parameters".
 The initial content for this registry is as follows:
 
 #+caption: Initial Registry Values
-#+name: iana_requests_reg
+#+name: iana_requests_options_reg
 #+begin_src
     Value     EESP Header Options Types         Reference
     -------   ------------------------------    ---------------
@@ -1996,6 +2025,7 @@ TBD
 ** I-D.he-ipsecme-vpn-shared-ipsecsa
 ** RFC2992
 ** RFC7942
+** RFC3948
 ** PSP
 :PROPERTIES:
 :REF_TARGET: https://github.com/google/psp/blob/main/doc/PSP_Arch_Spec.pdf
