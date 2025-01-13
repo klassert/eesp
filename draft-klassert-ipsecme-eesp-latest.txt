@@ -351,7 +351,7 @@ Internet-Draft                    EESP                      January 2025
     0                   1                   2                   3
     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   | Version |   Flags   | Opt Len |         Session ID            |
+   | Version | Opt Len |   Flags   |         Session ID            |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    |                              SPI                              |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -403,10 +403,10 @@ Internet-Draft                    EESP                      January 2025
 
    The Flags field in the fixed Base Header is defined as follows:
 
-    0 1 2 3 4 5 6
-   +-+-+-+-+-+-+-+
-   |F|C|S|   R   |
-   +-+-+-+-+-+-+-+
+    0 1 2 3 4 5
+   +-+-+-+-+-+-+
+   |F|C|S|   R |
+   +-+-+-+-+-+-+
 
                         Figure 3: Base Header Flags
 
@@ -424,7 +424,7 @@ Internet-Draft                    EESP                      January 2025
       carry the sequence number field in the packet.  This bit MUST be
       set to the same value for all packets on a given SA.
 
-   Reserved (R)  4 bits: Reserved for future versions, MUST be set to 0,
+   Reserved (R)  3 bits: Reserved for future versions, MUST be set to 0,
       and ignored by the receiver.
 
 2.2.2.  Base Header Options

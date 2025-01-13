@@ -1724,7 +1724,7 @@ the Base Header and any possible Options.<a href="#section-2.2-1" class="pilcrow
  0                   1                   2                   3
  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-| Version |   Flags   | Opt Len |         Session ID            |
+| Version | Opt Len |   Flags   |         Session ID            |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                              SPI                              |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -1788,10 +1788,10 @@ packet.<a href="#section-2.2.1-4" class="pilcrow">¶</a></p>
 <figure id="figure-3">
             <div class="sourcecode" id="section-2.2.1-6.1">
 <pre>
- 0 1 2 3 4 5 6
-+-+-+-+-+-+-+-+
-|F|C|S|   R   |
-+-+-+-+-+-+-+-+
+ 0 1 2 3 4 5
++-+-+-+-+-+-+
+|F|C|S|   R |
++-+-+-+-+-+-+
 </pre>
 </div>
 <figcaption><a href="#figure-3" class="selfRef">Figure 3</a>:
@@ -1823,7 +1823,7 @@ to the same value for all packets on a given SA.<a href="#section-2.2.1-7.6.1" c
             <dd class="break"></dd>
 <dt id="section-2.2.1-7.7">Reserved (R)</dt>
             <dd style="margin-left: 1.5em" id="section-2.2.1-7.8">
-              <p id="section-2.2.1-7.8.1">4 bits: Reserved for future versions, MUST be set to 0,
+              <p id="section-2.2.1-7.8.1">3 bits: Reserved for future versions, MUST be set to 0,
 and ignored by the receiver.<a href="#section-2.2.1-7.8.1" class="pilcrow">¶</a></p>
 </dd>
           <dd class="break"></dd>
