@@ -207,15 +207,15 @@ The fixed portion of the base header is defined as follows.
     0                   1                   2                   3
     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   | Version | Opt Len |   Flags   |         Session ID            |
+   |1|Version| Opt Len |   Flags   |         Session ID            |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    |                              SPI                              |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #+end_src
-
-- Version :: 5 bits: MUST be set to 1 and checked by the receiver.
-  Version 0 is is reserved to avoid a conflict with the Non-ESP Marker of IKE
-  packets in the case of UDP encapsulation.
+- ESP compaitability :: 1 bit : set to 1 for compaitability with
+  ESP-in-UDP. ESP-in-UDP SA MAY have this bit 0, the most significant
+  bit of SPI is 0.
+- Version :: 4 bits: Validated by the receiver.
   If the version is different than an expected version
   number (e.g., negotiated via the control channel), then the packet
   MUST be dropped by the receiver. Future modifications to the EESP
@@ -549,7 +549,7 @@ other modes of operation.
     0                   1                   2                   3
     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   | Version |   Flags   | Opt Len |        Session ID             |
+   |1|Version|   Flags   | Opt Len |        Session ID             |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    |                              SPI                              |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -584,7 +584,7 @@ other modes of operation.
     0                   1                   2                   3
     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   | Version |   Flags   | Opt Len |        Session ID             |
+   |1|Version|   Flags   | Opt Len |        Session ID             |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    |                              SPI                              |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -1945,10 +1945,9 @@ The initial content for this registry is as follows:
 #+begin_src
     Value     EESP Vesion                        Reference
     -------   ------------------------------    ---------------
-        0      Reserved                        [this document]
-        1      V1                              [this document]
-      2-29     Unassigned                      [this document]
-     30-31     Private                         [this document]
+        0      V0                              [this document]
+      1-13     Unassigned                      [this document]
+     13-15     Private Use                     [this document]
 #+end_src
 
 
