@@ -200,13 +200,16 @@ The fixed portion of the base header is defined as follows.
     0                   1                   2                   3
     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   | Version | Opt Len |   Flags   |         Session ID            |
+   |1|Version| Opt Len |   Flags   |         Session ID            |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    |                              SPI                              |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #+end_src
 
-- Version :: 5 bits: Validated by the receiver.
+- ESP compaitability :: 1 bit : set to 1 for compaitability with
+  ESP-in-UDP. ESP-in-UDP SA MAY have this bit 0, the most significant
+  bit of SPI 0.
+- Version :: 4 bits: Validated by the receiver.
   If the version is different than an expected version
   number (e.g., negotiated via the control channel), then the packet
   MUST be dropped by the receiver. Future modifications to the EESP
@@ -1941,8 +1944,8 @@ The initial content for this registry is as follows:
     -------   ------------------------------    ---------------
         0      Reserved                        [this document]
         1      V1                              [this document]
-      2-29     Unassigned                      [this document]
-     30-31     Private                         [this document]
+      2-13     Unassigned                      [this document]
+     13-15     Private Use                     [this document]
 #+end_src
 
 
