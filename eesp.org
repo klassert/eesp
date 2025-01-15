@@ -164,13 +164,20 @@ correct Crypto context.
 The ~Peer Header~ follows the ~Base Header~. The ~Peer Header~ is
 used to support replay protection and to store cryptographic
 synchronization data, e.g., an Initialization Vector (IV)
-for the IPsec peer.
+for the IPsec peer. The ~Peer Header~ is private to the
+IPsec peers.
 
 # :NOTE: Maybe 'route the packet to the correct Crypto context'
 # is more what the SPI/ID does i.e. the Base Header.
 
 Unlike ESP, EESP does not have a trailer. Instead, these values have
 moved to a ~Payload Info Header~ directly following the ~Peer Header~.
+On classical transport and tunnel mode, the ~Payload Info Header~
+is encrypted, and therefore private to the IPsec peers. However,
+on ~Payload Encryption Mode~ as specified in section XXX or
+with a positive crypt offset (see section XXX), the ~Payload Info Header~
+might left unencrypted. In these modes protocol parsing engines of
+middleboxes can act upon it (i.e.for telemetry).
 
 # :NOTE: doesn't the Payload Data structure depend on the mode of
 # operation selected during creation of the SA?
