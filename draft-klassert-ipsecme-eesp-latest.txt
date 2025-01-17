@@ -5,9 +5,9 @@
 IPSECME Working Group                                        S. Klassert
 Internet-Draft                                                 A. Antony
 Intended status: Standards Track                                 secunet
-Expires: 18 July 2025                                           C. Hopps
+Expires: 21 July 2025                                           C. Hopps
                                                  LabN Consulting, L.L.C.
-                                                         14 January 2025
+                                                         17 January 2025
 
 
              Enhanced Encapsulating Security Payload (EESP)
@@ -43,7 +43,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 18 July 2025.
+   This Internet-Draft will expire on 21 July 2025.
 
 Copyright Notice
 
@@ -53,7 +53,7 @@ Copyright Notice
 
 
 
-Klassert, et al.          Expires 18 July 2025                  [Page 1]
+Klassert, et al.          Expires 21 July 2025                  [Page 1]
 
 Internet-Draft                    EESP                      January 2025
 
@@ -109,7 +109,7 @@ Table of Contents
 
 
 
-Klassert, et al.          Expires 18 July 2025                  [Page 2]
+Klassert, et al.          Expires 21 July 2025                  [Page 2]
 
 Internet-Draft                    EESP                      January 2025
 
@@ -165,7 +165,7 @@ Internet-Draft                    EESP                      January 2025
 
 
 
-Klassert, et al.          Expires 18 July 2025                  [Page 3]
+Klassert, et al.          Expires 21 July 2025                  [Page 3]
 
 Internet-Draft                    EESP                      January 2025
 
@@ -221,7 +221,7 @@ Internet-Draft                    EESP                      January 2025
 
 
 
-Klassert, et al.          Expires 18 July 2025                  [Page 4]
+Klassert, et al.          Expires 21 July 2025                  [Page 4]
 
 Internet-Draft                    EESP                      January 2025
 
@@ -277,7 +277,7 @@ Internet-Draft                    EESP                      January 2025
 
 
 
-Klassert, et al.          Expires 18 July 2025                  [Page 5]
+Klassert, et al.          Expires 21 July 2025                  [Page 5]
 
 Internet-Draft                    EESP                      January 2025
 
@@ -315,14 +315,28 @@ Internet-Draft                    EESP                      January 2025
    The 'Peer Header' follows the 'Base Header'.  The 'Peer Header' is
    used to support replay protection and to store cryptographic
    synchronization data, e.g., an Initialization Vector (IV) for the
-   IPsec peer.
+   IPsec peer.  The 'Peer Header' is private to the IPsec peers.
 
    Unlike ESP, EESP does not have a trailer.  Instead, these values have
    moved to a 'Payload Info Header' directly following the 'Peer
-   Header'.
+   Header'.  On classical transport and tunnel mode, the 'Payload Info
+   Header' is encrypted, and therefore private to the IPsec peers.
+   However, on 'Payload Encryption Mode' as specified in section XXX or
+   with a positive crypt offset (see section XXX), the 'Payload Info
+   Header' might left unencrypted.  In these modes protocol parsing
+   engines of middleboxes can act upon it (i.e.for telemetry).
 
    The 'Payload Data' follows these 3 header parts, and has structure
    that depends on the choice of encryption algorithm and mode.
+
+
+
+
+
+Klassert, et al.          Expires 21 July 2025                  [Page 6]
+
+Internet-Draft                    EESP                      January 2025
+
 
    'Padding' is an optional field following the 'Payload Data',
    primarily for alignment when using a block cipher.
@@ -330,13 +344,6 @@ Internet-Draft                    EESP                      January 2025
    Finally, the packet ends with an optional 'Integrity Check Value'
    (ICV) (see Section 4.3.2).  The length of this ICV depends on the
    Crypto suite.
-
-
-
-Klassert, et al.          Expires 18 July 2025                  [Page 6]
-
-Internet-Draft                    EESP                      January 2025
-
 
 2.2.  Base Header
 
@@ -351,27 +358,25 @@ Internet-Draft                    EESP                      January 2025
     0                   1                   2                   3
     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |1|Version| Opt Len |   Flags   |         Session ID            |
+   | Version | Opt Len |   Flags   |         Session ID            |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    |                              SPI                              |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
                         Figure 2: Fixed Base Header
 
-   ESP compaitability  1 bit : set to 1 for compaitability with ESP-in-
-      UDP.  ESP-in-UDP SA MAY have this bit 0, the most significant bit
-      of SPI 0.
-
-   Version  4 bits: Validated by the receiver.  If the version is
-      different than an expected version number (e.g., negotiated via
-      the control channel), then the packet MUST be dropped by the
-      receiver.  Future modifications to the EESP header require a new
-      version number.  In particular, the version of EESP defined in
-      this document does not allow for any extensions.  Intermediate
-      nodes dealing with unknown versions are not necessarily able to
-      parse the packet correctly.  Intermediate treatment of such
-      packets is policy dependent (e.g., it may dictate dropping such
-      packets).
+   Version  5 bits: MUST be set to 1 and checked by the receiver.
+      Version 0 is is reserved to avoid a conflict with the Non-ESP
+      Marker of IKE packets in the case of UDP encapsulation.  If the
+      version is different than an expected version number (e.g.,
+      negotiated via the control channel), then the packet MUST be
+      dropped by the receiver.  Future modifications to the EESP header
+      require a new version number.  In particular, the version of EESP
+      defined in this document does not allow for any extensions.
+      Intermediate nodes dealing with unknown versions are not
+      necessarily able to parse the packet correctly.  Intermediate
+      treatment of such packets is policy dependent (e.g., it may
+      dictate dropping such packets).
 
    Flags  6 bits: The Flags field is used as specified in Figure 3.
 
@@ -381,32 +386,30 @@ Internet-Draft                    EESP                      January 2025
       that might be used to identify the SA and to route the packet to
       the correct stateless crypto context.  For instance, it can be
       used to encode a Replay Subspace ID or, if a Key Derivation
+
+
+
+Klassert, et al.          Expires 21 July 2025                  [Page 7]
+
+Internet-Draft                    EESP                      January 2025
+
+
       Function (KDF) is used to do stateless key derivation, the crypto
       algorithm ID could be encoded there.  The meaning of that field is
       opaque and MAY be negotiated by IKEv2.  This document defines the
       use of the Session ID as a Replay Subspace ID.  Other usecases are
       not covered in this document.
 
-
-
-Klassert, et al.          Expires 18 July 2025                  [Page 7]
-
-Internet-Draft                    EESP                      January 2025
-
-
    Security Parameter Index (SPI)  32 bits: The SPI is an arbitrary
       32-bit value that is used by a receiver to identify the SA to
       which an incoming packet is bound.  This combined with the 16-bit
       Session ID is the Enhanced SPI.
 
-   Version 0 is is Reserved to avoid conflict with Non-ESP Marker of IKE
-   packet.
-
    The Flags field in the fixed Base Header is defined as follows:
 
     0 1 2 3 4 5
    +-+-+-+-+-+-+
-   |F|C|S|   R |
+   |F|P|S|   R |
    +-+-+-+-+-+-+
 
                         Figure 3: Base Header Flags
@@ -415,10 +418,10 @@ Internet-Draft                    EESP                      January 2025
       (i.e., the EESP header includes the 'Payload Info Header'), set to
       1 for Optimized EESP Packet format.
 
-   Payload Encryption Mode  1 bit: If set, the following Layer 4 Header
-      is authenticated, but not encrypted.  This bit MUST be set to 0 on
-      any mode other than payload encryption mode . The receiver MUST
-      drop packets with this bit set, if the mode is different to
+   Payload Encryption Mode (P)  1 bit: If set, the following Layer 4
+      Header is authenticated, but not encrypted.  This bit MUST be set
+      to 0 on any mode other than payload encryption mode . The receiver
+      MUST drop packets with this bit set, if the mode is different to
       payload encryption mode.  See Section 4.1.1.2
 
    Sequence Number absent (S)  1 bit: If set, the peer header does not
@@ -434,21 +437,25 @@ Internet-Draft                    EESP                      January 2025
    fixed header field 'Opt Len' and may be zero if no options are
    present.
 
+
+
+
+
+
+
+
+
+Klassert, et al.          Expires 21 July 2025                  [Page 8]
+
+Internet-Draft                    EESP                      January 2025
+
+
    When present the 'Options' field carries a variable number of type-
    length-value (TLV) encoded options.  The format of these options has
    been derived from the IPv6 extension header options as defined in
    Section 4.2 of [RFC8200], with the following exceptions.  No special
    meaning is attached to the top 3 bits of the option type value, and
    the processing order of the options is not restricted.
-
-
-
-
-
-Klassert, et al.          Expires 18 July 2025                  [Page 8]
-
-Internet-Draft                    EESP                      January 2025
-
 
    Option type values are allocated from one of two ranges of values.
    One range is used for standardized option types and the second range
@@ -492,19 +499,19 @@ Internet-Draft                    EESP                      January 2025
    |                                                               |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
+
+
+Klassert, et al.          Expires 21 July 2025                  [Page 9]
+
+Internet-Draft                    EESP                      January 2025
+
+
                            Figure 4: Peer Header
 
    When present, the 'Sequence Number' is a full 64bit sequence number.
    EESP only support 64bit sequence numbers, a.k.a ESN and transmits the
    entire sequence number on each packet.  The actual size of the
    'Initialization Vector' depends on the choice of the cipher suite.
-
-
-
-Klassert, et al.          Expires 18 July 2025                  [Page 9]
-
-Internet-Draft                    EESP                      January 2025
-
 
    The 'Sequence Number' and 'Initialization Vector' fields are defined
    in the following sections.
@@ -535,32 +542,31 @@ Internet-Draft                    EESP                      January 2025
 
    If the algorithm used to encrypt the payload requires cryptographic
    synchronization data, e.g., an Initialization Vector (IV), then this
-   data is carried explicitly in front of the encrypted part of the
-   packet in the 'Peer Header'.  Any encryption algorithm that requires
-   such explicit, per-packet synchronization data MUST indicate the
-   length, any structure for such data, and the location of this data as
-   part of an RFC specifying how the algorithm is used with EESP.
-   (Typically, the IV immediately precedes the ciphertext.  See Table 1)
-   If such synchronization data is implicit, the algorithm for deriving
-   the data MUST be part of the algorithm definition RFC.  (If included,
-   cryptographic synchronization data, e.g., an Initialization Vector
-   (IV), usually is not encrypted per se (see Table 1), although it
-   sometimes is referred to as being part of the ciphertext.)
+   data is carried explicitly in the 'Peer Header' which is in front of
+   the encrypted part of the packet.  Any encryption algorithm that
+   requires such explicit, per-packet synchronization data MUST indicate
+   the length, any structure for such data, and the location of this
+   data as part of an RFC specifying how the algorithm is used with
+   EESP.  (Typically, the IV immediately precedes the ciphertext.  See
+   Table 1) If such synchronization data is implicit, the algorithm for
+   deriving the data MUST be part of the algorithm definition RFC.  (If
+   included, cryptographic synchronization data, e.g., an Initialization
+   Vector (IV), usually is not encrypted per se (see Table 1), although
+   it sometimes is referred to as being part of the ciphertext.)
+
+
+
+
+Klassert, et al.          Expires 21 July 2025                 [Page 10]
+
+Internet-Draft                    EESP                      January 2025
+
 
    Counter mode algorithms MAY encode the 64-bit counter of the
    Initialization Vector (IV) on the Sequence number Field.  This option
    saves 8 header bytes on each packet.  Whether or not this option is
    selected is determined as part of Security Association (SA)
    establishment.
-
-
-
-
-
-Klassert, et al.          Expires 18 July 2025                 [Page 10]
-
-Internet-Draft                    EESP                      January 2025
-
 
 2.4.  Payload Info Header
 
@@ -602,21 +608,20 @@ Internet-Draft                    EESP                      January 2025
    original IP packet.  The Payload Data field is mandatory and is an
    integral number of bytes in length.
 
+
+
+
+
+
+Klassert, et al.          Expires 21 July 2025                 [Page 11]
+
+Internet-Draft                    EESP                      January 2025
+
+
    Note that the beginning of the next layer protocol header MUST be
    aligned relative to the beginning of the EESP header as follows.  For
    IPv4, this alignment is a multiple of 4 bytes.  For IPv6, the
    alignment is a multiple of 8 bytes.
-
-
-
-
-
-
-
-Klassert, et al.          Expires 18 July 2025                 [Page 11]
-
-Internet-Draft                    EESP                      January 2025
-
 
 2.6.  Padding (for Encryption)
 
@@ -659,20 +664,21 @@ Internet-Draft                    EESP                      January 2025
    absence of other integrity measures, if the receiver checks the
    padding values upon decryption.)
 
+
+
+
+
+
+Klassert, et al.          Expires 21 July 2025                 [Page 12]
+
+Internet-Draft                    EESP                      January 2025
+
+
    If an encryption or combined mode algorithm imposes constraints on
    the values of the bytes used for padding, they MUST be specified by
    the RFC defining how the algorithm is employed with ESP.  If the
    algorithm requires checking of the values of the bytes used for
    padding, this too MUST be specified in that RFC.
-
-
-
-
-
-Klassert, et al.          Expires 18 July 2025                 [Page 12]
-
-Internet-Draft                    EESP                      January 2025
-
 
 2.7.  Integrity Check Value (ICV)
 
@@ -719,13 +725,7 @@ Internet-Draft                    EESP                      January 2025
 
 
 
-
-
-
-
-
-
-Klassert, et al.          Expires 18 July 2025                 [Page 13]
+Klassert, et al.          Expires 21 July 2025                 [Page 13]
 
 Internet-Draft                    EESP                      January 2025
 
@@ -781,7 +781,7 @@ Internet-Draft                    EESP                      January 2025
 
 
 
-Klassert, et al.          Expires 18 July 2025                 [Page 14]
+Klassert, et al.          Expires 21 July 2025                 [Page 14]
 
 Internet-Draft                    EESP                      January 2025
 
@@ -837,7 +837,7 @@ Internet-Draft                    EESP                      January 2025
 
 
 
-Klassert, et al.          Expires 18 July 2025                 [Page 15]
+Klassert, et al.          Expires 21 July 2025                 [Page 15]
 
 Internet-Draft                    EESP                      January 2025
 
@@ -893,7 +893,7 @@ Internet-Draft                    EESP                      January 2025
 
 
 
-Klassert, et al.          Expires 18 July 2025                 [Page 16]
+Klassert, et al.          Expires 21 July 2025                 [Page 16]
 
 Internet-Draft                    EESP                      January 2025
 
@@ -949,7 +949,7 @@ Internet-Draft                    EESP                      January 2025
 
 
 
-Klassert, et al.          Expires 18 July 2025                 [Page 17]
+Klassert, et al.          Expires 21 July 2025                 [Page 17]
 
 Internet-Draft                    EESP                      January 2025
 
@@ -1005,7 +1005,7 @@ Internet-Draft                    EESP                      January 2025
 
 
 
-Klassert, et al.          Expires 18 July 2025                 [Page 18]
+Klassert, et al.          Expires 21 July 2025                 [Page 18]
 
 Internet-Draft                    EESP                      January 2025
 
@@ -1061,7 +1061,7 @@ Internet-Draft                    EESP                      January 2025
 
 
 
-Klassert, et al.          Expires 18 July 2025                 [Page 19]
+Klassert, et al.          Expires 21 July 2025                 [Page 19]
 
 Internet-Draft                    EESP                      January 2025
 
@@ -1117,7 +1117,7 @@ Internet-Draft                    EESP                      January 2025
 
 
 
-Klassert, et al.          Expires 18 July 2025                 [Page 20]
+Klassert, et al.          Expires 21 July 2025                 [Page 20]
 
 Internet-Draft                    EESP                      January 2025
 
@@ -1173,7 +1173,7 @@ Internet-Draft                    EESP                      January 2025
 
 
 
-Klassert, et al.          Expires 18 July 2025                 [Page 21]
+Klassert, et al.          Expires 21 July 2025                 [Page 21]
 
 Internet-Draft                    EESP                      January 2025
 
@@ -1229,7 +1229,7 @@ Internet-Draft                    EESP                      January 2025
 
 
 
-Klassert, et al.          Expires 18 July 2025                 [Page 22]
+Klassert, et al.          Expires 21 July 2025                 [Page 22]
 
 Internet-Draft                    EESP                      January 2025
 
@@ -1285,7 +1285,7 @@ Internet-Draft                    EESP                      January 2025
 
 
 
-Klassert, et al.          Expires 18 July 2025                 [Page 23]
+Klassert, et al.          Expires 21 July 2025                 [Page 23]
 
 Internet-Draft                    EESP                      January 2025
 
@@ -1341,7 +1341,7 @@ Internet-Draft                    EESP                      January 2025
 
 
 
-Klassert, et al.          Expires 18 July 2025                 [Page 24]
+Klassert, et al.          Expires 21 July 2025                 [Page 24]
 
 Internet-Draft                    EESP                      January 2025
 
@@ -1397,7 +1397,7 @@ Internet-Draft                    EESP                      January 2025
 
 
 
-Klassert, et al.          Expires 18 July 2025                 [Page 25]
+Klassert, et al.          Expires 21 July 2025                 [Page 25]
 
 Internet-Draft                    EESP                      January 2025
 
@@ -1453,7 +1453,7 @@ Internet-Draft                    EESP                      January 2025
 
 
 
-Klassert, et al.          Expires 18 July 2025                 [Page 26]
+Klassert, et al.          Expires 21 July 2025                 [Page 26]
 
 Internet-Draft                    EESP                      January 2025
 
@@ -1509,7 +1509,7 @@ Internet-Draft                    EESP                      January 2025
 
 
 
-Klassert, et al.          Expires 18 July 2025                 [Page 27]
+Klassert, et al.          Expires 21 July 2025                 [Page 27]
 
 Internet-Draft                    EESP                      January 2025
 
@@ -1565,7 +1565,7 @@ Internet-Draft                    EESP                      January 2025
 
 
 
-Klassert, et al.          Expires 18 July 2025                 [Page 28]
+Klassert, et al.          Expires 21 July 2025                 [Page 28]
 
 Internet-Draft                    EESP                      January 2025
 
@@ -1621,7 +1621,7 @@ Internet-Draft                    EESP                      January 2025
 
 
 
-Klassert, et al.          Expires 18 July 2025                 [Page 29]
+Klassert, et al.          Expires 21 July 2025                 [Page 29]
 
 Internet-Draft                    EESP                      January 2025
 
@@ -1677,7 +1677,7 @@ Internet-Draft                    EESP                      January 2025
 
 
 
-Klassert, et al.          Expires 18 July 2025                 [Page 30]
+Klassert, et al.          Expires 21 July 2025                 [Page 30]
 
 Internet-Draft                    EESP                      January 2025
 
@@ -1733,7 +1733,7 @@ Internet-Draft                    EESP                      January 2025
 
 
 
-Klassert, et al.          Expires 18 July 2025                 [Page 31]
+Klassert, et al.          Expires 21 July 2025                 [Page 31]
 
 Internet-Draft                    EESP                      January 2025
 
@@ -1789,7 +1789,7 @@ Internet-Draft                    EESP                      January 2025
 
 
 
-Klassert, et al.          Expires 18 July 2025                 [Page 32]
+Klassert, et al.          Expires 21 July 2025                 [Page 32]
 
 Internet-Draft                    EESP                      January 2025
 
@@ -1845,7 +1845,7 @@ Internet-Draft                    EESP                      January 2025
 
 
 
-Klassert, et al.          Expires 18 July 2025                 [Page 33]
+Klassert, et al.          Expires 21 July 2025                 [Page 33]
 
 Internet-Draft                    EESP                      January 2025
 
@@ -1901,7 +1901,7 @@ Internet-Draft                    EESP                      January 2025
 
 
 
-Klassert, et al.          Expires 18 July 2025                 [Page 34]
+Klassert, et al.          Expires 21 July 2025                 [Page 34]
 
 Internet-Draft                    EESP                      January 2025
 
@@ -1957,7 +1957,7 @@ Internet-Draft                    EESP                      January 2025
 
 
 
-Klassert, et al.          Expires 18 July 2025                 [Page 35]
+Klassert, et al.          Expires 21 July 2025                 [Page 35]
 
 Internet-Draft                    EESP                      January 2025
 
@@ -2013,7 +2013,7 @@ Internet-Draft                    EESP                      January 2025
 
 
 
-Klassert, et al.          Expires 18 July 2025                 [Page 36]
+Klassert, et al.          Expires 21 July 2025                 [Page 36]
 
 Internet-Draft                    EESP                      January 2025
 
@@ -2069,7 +2069,7 @@ Internet-Draft                    EESP                      January 2025
 
 
 
-Klassert, et al.          Expires 18 July 2025                 [Page 37]
+Klassert, et al.          Expires 21 July 2025                 [Page 37]
 
 Internet-Draft                    EESP                      January 2025
 
@@ -2125,7 +2125,7 @@ Internet-Draft                    EESP                      January 2025
 
 
 
-Klassert, et al.          Expires 18 July 2025                 [Page 38]
+Klassert, et al.          Expires 21 July 2025                 [Page 38]
 
 Internet-Draft                    EESP                      January 2025
 
@@ -2181,7 +2181,7 @@ Internet-Draft                    EESP                      January 2025
 
 
 
-Klassert, et al.          Expires 18 July 2025                 [Page 39]
+Klassert, et al.          Expires 21 July 2025                 [Page 39]
 
 Internet-Draft                    EESP                      January 2025
 
@@ -2237,7 +2237,7 @@ Internet-Draft                    EESP                      January 2025
 
 
 
-Klassert, et al.          Expires 18 July 2025                 [Page 40]
+Klassert, et al.          Expires 21 July 2025                 [Page 40]
 
 Internet-Draft                    EESP                      January 2025
 
@@ -2293,7 +2293,7 @@ Internet-Draft                    EESP                      January 2025
 
 
 
-Klassert, et al.          Expires 18 July 2025                 [Page 41]
+Klassert, et al.          Expires 21 July 2025                 [Page 41]
 
 Internet-Draft                    EESP                      January 2025
 
@@ -2344,12 +2344,12 @@ Internet-Draft                    EESP                      January 2025
    -------   ------------------------------    ---------------
        0      Reserved                        [this document]
        1      V1                              [this document]
-     2-13     Unassigned                      [this document]
-    13-15     Private Use                     [this document]
+     2-29     Unassigned                      [this document]
+    30-31     Private                         [this document]
 
 
 
-Klassert, et al.          Expires 18 July 2025                 [Page 42]
+Klassert, et al.          Expires 21 July 2025                 [Page 42]
 
 Internet-Draft                    EESP                      January 2025
 
@@ -2405,7 +2405,7 @@ Internet-Draft                    EESP                      January 2025
 
 
 
-Klassert, et al.          Expires 18 July 2025                 [Page 43]
+Klassert, et al.          Expires 21 July 2025                 [Page 43]
 
 Internet-Draft                    EESP                      January 2025
 
@@ -2461,7 +2461,7 @@ Internet-Draft                    EESP                      January 2025
 
 
 
-Klassert, et al.          Expires 18 July 2025                 [Page 44]
+Klassert, et al.          Expires 21 July 2025                 [Page 44]
 
 Internet-Draft                    EESP                      January 2025
 
@@ -2517,7 +2517,7 @@ Internet-Draft                    EESP                      January 2025
 
 
 
-Klassert, et al.          Expires 18 July 2025                 [Page 45]
+Klassert, et al.          Expires 21 July 2025                 [Page 45]
 
 Internet-Draft                    EESP                      January 2025
 
@@ -2573,4 +2573,4 @@ Authors' Addresses
 
 
 
-Klassert, et al.          Expires 18 July 2025                 [Page 46]
+Klassert, et al.          Expires 21 July 2025                 [Page 46]
