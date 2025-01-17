@@ -213,7 +213,9 @@ The fixed portion of the base header is defined as follows.
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #+end_src
 
-- Version :: 5 bits: Validated by the receiver.
+- Version :: 5 bits: MUST be set to 1 and checked by the receiver.
+  Version 0 is is reserved to avoid a conflict with the Non-ESP Marker of IKE
+  packets in the case of UDP encapsulation.
   If the version is different than an expected version
   number (e.g., negotiated via the control channel), then the packet
   MUST be dropped by the receiver. Future modifications to the EESP
@@ -239,9 +241,6 @@ The fixed portion of the base header is defined as follows.
   an incoming packet is bound. This combined with the 16-bit Session
   ID is the Enhanced SPI.
 
-Version 0 is is Reserved to avoid conflict with Non-ESP Marker of IKE
-packet.
-
 The Flags field in the fixed Base Header is defined as follows:
 
 #+caption: Base Header Flags
@@ -249,13 +248,13 @@ The Flags field in the fixed Base Header is defined as follows:
 #+begin_src
     0 1 2 3 4 5
    +-+-+-+-+-+-+
-   |F|C|S|   R |
+   |F|P|S|   R |
    +-+-+-+-+-+-+
 #+end_src
 
 - Packet Format (F) :: 1 bit: Set to zero for full EESP packet Format (i.e., the EESP header includes the
   ~Payload Info Header~), set to 1 for Optimized EESP Packet format.
-- Payload Encryption Mode :: 1 bit: If set, the
+- Payload Encryption Mode (P) :: 1 bit: If set, the
   following Layer 4 Header is authenticated, but not encrypted.
   This bit MUST be set to 0 on any mode other than payload encryption mode .
   The receiver MUST drop packets with this bit set, if the mode is
@@ -389,8 +388,8 @@ are not available.
 
 If the algorithm used to encrypt the payload requires cryptographic
 synchronization data, e.g., an Initialization Vector (IV), then this
-data is carried explicitly in front of the encrypted part of the
-packet in the ~Peer Header~.  Any encryption algorithm that requires
+data is carried explicitly in the ~Peer Header~ which is in front of
+the encrypted part of the packet. Any encryption algorithm that requires
 such explicit, per-packet synchronization data MUST indicate the
 length, any structure for such data, and the location of this data as
 part of an RFC specifying how the algorithm is used with EESP.
