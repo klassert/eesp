@@ -215,7 +215,7 @@ The fixed portion of the base header is defined as follows.
 - ESP compaitability :: 1 bit : set to 1 for compaitability with
   ESP-in-UDP. ESP-in-UDP SA MAY have this bit 0, the most significant
   bit of SPI is 0.
-- Version :: 4 bits: Validated by the receiver.
+- Version :: 4 bits: MUST be set to zero and checked by the receiver.
   If the version is different than an expected version
   number (e.g., negotiated via the control channel), then the packet
   MUST be dropped by the receiver. Future modifications to the EESP
