@@ -369,16 +369,16 @@ Internet-Draft                    EESP                      January 2025
       UDP.  ESP-in-UDP SA MAY have this bit 0, the most significant bit
       of SPI is 0.
 
-   Version  4 bits: Validated by the receiver.  If the version is
-      different than an expected version number (e.g., negotiated via
-      the control channel), then the packet MUST be dropped by the
-      receiver.  Future modifications to the EESP header require a new
-      version number.  In particular, the version of EESP defined in
-      this document does not allow for any extensions.  Intermediate
-      nodes dealing with unknown versions are not necessarily able to
-      parse the packet correctly.  Intermediate treatment of such
-      packets is policy dependent (e.g., it may dictate dropping such
-      packets).
+   Version  4 bits: MUST be set to zero and checked by the receiver.  If
+      the version is different than an expected version number (e.g.,
+      negotiated via the control channel), then the packet MUST be
+      dropped by the receiver.  Future modifications to the EESP header
+      require a new version number.  In particular, the version of EESP
+      defined in this document does not allow for any extensions.
+      Intermediate nodes dealing with unknown versions are not
+      necessarily able to parse the packet correctly.  Intermediate
+      treatment of such packets is policy dependent (e.g., it may
+      dictate dropping such packets).
 
    Flags  6 bits: The Flags field is used as specified in Figure 3.
 
