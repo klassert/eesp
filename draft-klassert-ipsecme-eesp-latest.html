@@ -1763,14 +1763,14 @@ treatment of such packets is policy dependent (e.g., it may dictate
 dropping such packets).<a href="#section-2.2.1-3.4.1" class="pilcrow">¶</a></p>
 </dd>
             <dd class="break"></dd>
-<dt id="section-2.2.1-3.5">Flags</dt>
+<dt id="section-2.2.1-3.5">Opt Len</dt>
             <dd style="margin-left: 1.5em" id="section-2.2.1-3.6">
-              <p id="section-2.2.1-3.6.1">6 bits: The Flags field is used as specified in <a href="#flags" class="auto internal xref">Figure 3</a>.<a href="#section-2.2.1-3.6.1" class="pilcrow">¶</a></p>
+              <p id="section-2.2.1-3.6.1">5 bits: Length in 4 bytes of the '<code>Options</code>' field.<a href="#section-2.2.1-3.6.1" class="pilcrow">¶</a></p>
 </dd>
             <dd class="break"></dd>
-<dt id="section-2.2.1-3.7">Opt Len</dt>
+<dt id="section-2.2.1-3.7">Flags</dt>
             <dd style="margin-left: 1.5em" id="section-2.2.1-3.8">
-              <p id="section-2.2.1-3.8.1">5 bits: Length in 4 bytes of the '<code>Options</code>' field.<a href="#section-2.2.1-3.8.1" class="pilcrow">¶</a></p>
+              <p id="section-2.2.1-3.8.1">6 bits: The Flags field is used as specified in <a href="#flags" class="auto internal xref">Figure 3</a>.<a href="#section-2.2.1-3.8.1" class="pilcrow">¶</a></p>
 </dd>
             <dd class="break"></dd>
 <dt id="section-2.2.1-3.9">Session ID</dt>
@@ -2120,7 +2120,7 @@ other modes of operation.<a href="#section-2.8-3" class="pilcrow">¶</a></p>
  0                   1                   2                   3
  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|1|Version|   Flags   | Opt Len |        Session ID             |
+|1|Version| Opt Len |   Flags   |        Session ID             |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                              SPI                              |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -2160,7 +2160,7 @@ other modes of operation.<a href="#section-2.8-3" class="pilcrow">¶</a></p>
  0                   1                   2                   3
  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|1|Version|   Flags   | Opt Len |        Session ID             |
+|1|Version| Opt Len |   Flags   |        Session ID             |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                              SPI                              |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
