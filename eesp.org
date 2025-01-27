@@ -115,13 +115,13 @@ This document uses the following terms defined in [[RFC3948]]:
 Non-ESP Marker.
 
 
-* Protocol Definition
+* Enhanced Encapsulating Security Payload Packet Format
 
-In this section we define the exact protocol formats and operations.
+In this section we define the exact packet formats.
 This section is normative.
 
 
-** EESP packet format
+** Top-Level EESP format
 
 The (outer) protocol header (IPv4, IPv6, or Extension) that
 immediately precedes the ESP header SHALL contain the value TBD in
@@ -408,10 +408,14 @@ establishment.
 
 ** Payload Info Header
 
-The Payload Info Header is present in the Full EESP packet
-format. This packet format is for use when the contained payload is
+The Payload Info Header is needed if the contained payload is
 not a single IPv4 or IPv6 packet (e.g., when using Transport Mode or
-IP-TFS). IPsec Peers and Middleboxes MAY act upon the Payload Info
+IP-TFS). It is optional on tunnel mode because these information
+can be derived from the inner IPv4 or IPv6 header. This document
+specifies a full and an optimized packet format. The Payload Info
+Header is present in the Full EESP packet format, but not in the
+optimized format see [[Full and Optimized Packet Formats]].
+IPsec Peers and Middleboxes MAY act upon the Payload Info
 Header.
 
 #+caption: Payload Info Header
@@ -444,8 +448,8 @@ that no Padding bytes are present.
 
 ** Payload Data
 
-Payload Data is adapted from ESP [[RFC4303]] and adjusted to apply to
-EESP.
+#Payload Data is adapted from ESP [[RFC4303]] and adjusted to apply to
+#EESP.
 
 Payload Data is a variable-length field containing data from the
 original IP packet.  The Payload
@@ -458,15 +462,17 @@ alignment is a multiple of 8 bytes.
 
 ** Padding (for Encryption)
 
-Padding is adapted from ESP [[RFC4303]] and adjusted to apply to
-EESP. Two primary factors require or motivate use of the Padding
+#Padding is adapted from ESP [[RFC4303]] and adjusted to apply to
+#EESP.
+
+Two primary factors require or motivate use of the Padding
 field.
 
 - If an encryption algorithm is employed that requires the
   plaintext to be a multiple of some number of bytes, e.g.,
   the block size of a block cipher, the Padding field is used
   to fill the plaintext (consisting of the Payload Data,
-  Padding, Pad Length, and Next Header fields) to the size
+  Padding, and Payload Info Header) to the size
   required by the algorithm.
 
 - Padding also may be required, irrespective of encryption
@@ -481,11 +487,7 @@ generation and consumption of padding.
 
 For the purposes of ensuring that the ICV is aligned on a
 4-byte boundary (second bullet above), the padding
-computation applies to the Payload Data inclusive of the Payload
-Info Header, if present.  If a combined mode
-algorithm is used, any replicated data and ICV-equivalent
-data are included in the Payload Data covered by the padding
-computation.
+computation applies to the Payload Data.
 
 If Padding bytes are needed but the encryption algorithm does not
 specify the padding contents, then the following default processing
@@ -503,7 +505,7 @@ padding values upon decryption.)
 
 If an encryption or combined mode algorithm imposes constraints on
 the values of the bytes used for padding, they MUST be specified by
-the RFC defining how the algorithm is employed with ESP.  If the
+the RFC defining how the algorithm is employed with EESP.  If the
 algorithm requires checking of the values of the bytes used for
 padding, this too MUST be specified in that RFC.
 
@@ -521,8 +523,11 @@ the ICV and the comparison rules and processing steps for validation.
 ** Full and Optimized Packet Formats
 
 The resulting two packet formats are described in this section.
+The default packet format for EESP is the full packet format.
 When IPv4 or IPv6 tunnel mode is used, the ~Payload Info Header~ MAY
-be omitted. In this optimized mode the payload will always start with
+be omitted. Whether this option is choosen MUST be negotiated
+by IKEv2, or any other suitable protocol.
+In this optimized mode the payload will always start with
 an IPv4 or IPv6 header. IPv4 or IPv6 packets always start with a
 Version field at the first nibble, so it is possible to identify IPv4
 and IPv6 by reading the first nibble of the inner packet, and there
@@ -640,14 +645,14 @@ processing details are described in later sections.
 | Sequence Number     |     8      |     O     |                |      Y       |   plain    |
 | IV                  |  variable  |     O     |                |      Y       |   plain    |
 | Payload Info Hdr[5] |     4      |     O     |       Y        |      Y       | cipher [3] |
-| Payload [2]         |  variable  |  M or D   |       Y        |      Y       | cipher [3] |
+| Payload [2]         |  variable  |     M     |       Y        |      Y       | cipher [3] |
 | Padding             |   0-255    |     M     |       Y        |      Y       | cipher [3] |
 | ICV Padding         |  variable  |  if need  |                |      Y       |  not Tx'd  |
 | ICV                 |  variable  |   M [4]   |                |              |   plain    |
 |---------------------+------------+-----------+----------------+--------------+------------|
 
 #+ATTR_RFC: :compact t
-- [1] M = mandatory; O = optional; D = dummy
+- [1] M = mandatory; O = optional
 - [2] If tunnel mode -> IP datagram. If beet mode -> IP datagram. If
   transport mode -> next header and data. If IP-TFS, IP-TFS header
   and payload.
