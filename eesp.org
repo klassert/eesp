@@ -448,8 +448,8 @@ that no Padding bytes are present.
 
 ** Payload Data
 
-#Payload Data is adapted from ESP [[RFC4303]] and adjusted to apply to
-#EESP.
+# Payload Data is adapted from ESP [[RFC4303]] and adjusted to apply to
+# EESP.
 
 Payload Data is a variable-length field containing data from the
 original IP packet.  The Payload
@@ -462,8 +462,8 @@ alignment is a multiple of 8 bytes.
 
 ** Padding (for Encryption)
 
-#Padding is adapted from ESP [[RFC4303]] and adjusted to apply to
-#EESP.
+# Padding is adapted from ESP [[RFC4303]] and adjusted to apply to
+# EESP.
 
 Two primary factors require or motivate use of the Padding
 field.
