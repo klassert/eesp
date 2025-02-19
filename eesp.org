@@ -58,15 +58,15 @@ Identifier, called Network Identifier (VNI) there. PSP also defines a
 Crypt Offset to expose parts of the headers of the inner packet.
 EESP provides a solution for all the aforementioned use cases.
 
-This document defines Flow Identifier and Crypt Offset Options, the
-combination thereof along with the Session ID can be used for the PSP
-use case. Future documents can define the meaning of additional Options
+This document defines Flow Identifier Options and a Crypt Offset Option
+along with a Session ID.
+Future documents can define the meaning of additional Options
 for their particular use-case. With this, all existing and potential new
 use cases can be covered. For instance, it can be
 used for the case of [[I-D.ponchon-ipsecme-anti-replay-subspaces]] or
 [[I-D.he-ipsecme-vpn-shared-ipsecsa]] etc., or combinations thereof. EESP
 does not have a trailer as ESP had, instead the Next Header an Pad
-Length values are moved to the EESP header. Additionally, an Optimized
+Length values are moved to the EESP header. Additionally, an optimized
 EESP header is defined which eliminates these 2 values when using simple
 IPv4 or IPv6 tunnel mode. EESP also does not define TFC padding, IP-TFS
 as of [[RFC9347]] SHOULD be used instead. A detailed discussion
@@ -84,7 +84,8 @@ Though this document specifies IKEv2 as a negotiation protocol, EESP
 may use other protocols for negotiation and key derivation. The
 packet specification is portable to other keying protocol use cases,
 such as [[PSP]], and offers versioning at the packet level.
-
+The Flow Identifiers, Crypt Offset and the Session ID can 
+be used to cover the PSP use case.
 
 ** Requirements Language
 
@@ -117,9 +118,8 @@ Non-ESP Marker.
 
 * Enhanced Encapsulating Security Payload Packet Format
 
-In this section we define the exact packet formats.
-This section is normative.
-
+This section defines the exact packet formats, the
+section is normative.
 
 ** Top-Level EESP format
 
@@ -174,8 +174,9 @@ Unlike ESP, EESP does not have a trailer. Instead, these values have
 moved to a ~Payload Info Header~ directly following the ~Peer Header~.
 On classical transport and tunnel mode, the ~Payload Info Header~
 is encrypted, and therefore private to the IPsec peers. However,
-on ~Payload Encryption Mode~ as specified in section XXX or
-with a positive crypt offset (see section XXX), the ~Payload Info Header~
+on ~Payload Encryption Mode~ as specified in
+[[Payload Encryption Mode Processing]] or with a positive crypt offset
+(see [[EESP Crypt Offset Option]]), the ~Payload Info Header~
 might left unencrypted. In these modes protocol parsing engines of
 middleboxes can act upon it (i.e.for telemetry).
 
@@ -275,7 +276,7 @@ The base header ~Options~ field is optional, its size is given in the
 fixed header field ~Opt Len~ and may be zero if no options are
 present.
 
-When present the ~Options~ field carries a variable number of
+When present, the ~Options~ field carries a variable number of
 type-length-value (TLV) encoded options. The format of these options
 has been derived from the IPv6 extension header options as defined in
 Section 4.2 of [[RFC8200]], with the following exceptions. No special
@@ -352,12 +353,15 @@ sequence number by one for each sent packet. Even if recommended to
 increase the sequence number by one, implementations MAY employ other
 methods to increase the sequence number, as long as the
 aforementioned requirements are met. Sharing an SA among multiple
-senders is permitted, though generally not recommended. EESP
+senders is permitted, though generally not recommended. This document
 provides no means of synchronizing packet counters among multiple
 senders or meaningfully managing a receiver packet counter and window
-in the context of multiple senders. Unless any future Option
-defining this for a multi-sender SA, the anti-replay features of EESP
-are not available.
+in the context of multiple senders. However, EESP is capable to
+handle packet counters among multiple senders. This can be done by
+defining a new Base Header Option that covers a ~Sender ID~.
+Similar to the Session ID, this Sender ID can be used as an
+additional Replay Subspace ID (see [[Session ID as Replay Subspace ID]]).
+Defining such an Option is left for future documents.
 
 # Note STK: The text below needs to be reworded. It does not
 # match with the optional Sequence Number mentioned above.
@@ -535,17 +539,50 @@ is no need for a next header field. Additionally, IPv4 and IPv6 also
 have a field describing the overall size of the inner packet, so a
 pad length field is also not needed as it can be derived.
 
-The packet format without the ~Payload Info Header~ is called the
-"Optimized EESP packet format", while the packet format containing the
-~Payload Info Header~ is the called the "Full EESP packet format".
-Which of these two formats are chosen is encoded in the
-a ~Packet Format~ bit in the ~Base Header~.
+The packet format containing the ~Payload Info Header~ is called the
+"Full EESP packet format", while the packet format without the
+~Payload Info Header~ is the called the "Optimized EESP packet format".
+Which of these two formats are is encoded in the ~Packet Format~ bit in
+the ~Base Header~.
 
-The 2 packet formats are shown below. [[eesp-optimized-packet-format]]
-illustrates the resulting packet format for use with IPv4 or IPv6
-Tunnel Mode when the ~Payload Info Header~ is elided, and
-[[eesp-full-packet-format]] shows the full header version for use in all
-other modes of operation.
+The 2 packet formats are shown below. [[eesp-full-packet-format]]
+shows the full packet format used as the default for modes of operation.
+[[eesp-optimized-packet-format]] illustrates the resulting optimized
+packet format for use with IPv4 or IPv6 Tunnel Mode when the
+~Payload Info Header~ is elided.
+
+#+caption: Full EESP packet format
+#+name: eesp-full-packet-format
+#+begin_src
+    0                   1                   2                   3
+    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |1|Version| Opt Len |   Flags   |        Session ID             |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                              SPI                              |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                                                               |
+   ~                   Options (variable, optional)                ~
+   |                                                               |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                    Sequence Number (optional)                 |
+   |                                                               |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                          IV* (optional)                       |
+   |                                                               |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |  0x0  |        Reserved       | Next Header   | Pad Length    |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                   L4 Payload Data (variable)                  |
+   ~                                                               ~
+   |               +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |               |          Padding (0-255 bytes)                |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                                                               |
+   ~              Integrity Check Value-ICV (variable)             ~
+   |                                                               |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+#+end_src
 
 #+caption: Optimized EESP packet format
 #+name: eesp-optimized-packet-format
@@ -571,39 +608,6 @@ other modes of operation.
    |                                                               |
    ~                     IPv4/IPv6 Header                          ~
    |                                                               |
-   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |                   L4 Payload Data (variable)                  |
-   ~                                                               ~
-   |               +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |               |          Padding (0-255 bytes)                |
-   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |                                                               |
-   ~              Integrity Check Value-ICV (variable)             ~
-   |                                                               |
-   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#+end_src
-
-#+caption: Full EESP packet format
-#+name: eesp-full-packet-format
-#+begin_src
-    0                   1                   2                   3
-    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
-   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |1|Version| Opt Len |   Flags   |        Session ID             |
-   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |                              SPI                              |
-   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |                                                               |
-   ~                   Options (variable, optional)                ~
-   |                                                               |
-   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |                    Sequence Number (optional)                 |
-   |                                                               |
-   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |                          IV* (optional)                       |
-   |                                                               |
-   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |  0x0  |        Reserved       | Next Header   | Pad Length    |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    |                   L4 Payload Data (variable)                  |
    ~                                                               ~
@@ -788,6 +792,9 @@ type-length-value (TLV) encoded "options" of the following format:
   field of this option, in octets.
 - Option Data :: Variable-length field. Option-Type-specific data.
 
+The overall length of all Options is limited to 128 bytes by the
+OptLen field in the ~Base Header~.
+
 ** EESP Option Types
 
 This document defines two padding options ~Pad1~ and ~PadN~, a ~Flow
@@ -926,7 +933,7 @@ a separate document that defines the 'EESP use for Datacenters'.
     0                   1                   2                   3
     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |  Option Type  | Option Length |Payl.Offset| R |CryptOffset| F |
+   |  Option Type  | Option Length |Payl.Offset|CryptOffset| R | F |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #+end_src
 
@@ -938,19 +945,19 @@ a separate document that defines the 'EESP use for Datacenters'.
   header to the start of the payload header (or the payload for
   optimized packet format) measured in 4-octet units.
 
-- R[eserved] :: 2-bits: Reserved MUST be sent 0 and ignored on receipt.
-
 - CryptOffset :: 6 bits: The offset from the start of the payload
   header (or the payload for optimized packet format) to the start of
   the encrypted portion of the packet, measured in 4-octet units. The
   resulting value MUST NOT be larger than the size of the inner
   packet.
 
+- R[eserved] :: 2-bits: Reserved MUST be sent 0 and ignored on receipt.
+
 - F[lags] :: 2-bits: Flags used for stateless crypto signaling such as the
   S-bit and D-bit in the PSP specification.
 
- *QUESTION:* Is this used and thus still required by PSP, or can it be
-  removed?
+ *NOTE:* I tend to remove the Flags if we keep the Crypt Offset
+ in this document, as we don't define PSP here.
 
 * Enhanced Encapsulating Security Protocol Processing
 
@@ -970,8 +977,8 @@ distinguish from tunnel mode on the position of the EESP
 header in the packet. On Layer 4 Encapsulation Modes the
 EESP header is inserted between the original IPv4/IPv6
 header and the following Layer 4 header. In contrast to this,
-in tunnel mode the full ipv4/IPv6 dataggram is encapsulated.
-This means the the ESP header is placed in front of the
+in tunnel mode the full ipv4/IPv6 datagram is encapsulated.
+This means the the EESP header is placed in front of the
 original IPv4/IPv6 dataggram and a new 'outer IPv4/IPv6 header'
 is added in front of the EESP header. The following sections
 illustrate the positioning of the EESP header
@@ -988,7 +995,7 @@ these implementations when multiple interfaces are in use.
 
 In transport mode, EESP is inserted after the IP header and before a
 next layer protocol, e.g., TCP, UDP, ICMP, etc.  In the context of
-IPv4, this translates to placing ESP after the IP header (and any
+IPv4, this translates to placing EESP after the IP header (and any
 options that it contains), but before the next layer protocol.  (If
 AH is also applied to a packet, it is applied to the EESP header,
 Payload and ICV, if present.)  (Note that the term
@@ -1108,7 +1115,7 @@ as it is done for transport mode. The original IP or IPv6 header
 is relaced by a new one. The new header SHOULD be negotiated by IKEv2
 or any other suitable protocol.
 
-Some more text here...
+# FIXME: Some more text here...
 
 #+caption: IPv6 BEET Mode
 #+name: ipv4-beet-mode
@@ -1175,11 +1182,11 @@ packets.
                  AFTER APPLYING ESP
 
             -----------------------------------------------------------
-      IPv4  | new IP hdr* |     | orig IP hdr*  |   |    | ESP   | ESP|
-            |(any options)| ESP | (any options) |TCP|Data|Trailer| ICV|
+      IPv4  | new IP hdr* | EESP | orig IP hdr*  |   |    | EESP|
+            |(any options)| Hdr  | (any options) |TCP|Data| ICV |
             -----------------------------------------------------------
-                                |<--------- encryption --------->|
-                          |<------------- integrity ------------>|
+                                 |<----- encryption ----->|
+                          |<---------- integrity -------->|
 
 #+end_src
 
@@ -1195,11 +1202,11 @@ packets.
                      AFTER APPLYING ESP
 
             ------------------------------------------------------------
-      IPv6  | new* |new ext |   | orig*|orig ext |   |    | ESP   | ESP|
-            |IP hdr| hdrs*  |ESP|IP hdr| hdrs *  |TCP|Data|Trailer| ICV|
+      IPv6  | new* |new ext | EESP | orig*|orig ext |   |    | EESP|
+            |IP hdr| hdrs*  | Hdr  |IP hdr| hdrs *  |TCP|Data| ICV |
             ------------------------------------------------------------
-                                |<--------- encryption ---------->|
-                            |<------------ integrity ------------>|
+                                   |<----- encryption ------>|
+                            |<---_------ integrity --------->|
 
             * = if present, construction of outer IP hdr/extensions and
                 modification of inner IP hdr/extensions is discussed in
@@ -1216,8 +1223,8 @@ although both confidentiality and integrity are optional, at least one of
 these services MUST be selected, hence both algorithms MUST NOT be
 simultaneously NULL.
 
-STK NOTE: Is the above ok, or should we mandate for both
-confidentiality and integrity???
+# FIXME: STK NOTE: Is the above ok, or should we mandate for both
+# confidentiality and integrity???
 
 *** Encryption Algorithms
 
@@ -1245,8 +1252,8 @@ characteristics.  Note that because encryption (confidentiality) MAY
 be an optional service (e.g., integrity-only EESP), this algorithm MAY
 be "NULL" [[RFC4301]].
 
-STK NOTE Again: Is the above ok, or should we mandate for both
-confidentiality and integrity???
+# FIXME: STK NOTE Again: Is the above ok, or should we mandate for both
+#confidentiality and integrity???
 
 To allow an EESP implementation to compute the encryption padding
 required by a block mode encryption algorithm, and to determine the
@@ -1265,8 +1272,8 @@ receiver synchronization of integrity algorithms.  Note that because
 the integrity service MAY be optional, this algorithm may be "NULL".
 
 
-STK NOTE Again: Is the above ok, or should we mandate for both
-confidentiality and integrity???
+# FIXME: STK NOTE Again: Is the above ok, or should we mandate for both
+#confidentiality and integrity???
 
 To allow an EESP implementation to compute any implicit integrity
 algorithm padding required, the RFC for each algorithm used with EESP
@@ -1295,8 +1302,8 @@ as a function of the plaintext payload and sequence number sizes.
 
 ** Outbound Packet Processing
 
-In transport mode, the sender encapsulates the next layer protocol
-information behind the EESP header fields, and
+In Layer 4 Encapsulation Modes, the sender encapsulates the next
+layer protocol information behind the EESP header fields, and
 retains the specified IP header (and any IP extension headers in the
 IPv6 context).  In tunnel mode, the outer and inner IP
 header/extensions can be interrelated in a variety of ways.  The
@@ -1338,7 +1345,7 @@ the Sender proceeds as follows:
     - If explicit cryptographic synchronization data,
       e.g., an IV, is indicated, it is input to the
       encryption algorithm per the algorithm specification
-      and placed in the Payload field.
+      and placed in the IV field of the peer header.
     - If implicit cryptographic synchronization data is
       employed, it is constructed and input to the
       encryption algorithm as per the algorithm
@@ -1358,15 +1365,16 @@ the Sender proceeds as follows:
       employed to compute the ICV.
 
 - Compute the ICV over the EESP packet minus the ICV field.
-  Thus, the ICV computation encompasses the, base header
-  including any options (if present), SPI, Sequence
-  Number (if present), IV (if present), Payload Info
+  Thus, the ICV computation encompasses the Base Header
+  including any options (if present), Peer Header, Payload Info
   Header (if present), Payload Data and Padding (if present).
 # XXX On payload enc mode or positive cryptoffset, not everything is encrypted.
 # (Note that the last 3 fields will be in
 #  ciphertext form, because encryption is performed first.)
 
 
+
+# FIXME: Do we need the next two text blocks???? ####################
 For some integrity algorithms, the byte string over which the ICV
 computation is performed must be a multiple of a block size specified
 by the algorithm.  If the length of EESP packet (as described above)
@@ -1377,7 +1385,6 @@ block size (and hence the length of the padding) is specified by the
 integrity algorithm specification.
 
 
-NOTE: This needs review!!!
 This padding is not transmitted
 with the packet.  The document that defines an integrity algorithm
 MUST be consulted to determine if implicit padding is required as
@@ -1387,6 +1394,7 @@ required (as needed to match the packet length to the algorithm's
 block size.)  If padding bytes are needed but the algorithm does not
 specify the padding contents, then the padding octets MUST have a
 value of zero.
+####################################################################
 
 *** Combined Confidentiality and Integrity Algorithms
 
