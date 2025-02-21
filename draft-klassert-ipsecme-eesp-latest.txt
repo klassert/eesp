@@ -5,9 +5,9 @@
 IPSECME Working Group                                        S. Klassert
 Internet-Draft                                                 A. Antony
 Intended status: Standards Track                                 secunet
-Expires: 23 August 2025                                         C. Hopps
+Expires: 25 August 2025                                         C. Hopps
                                                  LabN Consulting, L.L.C.
-                                                        19 February 2025
+                                                        21 February 2025
 
 
              Enhanced Encapsulating Security Payload (EESP)
@@ -43,7 +43,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 23 August 2025.
+   This Internet-Draft will expire on 25 August 2025.
 
 Copyright Notice
 
@@ -53,7 +53,7 @@ Copyright Notice
 
 
 
-Klassert, et al.         Expires 23 August 2025                 [Page 1]
+Klassert, et al.         Expires 25 August 2025                 [Page 1]
 
 Internet-Draft                    EESP                     February 2025
 
@@ -109,7 +109,7 @@ Table of Contents
 
 
 
-Klassert, et al.         Expires 23 August 2025                 [Page 2]
+Klassert, et al.         Expires 25 August 2025                 [Page 2]
 
 Internet-Draft                    EESP                     February 2025
 
@@ -133,31 +133,31 @@ Internet-Draft                    EESP                     February 2025
        4.3.4.  Combined Confidentiality and Integrity Algorithms . .  31
        4.3.5.  Sequence Number Generation  . . . . . . . . . . . . .  32
        4.3.6.  Fragmentation . . . . . . . . . . . . . . . . . . . .  33
-     4.4.  Inbound Packet Processing . . . . . . . . . . . . . . . .  33
+     4.4.  Inbound Packet Processing . . . . . . . . . . . . . . . .  34
        4.4.1.  Reassembly  . . . . . . . . . . . . . . . . . . . . .  34
        4.4.2.  Security Association Lookup . . . . . . . . . . . . .  34
-       4.4.3.  Sequence Number Verification  . . . . . . . . . . . .  34
+       4.4.3.  Sequence Number Verification  . . . . . . . . . . . .  35
        4.4.4.  Integrity Check Value Verification  . . . . . . . . .  36
-   5.  Stateless Decryption  . . . . . . . . . . . . . . . . . . . .  39
-     5.1.  Key Derivation  . . . . . . . . . . . . . . . . . . . . .  39
-     5.2.  Receiving without SAD . . . . . . . . . . . . . . . . . .  40
-     5.3.  Sending without SPD . . . . . . . . . . . . . . . . . . .  40
-     5.4.  Peer Authentication Database  . . . . . . . . . . . . . .  40
-   6.  UDP Encapsulation . . . . . . . . . . . . . . . . . . . . . .  40
-   7.  Auditing  . . . . . . . . . . . . . . . . . . . . . . . . . .  40
-   8.  Conformance Requirements  . . . . . . . . . . . . . . . . . .  41
+   5.  UDP Encapsulation . . . . . . . . . . . . . . . . . . . . . .  39
+   6.  Stateless Decryption  . . . . . . . . . . . . . . . . . . . .  39
+     6.1.  Key Derivation  . . . . . . . . . . . . . . . . . . . . .  40
+     6.2.  Receiving without SAD . . . . . . . . . . . . . . . . . .  40
+     6.3.  Sending without SPD . . . . . . . . . . . . . . . . . . .  40
+     6.4.  Peer Authentication Database  . . . . . . . . . . . . . .  40
+   7.  Auditing  . . . . . . . . . . . . . . . . . . . . . . . . . .  41
+   8.  Conformance Requirements  . . . . . . . . . . . . . . . . . .  42
    9.  Security Considerations . . . . . . . . . . . . . . . . . . .  42
    10. IANA Considerations . . . . . . . . . . . . . . . . . . . . .  42
      10.1.  EESP IP Protocol Number  . . . . . . . . . . . . . . . .  42
-     10.2.  EESP Versions Registry . . . . . . . . . . . . . . . . .  42
+     10.2.  EESP Versions Registry . . . . . . . . . . . . . . . . .  43
      10.3.  EESP Options Registry  . . . . . . . . . . . . . . . . .  43
-   11. Implementation Status . . . . . . . . . . . . . . . . . . . .  43
+   11. Implementation Status . . . . . . . . . . . . . . . . . . . .  44
    12. Security Considerations . . . . . . . . . . . . . . . . . . .  44
    13. Acknowledgments . . . . . . . . . . . . . . . . . . . . . . .  44
-   14. Normative References  . . . . . . . . . . . . . . . . . . . .  44
+   14. Normative References  . . . . . . . . . . . . . . . . . . . .  45
    15. Informative References  . . . . . . . . . . . . . . . . . . .  45
-   Appendix A.  Additional Stuff . . . . . . . . . . . . . . . . . .  46
-   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  46
+   Appendix A.  Additional Stuff . . . . . . . . . . . . . . . . . .  47
+   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  47
 
 
 
@@ -165,7 +165,7 @@ Internet-Draft                    EESP                     February 2025
 
 
 
-Klassert, et al.         Expires 23 August 2025                 [Page 3]
+Klassert, et al.         Expires 25 August 2025                 [Page 3]
 
 Internet-Draft                    EESP                     February 2025
 
@@ -221,7 +221,7 @@ Internet-Draft                    EESP                     February 2025
 
 
 
-Klassert, et al.         Expires 23 August 2025                 [Page 4]
+Klassert, et al.         Expires 25 August 2025                 [Page 4]
 
 Internet-Draft                    EESP                     February 2025
 
@@ -277,7 +277,7 @@ Internet-Draft                    EESP                     February 2025
 
 
 
-Klassert, et al.         Expires 23 August 2025                 [Page 5]
+Klassert, et al.         Expires 25 August 2025                 [Page 5]
 
 Internet-Draft                    EESP                     February 2025
 
@@ -333,7 +333,7 @@ Internet-Draft                    EESP                     February 2025
 
 
 
-Klassert, et al.         Expires 23 August 2025                 [Page 6]
+Klassert, et al.         Expires 25 August 2025                 [Page 6]
 
 Internet-Draft                    EESP                     February 2025
 
@@ -389,7 +389,7 @@ Internet-Draft                    EESP                     February 2025
 
 
 
-Klassert, et al.         Expires 23 August 2025                 [Page 7]
+Klassert, et al.         Expires 25 August 2025                 [Page 7]
 
 Internet-Draft                    EESP                     February 2025
 
@@ -445,7 +445,7 @@ Internet-Draft                    EESP                     February 2025
 
 
 
-Klassert, et al.         Expires 23 August 2025                 [Page 8]
+Klassert, et al.         Expires 25 August 2025                 [Page 8]
 
 Internet-Draft                    EESP                     February 2025
 
@@ -501,7 +501,7 @@ Internet-Draft                    EESP                     February 2025
 
 
 
-Klassert, et al.         Expires 23 August 2025                 [Page 9]
+Klassert, et al.         Expires 25 August 2025                 [Page 9]
 
 Internet-Draft                    EESP                     February 2025
 
@@ -557,7 +557,7 @@ Internet-Draft                    EESP                     February 2025
 
 
 
-Klassert, et al.         Expires 23 August 2025                [Page 10]
+Klassert, et al.         Expires 25 August 2025                [Page 10]
 
 Internet-Draft                    EESP                     February 2025
 
@@ -613,7 +613,7 @@ Internet-Draft                    EESP                     February 2025
 
 
 
-Klassert, et al.         Expires 23 August 2025                [Page 11]
+Klassert, et al.         Expires 25 August 2025                [Page 11]
 
 Internet-Draft                    EESP                     February 2025
 
@@ -669,7 +669,7 @@ Internet-Draft                    EESP                     February 2025
 
 
 
-Klassert, et al.         Expires 23 August 2025                [Page 12]
+Klassert, et al.         Expires 25 August 2025                [Page 12]
 
 Internet-Draft                    EESP                     February 2025
 
@@ -725,7 +725,7 @@ Internet-Draft                    EESP                     February 2025
 
 
 
-Klassert, et al.         Expires 23 August 2025                [Page 13]
+Klassert, et al.         Expires 25 August 2025                [Page 13]
 
 Internet-Draft                    EESP                     February 2025
 
@@ -781,7 +781,7 @@ Internet-Draft                    EESP                     February 2025
 
 
 
-Klassert, et al.         Expires 23 August 2025                [Page 14]
+Klassert, et al.         Expires 25 August 2025                [Page 14]
 
 Internet-Draft                    EESP                     February 2025
 
@@ -837,7 +837,7 @@ Internet-Draft                    EESP                     February 2025
 
 
 
-Klassert, et al.         Expires 23 August 2025                [Page 15]
+Klassert, et al.         Expires 25 August 2025                [Page 15]
 
 Internet-Draft                    EESP                     February 2025
 
@@ -893,7 +893,7 @@ Internet-Draft                    EESP                     February 2025
 
 
 
-Klassert, et al.         Expires 23 August 2025                [Page 16]
+Klassert, et al.         Expires 25 August 2025                [Page 16]
 
 Internet-Draft                    EESP                     February 2025
 
@@ -949,7 +949,7 @@ Internet-Draft                    EESP                     February 2025
 
 
 
-Klassert, et al.         Expires 23 August 2025                [Page 17]
+Klassert, et al.         Expires 25 August 2025                [Page 17]
 
 Internet-Draft                    EESP                     February 2025
 
@@ -1005,7 +1005,7 @@ Internet-Draft                    EESP                     February 2025
 
 
 
-Klassert, et al.         Expires 23 August 2025                [Page 18]
+Klassert, et al.         Expires 25 August 2025                [Page 18]
 
 Internet-Draft                    EESP                     February 2025
 
@@ -1061,7 +1061,7 @@ Internet-Draft                    EESP                     February 2025
 
 
 
-Klassert, et al.         Expires 23 August 2025                [Page 19]
+Klassert, et al.         Expires 25 August 2025                [Page 19]
 
 Internet-Draft                    EESP                     February 2025
 
@@ -1117,7 +1117,7 @@ Internet-Draft                    EESP                     February 2025
 
 
 
-Klassert, et al.         Expires 23 August 2025                [Page 20]
+Klassert, et al.         Expires 25 August 2025                [Page 20]
 
 Internet-Draft                    EESP                     February 2025
 
@@ -1173,7 +1173,7 @@ Internet-Draft                    EESP                     February 2025
 
 
 
-Klassert, et al.         Expires 23 August 2025                [Page 21]
+Klassert, et al.         Expires 25 August 2025                [Page 21]
 
 Internet-Draft                    EESP                     February 2025
 
@@ -1229,7 +1229,7 @@ Internet-Draft                    EESP                     February 2025
 
 
 
-Klassert, et al.         Expires 23 August 2025                [Page 22]
+Klassert, et al.         Expires 25 August 2025                [Page 22]
 
 Internet-Draft                    EESP                     February 2025
 
@@ -1285,7 +1285,7 @@ Internet-Draft                    EESP                     February 2025
 
 
 
-Klassert, et al.         Expires 23 August 2025                [Page 23]
+Klassert, et al.         Expires 25 August 2025                [Page 23]
 
 Internet-Draft                    EESP                     February 2025
 
@@ -1341,7 +1341,7 @@ Internet-Draft                    EESP                     February 2025
 
 
 
-Klassert, et al.         Expires 23 August 2025                [Page 24]
+Klassert, et al.         Expires 25 August 2025                [Page 24]
 
 Internet-Draft                    EESP                     February 2025
 
@@ -1397,7 +1397,7 @@ Internet-Draft                    EESP                     February 2025
 
 
 
-Klassert, et al.         Expires 23 August 2025                [Page 25]
+Klassert, et al.         Expires 25 August 2025                [Page 25]
 
 Internet-Draft                    EESP                     February 2025
 
@@ -1453,7 +1453,7 @@ Internet-Draft                    EESP                     February 2025
 
 
 
-Klassert, et al.         Expires 23 August 2025                [Page 26]
+Klassert, et al.         Expires 25 August 2025                [Page 26]
 
 Internet-Draft                    EESP                     February 2025
 
@@ -1509,7 +1509,7 @@ Internet-Draft                    EESP                     February 2025
 
 
 
-Klassert, et al.         Expires 23 August 2025                [Page 27]
+Klassert, et al.         Expires 25 August 2025                [Page 27]
 
 Internet-Draft                    EESP                     February 2025
 
@@ -1565,7 +1565,7 @@ Internet-Draft                    EESP                     February 2025
 
 
 
-Klassert, et al.         Expires 23 August 2025                [Page 28]
+Klassert, et al.         Expires 25 August 2025                [Page 28]
 
 Internet-Draft                    EESP                     February 2025
 
@@ -1621,7 +1621,7 @@ Internet-Draft                    EESP                     February 2025
 
 
 
-Klassert, et al.         Expires 23 August 2025                [Page 29]
+Klassert, et al.         Expires 25 August 2025                [Page 29]
 
 Internet-Draft                    EESP                     February 2025
 
@@ -1677,7 +1677,7 @@ Internet-Draft                    EESP                     February 2025
 
 
 
-Klassert, et al.         Expires 23 August 2025                [Page 30]
+Klassert, et al.         Expires 25 August 2025                [Page 30]
 
 Internet-Draft                    EESP                     February 2025
 
@@ -1733,7 +1733,7 @@ Internet-Draft                    EESP                     February 2025
 
 
 
-Klassert, et al.         Expires 23 August 2025                [Page 31]
+Klassert, et al.         Expires 25 August 2025                [Page 31]
 
 Internet-Draft                    EESP                     February 2025
 
@@ -1767,16 +1767,36 @@ Internet-Draft                    EESP                     February 2025
    The sender's counter SHOULD be initialized to 0 when an SA is
    established.  The sender increments the sequence number counter for
    this SA and inserts this value into the Sequence Number field of the
-   Peer Header.  Thus, the first packet sent using a given SA will
-   contain a sequence number of 1.  However, peers MAY choose dfferent
-   replay protection algorithms, i.e. not by using sequence numbers that
-   are incremented by one for each packet.  In case the peers choose
-   such an agloritthm, the sender MUST ensure that the sequence number
-   is strictly monotonic increasing.
+   Peer Header.  Note that 0 is not a valid sequence number.  Thus, the
+   minimal sequence number to use for the first packet sent using given
+   SA 1.  This means that the first packet sent using given SA will
+   contain a sequence number of 1, or bigger.  The most natural method
+   to increase the sequence number is to increase ony by one for each
+   sent packet.  This method SHOULD be implemented when possible.
+   However, peers MAY choose different replay protection algorithms,
+   i.e. not by using sequence numbers that are incremented by one for
+   each packet.  In case the peers choose such an agloritthm, the sender
+   MUST ensure that the sequence number is strictly monotonic
+   increasing.
+
+
+
+
+
+
+
+
+
+
+
+Klassert, et al.         Expires 25 August 2025                [Page 32]
+
+Internet-Draft                    EESP                     February 2025
+
 
    The sender checks to ensure that the counter has not cycled before
    inserting the new value in the Sequence Number field.  In other
-   words, the sender MUST NOT send a packet on an SA if doing so would
+   words, the sender MUST NOT send a packet on an SA.  If doing so would
    cause the sequence number to cycle.  An attempt to transmit a packet
    that would result in sequence number overflow is an auditable event.
    The audit log entry for this event SHOULD include the SPI value,
@@ -1784,15 +1804,9 @@ Internet-Draft                    EESP                     February 2025
    the cleartext Flow ID.
 
    Typical behavior of an EESP implementation calls for the sender to
-   establish a new SA when the Sequence Number cycles, or in
-   anticipation of this value cycling.
-
-
-
-Klassert, et al.         Expires 23 August 2025                [Page 32]
-
-Internet-Draft                    EESP                     February 2025
-
+   establish a new SA when the Sequence Number of the SA cycles, or if
+   sequence number subspaces are used any one of the subspaces cycles,
+   or in anticipation of this values cycling.
 
    If the key used to compute an ICV is manually distributed, a
    compliant implementation SHOULD NOT provide anti-replay service.  If
@@ -1805,9 +1819,9 @@ Internet-Draft                    EESP                     February 2025
 
    If necessary, fragmentation is performed after EESP processing within
    an IPsec implementation.  Thus, transport, beet and payload
-   encryption mode EESP is applied only to whole IP datagrams (not to IP
-   fragments).  An IP packet to which EESP has been applied may itself
-   be fragmented by routers en route, and such fragments must be
+   encryption mode, EESP is applied only to whole IP datagrams (not to
+   IP fragments).  An IP packet to which EESP has been applied may
+   itself be fragmented by routers en route, and such fragments must be
    reassembled prior to EESP processing at a receiver.  In tunnel mode,
    EESP is applied to an IP packet, which may be a fragment of an IP
    datagram.  For example, a security gateway or a "bump-in-the-stack"
@@ -1828,6 +1842,14 @@ Internet-Draft                    EESP                     February 2025
    Fragmentation, whether performed by an IPsec implementation or by
    routers along the path between IPsec peers, significantly reduces
    performance.  Moreover, the requirement for an EESP receiver to
+
+
+
+Klassert, et al.         Expires 25 August 2025                [Page 33]
+
+Internet-Draft                    EESP                     February 2025
+
+
    accept fragments for reassembly creates denial of service
    vulnerabilities.  Thus, an EESP implementation MAY choose to not
    support fragmentation and may mark transmitted packets with the DF
@@ -1839,16 +1861,6 @@ Internet-Draft                    EESP                     February 2025
    Architecture document.
 
 4.4.  Inbound Packet Processing
-
-
-
-
-
-
-Klassert, et al.         Expires 23 August 2025                [Page 33]
-
-Internet-Draft                    EESP                     February 2025
-
 
 4.4.1.  Reassembly
 
@@ -1882,6 +1894,18 @@ Internet-Draft                    EESP                     February 2025
    will specify the algorithms and keys to be employed for decryption
    and ICV computation (if applicable).
 
+
+
+
+
+
+
+
+Klassert, et al.         Expires 25 August 2025                [Page 34]
+
+Internet-Draft                    EESP                     February 2025
+
+
    If no valid Security Association exists for this packet, the receiver
    MUST discard the packet; this is an auditable event.  The audit log
    entry for this event SHOULD include the SPI value, date/time
@@ -1896,15 +1920,6 @@ Internet-Draft                    EESP                     February 2025
    also is enabled for the SA, because otherwise the Sequence Number
    field has not been integrity protected.  Anti-replay is applicable to
    unicast as well as multicast SAs.
-
-
-
-
-
-Klassert, et al.         Expires 23 August 2025                [Page 34]
-
-Internet-Draft                    EESP                     February 2025
-
 
    However, this standard specifies no mechanisms for providing anti-
    replay for a multi-sender SA (unicast or multicast).  In the absence
@@ -1938,6 +1953,15 @@ Internet-Draft                    EESP                     February 2025
    the receiver cannot yet modify its local counter, because the
    integrity of the Sequence Number has not been verified at this point.
 
+
+
+
+
+Klassert, et al.         Expires 25 August 2025                [Page 35]
+
+Internet-Draft                    EESP                     February 2025
+
+
    Duplicates are rejected through the use of a sliding receive window.
    How the window is implemented is a local matter, but the following
    text describes the functionality that the implementation must
@@ -1954,14 +1978,6 @@ Internet-Draft                    EESP                     February 2025
    separate integrity algorithm is employed, then the receiver proceeds
    to integrity verification.  If a combined mode algorithm is employed,
    the integrity check is performed along with decryption.  In either
-
-
-
-Klassert, et al.         Expires 23 August 2025                [Page 35]
-
-Internet-Draft                    EESP                     February 2025
-
-
    case, if the integrity check fails, the receiver MUST discard the
    received IP datagram as invalid; this is an auditable event.  The
    audit log entry for this event SHOULD include the SPI value, date/
@@ -1994,6 +2010,14 @@ Internet-Draft                    EESP                     February 2025
        algorithm and verifies that it is the same as the ICV carried in
        the packet.  Details of the computation are provided below.
 
+
+
+
+Klassert, et al.         Expires 25 August 2025                [Page 36]
+
+Internet-Draft                    EESP                     February 2025
+
+
        If the computed and received ICVs match, then the datagram is
        valid, and it is accepted.  If the test fails, then the receiver
        MUST discard the received IP datagram as invalid; this is an
@@ -2003,30 +2027,14 @@ Internet-Draft                    EESP                     February 2025
 
        Implementation Note:
 
-
-
-
-
-
-
-
-
-
-
-Klassert, et al.         Expires 23 August 2025                [Page 36]
-
-Internet-Draft                    EESP                     February 2025
-
-
        Implementations can use any set of steps that results in the same
        result as the following set of steps.  Begin by removing and
        saving the ICV field.  Next check the overall length of the EESP
-       packet minus the ICV field.  If implicit padding is required,
-       based on the block size of the integrity algorithm, append zero-
-       filled bytes to the end of the ESP packet directly after the Next
-       Header field.  Perform the ICV computation and compare the result
-       with the saved value, using the comparison rules defined by the
-       algorithm specification.
+       packet minus the ICV field.
+
+       Perform the ICV computation and compare the result with the saved
+       value, using the comparison rules defined by the algorithm
+       specification.
 
    2.  The receiver decrypts the EESP the paylod info header (if
        present), Payload Data, Padding, using the key, encryption
@@ -2038,7 +2046,7 @@ Internet-Draft                    EESP                     February 2025
        algorithm (RFC 2410).
 
    *  If explicit cryptographic synchronization data, e.g., an IV, is
-      indicated, it is taken from the IP field of the peer header and
+      indicated, it is taken from the IV field of the peer header and
       input to the decryption algorithm as per the algorithm
       specification.
 
@@ -2058,21 +2066,20 @@ Internet-Draft                    EESP                     February 2025
 
    *  The receiver reconstructs the original IP datagram from:
 
+
+
+
+Klassert, et al.         Expires 25 August 2025                [Page 37]
+
+Internet-Draft                    EESP                     February 2025
+
+
       -  for layer 4 payload encapsulation modes -- outer IP header plus
          the original next layer protocol information in the ESP Payload
          field
 
       -  for tunnel mode -- the entire IP datagram in the ESP Payload
          field.
-
-
-
-
-
-Klassert, et al.         Expires 23 August 2025                [Page 37]
-
-Internet-Draft                    EESP                     February 2025
-
 
       The exact steps for reconstructing the original datagram depend on
       the mode (transport or tunnel) and are described in the Security
@@ -2101,10 +2108,10 @@ Internet-Draft                    EESP                     February 2025
    1.  Decrypts and integrity checks the EESP Payload Info Header (if
        present), Payload Data, Padding, using the key, algorithm,
        algorithm mode, and cryptographic synchronization data (if any),
-       indicated by the SA.  The SPI from the EESP header, and the
-       (receiver) packet counter value (adjusted as required from the
-       processing described in Section 3.4.3) are inputs to this
-       algorithm, as they are required for the integrity check.
+       indicated by the SA.
+
+   The Base Header and the Peer Header are are inputs to this algorithm,
+   as they are required for the integrity check.
 
    *  If explicit cryptographic synchronization data, e.g., an IV, is
       indicated, it is taken from the IV field and input to the
@@ -2113,6 +2120,15 @@ Internet-Draft                    EESP                     February 2025
    *  If implicit cryptographic synchronization data, e.g., an IV, is
       indicated, a local version of the IV is constructed and input to
       the decryption algorithm as per the algorithm specification.
+
+
+
+
+
+Klassert, et al.         Expires 25 August 2025                [Page 38]
+
+Internet-Draft                    EESP                     February 2025
+
 
    *  If the integrity check performed by the combined mode algorithm
       fails, the receiver MUST discard the received IP datagram as
@@ -2123,13 +2139,6 @@ Internet-Draft                    EESP                     February 2025
    *  Process any Padding as specified in the encryption algorithm
       specification, if the algorithm has not already done so.
 
-
-
-Klassert, et al.         Expires 23 August 2025                [Page 38]
-
-Internet-Draft                    EESP                     February 2025
-
-
    *  The receiver checks the Next Header field.  If the value is "59"
       (no next header), the (dummy) packet is discarded without further
       processing.
@@ -2138,7 +2147,11 @@ Internet-Draft                    EESP                     February 2025
       frame (layer 4 payload encapsulation modes) from the ESP Payload
       Data field.
 
-5.  Stateless Decryption
+5.  UDP Encapsulation
+
+   TBD
+
+6.  Stateless Decryption
 
    In large-scale deployments, such as data center traffic, stateful
    IPsec using databases outlined in [RFC4301] and [RFC4303] can become
@@ -2160,7 +2173,20 @@ Internet-Draft                    EESP                     February 2025
    noticeable in high-speed data paths, where delays from locking can
    severely affect performance.
 
-5.1.  Key Derivation
+
+
+
+
+
+
+
+
+Klassert, et al.         Expires 25 August 2025                [Page 39]
+
+Internet-Draft                    EESP                     February 2025
+
+
+6.1.  Key Derivation
 
    To avoid storing per-SA decryption keys on the receiver side, the
    decryption keys MAY be derived from the EESP header plus a secret
@@ -2175,18 +2201,7 @@ Internet-Draft                    EESP                     February 2025
    The KDF used to derive the key for decryption MUST be one of the KDFs
    specified in [NIST02] section 4, and used in the way described there.
 
-
-
-
-
-
-
-Klassert, et al.         Expires 23 August 2025                [Page 39]
-
-Internet-Draft                    EESP                     February 2025
-
-
-5.2.  Receiving without SAD
+6.2.  Receiving without SAD
 
    When using Stateless Encryption, implementations can bypass the
    monolithic SAD in the receiving path.  Using fields from the EESP
@@ -2205,23 +2220,27 @@ Internet-Draft                    EESP                     February 2025
    or handled asynchronously, further optimizing performance in high-
    throughput environments like large data centers.
 
-5.3.  Sending without SPD
+6.3.  Sending without SPD
 
    The sending-side Security Policy and symetric key can be associated
    with a local socket or route instead of a monolithic SPD and SAD.  A
    send call could preappend crypto parameters for stateless encryption
    and encapsulation in hardware to plain text data.
 
-5.4.  Peer Authentication Database
+6.4.  Peer Authentication Database
 
    The data path does not use the PAD, but it is used for key
    derivation.  The Key Derivation Function (KDF) is outside the scope
    of this document.  However, IKEv2 [RFC7296] can handle key
    derivation.
 
-6.  UDP Encapsulation
 
-   TBD
+
+
+Klassert, et al.         Expires 25 August 2025                [Page 40]
+
+Internet-Draft                    EESP                     February 2025
+
 
 7.  Auditing
 
@@ -2233,14 +2252,6 @@ Internet-Draft                    EESP                     February 2025
    matter.  However, several auditable events are identified in this
    specification and for each of these events a minimum set of
    information that SHOULD be included in an audit log is defined.
-
-
-
-
-Klassert, et al.         Expires 23 August 2025                [Page 40]
-
-Internet-Draft                    EESP                     February 2025
-
 
    *  No valid Security Association exists for a session.  The audit log
       entry for this event SHOULD include the SPI value, date/time
@@ -2275,6 +2286,18 @@ Internet-Draft                    EESP                     February 2025
    purported sender in response to the detection of an auditable event,
    because of the potential to induce denial of service via such action.
 
+
+
+
+
+
+
+
+Klassert, et al.         Expires 25 August 2025                [Page 41]
+
+Internet-Draft                    EESP                     February 2025
+
+
 8.  Conformance Requirements
 
    Implementations that claim conformance or compliance with this
@@ -2290,14 +2313,6 @@ Internet-Draft                    EESP                     February 2025
    there likely would be no automated recovery provision if counter
    overflow were imminent.  Thus, a compliant implementation SHOULD NOT
    provide anti-replay service in conjunction with SAs that are manually
-
-
-
-Klassert, et al.         Expires 23 August 2025                [Page 41]
-
-Internet-Draft                    EESP                     February 2025
-
-
    keyed.
 
    The mandatory-to-implement algorithms for use with EESP are described
@@ -2331,6 +2346,14 @@ Internet-Draft                    EESP                     February 2025
 
    *  Decimal: TBD
 
+
+
+
+Klassert, et al.         Expires 25 August 2025                [Page 42]
+
+Internet-Draft                    EESP                     February 2025
+
+
    *  Keyword: EESP
 
    *  Protocol: Enhanced Encapsulating Security Payload
@@ -2346,13 +2369,6 @@ Internet-Draft                    EESP                     February 2025
    *  Name: EESP Versions Registry
 
    *  Description: EESP Base Header Version
-
-
-
-Klassert, et al.         Expires 23 August 2025                [Page 42]
-
-Internet-Draft                    EESP                     February 2025
-
 
    *  Reference: This document
 
@@ -2379,6 +2395,21 @@ Internet-Draft                    EESP                     February 2025
 
    The initial content for this registry is as follows:
 
+
+
+
+
+
+
+
+
+
+
+Klassert, et al.         Expires 25 August 2025                [Page 43]
+
+Internet-Draft                    EESP                     February 2025
+
+
    Value     EESP Header Options Types         Reference
    -------   ------------------------------    ---------------
          0   Pad1                              [this document]
@@ -2402,14 +2433,6 @@ Internet-Draft                    EESP                     February 2025
    assist the IETF in its decision processes in progressing drafts to
    RFCs.  Please note that the listing of any individual implementation
    here does not imply endorsement by the IETF.  Furthermore, no effort
-
-
-
-Klassert, et al.         Expires 23 August 2025                [Page 43]
-
-Internet-Draft                    EESP                     February 2025
-
-
    has been spent to verify the information presented here that was
    supplied by IETF contributors.  This is not intended as, and must not
    be construed to be, a catalog of available implementations or their
@@ -2435,6 +2458,14 @@ Internet-Draft                    EESP                     February 2025
 
    TBD
 
+
+
+
+Klassert, et al.         Expires 25 August 2025                [Page 44]
+
+Internet-Draft                    EESP                     February 2025
+
+
 14.  Normative References
 
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
@@ -2455,16 +2486,6 @@ Internet-Draft                    EESP                     February 2025
               Authentication Header (AH)", RFC 4305,
               DOI 10.17487/RFC4305, December 2005,
               <https://www.rfc-editor.org/info/rfc4305>.
-
-
-
-
-
-
-Klassert, et al.         Expires 23 August 2025                [Page 44]
-
-Internet-Draft                    EESP                     February 2025
-
 
    [RFC7296]  Kaufman, C., Hoffman, P., Nir, Y., Eronen, P., and T.
               Kivinen, "Internet Key Exchange Protocol Version 2
@@ -2493,6 +2514,14 @@ Internet-Draft                    EESP                     February 2025
               He, Q., Pan, W., Chen, X., and B. Ding, "Shared Use of
               IPsec Tunnel in a Multi-VPN Environment", Work in
               Progress, Internet-Draft, draft-he-ipsecme-vpn-shared-
+
+
+
+Klassert, et al.         Expires 25 August 2025                [Page 45]
+
+Internet-Draft                    EESP                     February 2025
+
+
               ipsecsa-01, 8 July 2024,
               <https://datatracker.ietf.org/doc/html/draft-he-ipsecme-
               vpn-shared-ipsecsa-01>.
@@ -2513,14 +2542,6 @@ Internet-Draft                    EESP                     February 2025
               ponchon-ipsecme-anti-replay-subspaces-03, 23 October 2023,
               <https://datatracker.ietf.org/doc/html/draft-ponchon-
               ipsecme-anti-replay-subspaces-03>.
-
-
-
-
-Klassert, et al.         Expires 23 August 2025                [Page 45]
-
-Internet-Draft                    EESP                     February 2025
-
 
    [NIST01]   NIST, "Federal Information Processing Standards
               Publication 140-2 (FIPS PUB 140-2), "Security Requirements
@@ -2545,6 +2566,17 @@ Internet-Draft                    EESP                     February 2025
    [RFC2992]  Hopps, C., "Analysis of an Equal-Cost Multi-Path
               Algorithm", RFC 2992, DOI 10.17487/RFC2992, November 2000,
               <https://www.rfc-editor.org/info/rfc2992>.
+
+
+
+
+
+
+
+Klassert, et al.         Expires 25 August 2025                [Page 46]
+
+Internet-Draft                    EESP                     February 2025
+
 
    [RFC3948]  Huttunen, A., Swander, B., Volpe, V., DiBurro, L., and M.
               Stenberg, "UDP Encapsulation of IPsec ESP Packets",
@@ -2572,12 +2604,6 @@ Authors' Addresses
    Email: antony.antony@secunet.com
 
 
-
-Klassert, et al.         Expires 23 August 2025                [Page 46]
-
-Internet-Draft                    EESP                     February 2025
-
-
    Christian Hopps
    LabN Consulting, L.L.C.
    Email: chopps@chopps.org
@@ -2603,30 +2629,4 @@ Internet-Draft                    EESP                     February 2025
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Klassert, et al.         Expires 23 August 2025                [Page 47]
+Klassert, et al.         Expires 25 August 2025                [Page 47]
