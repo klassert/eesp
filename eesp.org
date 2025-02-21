@@ -1444,9 +1444,13 @@ are generated in the following way.
 
 The sender's counter SHOULD be initialized to 0 when an SA is established.
 The sender increments the sequence number counter for this
-SA and inserts this value into the Sequence
-Number field of the Peer Header.  Thus, the first packet sent using a given SA will
-contain a sequence number of 1. However, peers MAY choose dfferent
+SA and inserts this value into the Sequence Number field of the Peer Header.
+Note that 0 is not a valid sequence number. Thus, the minimal sequence
+number to use for the first packet sent using given SA 1. This means that
+the first packet sent using given SA will contain a sequence number of 1,
+or bigger. The most natural method to increase the sequence number
+is to increase ony by one for each sent packet. This method SHOULD
+be implemented when possible. However, peers MAY choose different
 replay protection algorithms, i.e. not by using sequence numbers
 that are incremented by one for each packet. In case the peers choose
 such an agloritthm, the sender MUST ensure that the sequence
@@ -1455,15 +1459,16 @@ number is strictly monotonic increasing.
 The sender checks to ensure
 that the counter has not cycled before inserting the new value in the
 Sequence Number field.  In other words, the sender MUST NOT send a
-packet on an SA if doing so would cause the sequence number to cycle.
+packet on an SA. If doing so would cause the sequence number to cycle.
 An attempt to transmit a packet that would result in sequence number
 overflow is an auditable event.  The audit log entry for this event
 SHOULD include the SPI value, current date/time, Source Address,
 Destination Address, and (in IPv6) the cleartext Flow ID.
 
 Typical behavior of an EESP implementation calls for the sender to
-establish a new SA when the Sequence Number cycles, or in
-anticipation of this value cycling.
+establish a new SA when the Sequence Number of the SA cycles, or if
+sequence number subspaces are used any one of the subspaces cycles,
+or in anticipation of this values cycling.
 
 If the key used to compute an ICV is manually distributed, a
 compliant implementation SHOULD NOT provide anti-replay service.  If
@@ -1476,7 +1481,7 @@ replaced.
 
 If necessary, fragmentation is performed after EESP processing within
 an IPsec implementation.  Thus, transport, beet and payload encryption
-mode EESP is applied only to
+mode, EESP is applied only to
 whole IP datagrams (not to IP fragments).  An IP packet to which EESP
 has been applied may itself be fragmented by routers en route, and
 such fragments must be reassembled prior to EESP processing at a
@@ -1549,10 +1554,6 @@ entry for this event SHOULD include the SPI value, date/time
 received, Source Address, Destination Address, Sequence Number, and
 (in IPv6) the cleartext Flow ID.
 
-
-
-
-
 *** Sequence Number Verification
 
 # FIXME: This section needs review.
@@ -1563,7 +1564,6 @@ This service MUST NOT be enabled unless the EESP integrity service
 also is enabled for the SA, because otherwise the Sequence Number
 field has not been integrity protected.  Anti-replay is applicable to
 unicast as well as multicast SAs.
-
 
 # Note STK: This might chenge when we introduce the Sender ID option.
 However, this standard specifies
@@ -1663,10 +1663,12 @@ processing proceeds as follows:
    Implementations can use any set of steps that results in the
    same result as the following set of steps.  Begin by
    removing and saving the ICV field.  Next check the overall
-   length of the EESP packet minus the ICV field.  If implicit
-   padding is required, based on the block size of the
-   integrity algorithm, append zero-filled bytes to the end of
-   the ESP packet directly after the Next Header field.
+   length of the EESP packet minus the ICV field. 
+   # XXX: STK: No implicit padding please.
+   # If implicit
+   # padding is required, based on the block size of the
+   # integrity algorithm, append zero-filled bytes to the end of
+   # the ESP packet directly after the Next Header field.
    Perform the ICV computation and compare the
    result with the saved value, using the comparison rules
    defined by the algorithm specification.
@@ -1682,7 +1684,7 @@ processing proceeds as follows:
 # FIXME: Should NULL encryption algorithm be allowed?
 
    - If explicit cryptographic synchronization data, e.g.,
-     an IV, is indicated, it is taken from the IP
+     an IV, is indicated, it is taken from the IV
      field of the peer header and input to the decryption algorithm as per
      the algorithm specification.
 
@@ -1738,12 +1740,17 @@ then the receiver proceeds as follows:
 1. Decrypts and integrity checks the EESP Payload Info Header (if present),
    Payload Data, Padding, using the key, algorithm,
    algorithm mode, and cryptographic synchronization data (if
-   any), indicated by the SA.  The SPI from the EESP header, and
-   the (receiver) packet counter value (adjusted as required
-   from the processing described in Section 3.4.3) are inputs
+   any), indicated by the SA.
+# FIXME: EESP has more inputs than SPI ans seq NR
+   # XXX: This is the original ESP text:
+   # The SPI from the EESP header, and
+   # the (receiver) packet counter value (adjusted as required
+   # from the processing described in Section 3.4.3) are inputs
+   # to this algorithm, as they are required for the integrity
+   # check.
+   The Base Header and the Peer Header are are inputs
    to this algorithm, as they are required for the integrity
    check.
-# FIXEM: EESP has more inputs than SPI ans seq NR
 
    - If explicit cryptographic synchronization data, e.g.,
      an IV, is indicated, it is taken from the IV
@@ -1773,6 +1780,13 @@ then the receiver proceeds as follows:
    transport-layer frame (layer 4 payload encapsulation modes) from the ESP Payload
    Data field.
 
+* UDP Encapsulation
+
+TBD
+
+# FIXME: What to do with this???
+# It has nothing to do with the packet format, maybe move to
+# another draft that builds on top of EESP.
 * Stateless Decryption
 
 In large-scale deployments, such as data center traffic, stateful
@@ -1841,10 +1855,6 @@ encryption and encapsulation in hardware to plain text data.
 The data path does not use the PAD, but it is used for key derivation.
 The Key Derivation Function (KDF) is outside the scope of this document.
 However, IKEv2 [[RFC7296]] can handle key derivation.
-
-* UDP Encapsulation
-
-TBD
 
 * Auditing
 
