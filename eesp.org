@@ -1780,6 +1780,55 @@ then the receiver proceeds as follows:
    transport-layer frame (layer 4 payload encapsulation modes) from the ESP Payload
    Data field.
 
+* Key Derivation for Sub SAs
+
+When an EESP SA is using Sub SAs, each Sub SA (including the one
+with Session ID 0) uses separate keys. This allows each Sub SA to use
+its own independent Sequence Number and IV space.
+
+# We might have to formally define the interface for SSKDFs and
+# maybe even some properties that are required for a function to be
+# used as SSKDF
+In order to derive these keys, a Sub SA Key Derivation Function
+(SSKDF) MUST be configured as a property of the EESP SA if Sub SAs
+are to be used. If no SSKDF is configured, Sub SAs can't be used.
+
+If an SSKDF is set, the key material required for the EESP SA is
+determined by the key size of the negotiated SSKDF.  This single
+key is called ~root~ key and is the basis for the keys derived for
+all Sub SAs.
+
+# Should the argument be the Session_ID field or the Sub SA ID (as
+# only part of that field)?
+# [VS] Discussion: perhaps the key derivation argument can be part
+# [VS] of the SSKDF transform. In other words - definition of
+# [VS] a particular SSKDF would not only the specify KDF to use, but
+# [VS] also include its arguments. This would make key Sub SA
+# [VS] derivation more flexible (in future it can be defined over
+# [VS] other stuff than SPI + Session ID, e.g. over SN).
+# [VS] Disadvantage - the SSKDF definition would become more 'heavy'
+# [VS] and in adding new SSKDFs would in theory be more difficult
+
+The EESP SA root key and selected SSKDF are then used as follows to
+derive key material for each Sub SA:
+
+    KEYMAT_sub = SSKDF(KEY_root, Session ID, L)
+
+Where L is the total length of the key material KEYMAT_sub and the
+salt value is the full Session ID field of the Sub SA. The length of
+KEYMAT_sub and how it is used depends on the negotiated encryption
+algorithm.
+
+Keys for Sub SAs may be derived immediately or on demand when the
+first packet is processed. Memory constrained implementations may
+even decide to derive the Sub SA keys on the fly for each received
+packet as only the EESP key has to be stored to derive the keys of
+all Sub SAs.
+
+Because individual Sub SAs can't be rekeyed, the complete EESP SA
+MUST be rekeyed when either a cryptographic limit or a time-based
+limit is reached for any individual Sub SA.
+
 * UDP Encapsulation
 
 UDP encapsulation for EESP is largely the same as UDP encapsulation
