@@ -84,7 +84,7 @@ Though this document specifies IKEv2 as a negotiation protocol, EESP
 may use other protocols for negotiation and key derivation. The
 packet specification is portable to other keying protocol use cases,
 such as [[PSP]], and offers versioning at the packet level.
-The Flow Identifiers, Crypt Offset and the Session ID can 
+The Flow Identifiers, Crypt Offset and the Session ID can
 be used to cover the PSP use case.
 
 ** Requirements Language
@@ -1663,7 +1663,7 @@ processing proceeds as follows:
    Implementations can use any set of steps that results in the
    same result as the following set of steps.  Begin by
    removing and saving the ICV field.  Next check the overall
-   length of the EESP packet minus the ICV field. 
+   length of the EESP packet minus the ICV field.
    # XXX: STK: No implicit padding please.
    # If implicit
    # padding is required, based on the block size of the
@@ -1782,7 +1782,54 @@ then the receiver proceeds as follows:
 
 * UDP Encapsulation
 
-TBD
+UDP encapsulation for EESP is largely the same as UDP encapsulation
+for ESP specified in [[RFC3948]].  The primary difference is that
+the UDP source port used by EESP Sub SAs may be different from the
+IKE SA source port.  This allows more flexible handling of EESP
+traffic, particularly ECMP support along the path and in the NIC.
+
+A receiver intending to support both ESP and EESP encapsulated in UDP
+must be able to distinguish inbound ESP and EESP traffic on the same
+UDP port. To be able to handle this, the SPIs for the incoming ESP
+SAs MUST be chosen in such a way, that they can be distinguished from
+the EESP base header. Since the most significant bit of the EESP base
+header is fixed to be one, this can be achieved if ESP SPIs are
+selected in such a way, that the most significant bit of the ESP SPIs
+is always set to zero.
+
+** UDP Encapsulation of Sub SAs
+
+An EESP SA primarily uses UDP encapsulation to facilitate NAT
+traversal. However, an additional use case for UDP encapsulation is
+to introduce source port entropy, which supports ECMP or/and
+RSS (Receive Side Scaling) mechanisms. In such scenarios, the
+initiator MAY also use a distinct, ephemeral source port for
+Sub SA IDs greater than zero.
+
+It is important to note that IKE messages MUST NOT utilize these
+ephemeral source ports. Instead, IKE traffic should be confined to
+the source and destination ports to ensure proper protocol operation
+and maintain compatibility with existing implementations.
+
+# The following para is maybe a bit too implementation specific.
+# Since the SAs are inbound only, and the IKE implementation does not
+# use the ports anyway, why is it necessary to know that port? Or
+# trigger a mapping change/update?
+When using ephemeral source ports, the receiver can only set the
+source port upon arrival of an EESP packet with that Sub SA ID. If
+the receiver is pre-populating a Sub SA, it may have to install it
+with a source port set to zero and, upon arrival of a packet,
+update the source port using a mapping change.
+
+# This para is a bit unclear. What purpose does that mapping table
+# have exactly in relation to the routing? And what ambiguity is
+# there that it could avoid?
+Additionally, when multiple Sub SAs exist, the receiver SHOULD
+maintain a mapping table to track the source port associated with
+each Sub SA independently. This ensures that traffic is correctly
+routed and prevents ambiguity in handling packets associated with
+different Sub SAs when a NAT is present.
+
 
 # FIXME: What to do with this???
 # It has nothing to do with the packet format, maybe move to
