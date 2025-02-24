@@ -138,28 +138,28 @@ Internet-Draft                    EESP                     February 2025
        4.4.2.  Security Association Lookup . . . . . . . . . . . . .  35
        4.4.3.  Sequence Number Verification  . . . . . . . . . . . .  36
        4.4.4.  Integrity Check Value Verification  . . . . . . . . .  37
-   5.  UDP Encapsulation . . . . . . . . . . . . . . . . . . . . . .  40
-   6.  Stateless Decryption  . . . . . . . . . . . . . . . . . . . .  40
-     6.1.  Key Derivation  . . . . . . . . . . . . . . . . . . . . .  41
-     6.2.  Receiving without SAD . . . . . . . . . . . . . . . . . .  41
-     6.3.  Sending without SPD . . . . . . . . . . . . . . . . . . .  41
-     6.4.  Peer Authentication Database  . . . . . . . . . . . . . .  41
-   7.  Auditing  . . . . . . . . . . . . . . . . . . . . . . . . . .  42
-   8.  Conformance Requirements  . . . . . . . . . . . . . . . . . .  43
-   9.  Security Considerations . . . . . . . . . . . . . . . . . . .  43
-   10. IANA Considerations . . . . . . . . . . . . . . . . . . . . .  43
-     10.1.  EESP IP Protocol Number  . . . . . . . . . . . . . . . .  43
-     10.2.  EESP Versions Registry . . . . . . . . . . . . . . . . .  44
-     10.3.  EESP Options Registry  . . . . . . . . . . . . . . . . .  44
-   11. Implementation Status . . . . . . . . . . . . . . . . . . . .  45
-   12. Security Considerations . . . . . . . . . . . . . . . . . . .  45
-   13. Acknowledgments . . . . . . . . . . . . . . . . . . . . . . .  45
-   14. Normative References  . . . . . . . . . . . . . . . . . . . .  46
-   15. Informative References  . . . . . . . . . . . . . . . . . . .  46
-   Appendix A.  Additional Stuff . . . . . . . . . . . . . . . . . .  48
-   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  48
-
-
+   5.  Key Derivation for Sub SAs  . . . . . . . . . . . . . . . . .  40
+   6.  UDP Encapsulation . . . . . . . . . . . . . . . . . . . . . .  41
+     6.1.  UDP Encapsulation of Sub SAs  . . . . . . . . . . . . . .  41
+   7.  Stateless Decryption  . . . . . . . . . . . . . . . . . . . .  42
+     7.1.  Key Derivation  . . . . . . . . . . . . . . . . . . . . .  42
+     7.2.  Receiving without SAD . . . . . . . . . . . . . . . . . .  42
+     7.3.  Sending without SPD . . . . . . . . . . . . . . . . . . .  43
+     7.4.  Peer Authentication Database  . . . . . . . . . . . . . .  43
+   8.  Auditing  . . . . . . . . . . . . . . . . . . . . . . . . . .  43
+   9.  Conformance Requirements  . . . . . . . . . . . . . . . . . .  44
+   10. Security Considerations . . . . . . . . . . . . . . . . . . .  45
+   11. IANA Considerations . . . . . . . . . . . . . . . . . . . . .  45
+     11.1.  EESP IP Protocol Number  . . . . . . . . . . . . . . . .  45
+     11.2.  EESP Versions Registry . . . . . . . . . . . . . . . . .  45
+     11.3.  EESP Options Registry  . . . . . . . . . . . . . . . . .  45
+   12. Implementation Status . . . . . . . . . . . . . . . . . . . .  46
+   13. Security Considerations . . . . . . . . . . . . . . . . . . .  47
+   14. Acknowledgments . . . . . . . . . . . . . . . . . . . . . . .  47
+   15. Normative References  . . . . . . . . . . . . . . . . . . . .  47
+   16. Informative References  . . . . . . . . . . . . . . . . . . .  47
+   Appendix A.  Additional Stuff . . . . . . . . . . . . . . . . . .  49
+   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  49
 
 
 
@@ -2203,11 +2203,102 @@ Internet-Draft                    EESP                     February 2025
       frame (layer 4 payload encapsulation modes) from the ESP Payload
       Data field.
 
-5.  UDP Encapsulation
+5.  Key Derivation for Sub SAs
 
-   TBD
+   When an EESP SA is using Sub SAs, each Sub SA (including the one with
+   Session ID 0) uses separate keys.  This allows each Sub SA to use its
+   own independent Sequence Number and IV space.
 
-6.  Stateless Decryption
+   In order to derive these keys, a Sub SA Key Derivation Function
+   (SSKDF) MUST be configured as a property of the EESP SA if Sub SAs
+   are to be used.  If no SSKDF is configured, Sub SAs can't be used.
+
+   If an SSKDF is set, the key material required for the EESP SA is
+   determined by the key size of the negotiated SSKDF.  This single key
+   is called 'root' key and is the basis for the keys derived for all
+   Sub SAs.
+
+   The EESP SA root key and selected SSKDF are then used as follows to
+   derive key material for each Sub SA:
+
+   KEYMAT_sub = SSKDF(KEY_root, Session ID, L)
+
+   Where L is the total length of the key material KEYMAT_sub and the
+   salt value is the full Session ID field of the Sub SA.  The length of
+   KEYMAT_sub and how it is used depends on the negotiated encryption
+   algorithm.
+
+   Keys for Sub SAs may be derived immediately or on demand when the
+   first packet is processed.  Memory constrained implementations may
+   even decide to derive the Sub SA keys on the fly for each received
+   packet as only the EESP key has to be stored to derive the keys of
+   all Sub SAs.
+
+
+
+
+Klassert, et al.         Expires 28 August 2025                [Page 40]
+
+Internet-Draft                    EESP                     February 2025
+
+
+   Because individual Sub SAs can't be rekeyed, the complete EESP SA
+   MUST be rekeyed when either a cryptographic limit or a time-based
+   limit is reached for any individual Sub SA.
+
+6.  UDP Encapsulation
+
+   UDP encapsulation for EESP is largely the same as UDP encapsulation
+   for ESP specified in [RFC3948].  The primary difference is that the
+   UDP source port used by EESP Sub SAs may be different from the IKE SA
+   source port.  This allows more flexible handling of EESP traffic,
+   particularly ECMP support along the path and in the NIC.
+
+   A receiver intending to support both ESP and EESP encapsulated in UDP
+   must be able to distinguish inbound ESP and EESP traffic on the same
+   UDP port.  To be able to handle this, the SPIs for the incoming ESP
+   SAs MUST be chosen in such a way, that they can be distinguished from
+   the EESP base header.  Since the most significant bit of the EESP
+   base header is fixed to be one, this can be achieved if ESP SPIs are
+   selected in such a way, that the most significant bit of the ESP SPIs
+   is always set to zero.
+
+6.1.  UDP Encapsulation of Sub SAs
+
+   An EESP SA primarily uses UDP encapsulation to facilitate NAT
+   traversal.  However, an additional use case for UDP encapsulation is
+   to introduce source port entropy, which supports ECMP or/and RSS
+   (Receive Side Scaling) mechanisms.  In such scenarios, the initiator
+   MAY also use a distinct, ephemeral source port for Sub SA IDs greater
+   than zero.
+
+   It is important to note that IKE messages MUST NOT utilize these
+   ephemeral source ports.  Instead, IKE traffic should be confined to
+   the source and destination ports to ensure proper protocol operation
+   and maintain compatibility with existing implementations.
+
+   When using ephemeral source ports, the receiver can only set the
+   source port upon arrival of an EESP packet with that Sub SA ID.  If
+   the receiver is pre-populating a Sub SA, it may have to install it
+   with a source port set to zero and, upon arrival of a packet, update
+   the source port using a mapping change.
+
+   Additionally, when multiple Sub SAs exist, the receiver SHOULD
+   maintain a mapping table to track the source port associated with
+   each Sub SA independently.  This ensures that traffic is correctly
+   routed and prevents ambiguity in handling packets associated with
+   different Sub SAs when a NAT is present.
+
+
+
+
+
+Klassert, et al.         Expires 28 August 2025                [Page 41]
+
+Internet-Draft                    EESP                     February 2025
+
+
+7.  Stateless Decryption
 
    In large-scale deployments, such as data center traffic, stateful
    IPsec using databases outlined in [RFC4301] and [RFC4303] can become
@@ -2229,20 +2320,7 @@ Internet-Draft                    EESP                     February 2025
    noticeable in high-speed data paths, where delays from locking can
    severely affect performance.
 
-
-
-
-
-
-
-
-
-Klassert, et al.         Expires 28 August 2025                [Page 40]
-
-Internet-Draft                    EESP                     February 2025
-
-
-6.1.  Key Derivation
+7.1.  Key Derivation
 
    To avoid storing per-SA decryption keys on the receiver side, the
    decryption keys MAY be derived from the EESP header plus a secret
@@ -2257,7 +2335,7 @@ Internet-Draft                    EESP                     February 2025
    The KDF used to derive the key for decryption MUST be one of the KDFs
    specified in [NIST02] section 4, and used in the way described there.
 
-6.2.  Receiving without SAD
+7.2.  Receiving without SAD
 
    When using Stateless Encryption, implementations can bypass the
    monolithic SAD in the receiving path.  Using fields from the EESP
@@ -2268,6 +2346,14 @@ Internet-Draft                    EESP                     February 2025
    stateless, as specified in [PSP].  In this approach, packets are
    decrypted and authenticated directly, without requiring SAD lookups
    for each packet.  However, Security Policy validation MUST be done
+
+
+
+Klassert, et al.         Expires 28 August 2025                [Page 42]
+
+Internet-Draft                    EESP                     February 2025
+
+
    later in the stack using policies specified in the socket or route.
 
    stateless encryption not only reduces CPU overhead but also reduces
@@ -2276,29 +2362,21 @@ Internet-Draft                    EESP                     February 2025
    or handled asynchronously, further optimizing performance in high-
    throughput environments like large data centers.
 
-6.3.  Sending without SPD
+7.3.  Sending without SPD
 
    The sending-side Security Policy and symetric key can be associated
    with a local socket or route instead of a monolithic SPD and SAD.  A
    send call could preappend crypto parameters for stateless encryption
    and encapsulation in hardware to plain text data.
 
-6.4.  Peer Authentication Database
+7.4.  Peer Authentication Database
 
    The data path does not use the PAD, but it is used for key
    derivation.  The Key Derivation Function (KDF) is outside the scope
    of this document.  However, IKEv2 [RFC7296] can handle key
    derivation.
 
-
-
-
-Klassert, et al.         Expires 28 August 2025                [Page 41]
-
-Internet-Draft                    EESP                     February 2025
-
-
-7.  Auditing
+8.  Auditing
 
    Not all systems that implement EESP will implement auditing.
    However, if EESP is incorporated into a system that supports
@@ -2325,6 +2403,13 @@ Internet-Draft                    EESP                     February 2025
       SPI value, current date/time, Source Address, Destination Address,
       Sequence Number, and (for IPv6) the cleartext Flow ID.
 
+
+
+Klassert, et al.         Expires 28 August 2025                [Page 43]
+
+Internet-Draft                    EESP                     February 2025
+
+
    *  The received packet fails the anti-replay checks.  The audit log
       entry for this event SHOULD include the SPI value, date/time
       received, Source Address, Destination Address, the Sequence
@@ -2342,19 +2427,7 @@ Internet-Draft                    EESP                     February 2025
    purported sender in response to the detection of an auditable event,
    because of the potential to induce denial of service via such action.
 
-
-
-
-
-
-
-
-Klassert, et al.         Expires 28 August 2025                [Page 42]
-
-Internet-Draft                    EESP                     February 2025
-
-
-8.  Conformance Requirements
+9.  Conformance Requirements
 
    Implementations that claim conformance or compliance with this
    specification MUST implement the EESP syntax and processing described
@@ -2386,29 +2459,28 @@ Internet-Draft                    EESP                     February 2025
    integrity and encryption may each be "NULL" under the circumstances
    noted above, they MUST NOT both be "NULL".
 
-9.  Security Considerations
+
+
+Klassert, et al.         Expires 28 August 2025                [Page 44]
+
+Internet-Draft                    EESP                     February 2025
+
+
+10.  Security Considerations
 
    Security is central to the design of this protocol, and thus security
    considerations permeate the specification.  Additional security-
    relevant aspects of using the IPsec protocol are discussed in the
    Security Architecture document.
 
-10.  IANA Considerations
+11.  IANA Considerations
 
-10.1.  EESP IP Protocol Number
+11.1.  EESP IP Protocol Number
 
    This document requests IANA allocate an IP protocol number from
    "Protocol Numbers - Assigned Internet Protocol Numbers" registry
 
    *  Decimal: TBD
-
-
-
-
-Klassert, et al.         Expires 28 August 2025                [Page 43]
-
-Internet-Draft                    EESP                     February 2025
-
 
    *  Keyword: EESP
 
@@ -2416,7 +2488,7 @@ Internet-Draft                    EESP                     February 2025
 
    *  Reference: This document
 
-10.2.  EESP Versions Registry
+11.2.  EESP Versions Registry
 
    This document requests IANA to create a registry called
    "EESP_VERSIONS" Type Registry" under a new category named
@@ -2438,10 +2510,17 @@ Internet-Draft                    EESP                     February 2025
 
               Figure 22: EESP Version Initial Registry Values
 
-10.3.  EESP Options Registry
+11.3.  EESP Options Registry
 
    This document requests IANA to create a registry called "EESP_OPTIONS
    Type Registry" under a new category named "EESP_OPTIONS Parameters".
+
+
+
+Klassert, et al.         Expires 28 August 2025                [Page 45]
+
+Internet-Draft                    EESP                     February 2025
+
 
    *  Name: EESP Options Registry
 
@@ -2450,21 +2529,6 @@ Internet-Draft                    EESP                     February 2025
    *  Reference: This document
 
    The initial content for this registry is as follows:
-
-
-
-
-
-
-
-
-
-
-
-Klassert, et al.         Expires 28 August 2025                [Page 44]
-
-Internet-Draft                    EESP                     February 2025
-
 
    Value     EESP Header Options Types         Reference
    -------   ------------------------------    ---------------
@@ -2477,7 +2541,7 @@ Internet-Draft                    EESP                     February 2025
 
                      Figure 23: Initial Registry Values
 
-11.  Implementation Status
+12.  Implementation Status
 
    [Note to RFC Editor: Please remove this section and the reference to
    [RFC7942] before publication.]
@@ -2506,23 +2570,23 @@ Internet-Draft                    EESP                     February 2025
    this section, advising the Editor to remove the entire section before
    publication, as well as the reference to [RFC7942].
 
-12.  Security Considerations
-
-   In this section we discuss the security properties of EESP: TBD
-
-13.  Acknowledgments
-
-   TBD
 
 
 
-
-Klassert, et al.         Expires 28 August 2025                [Page 45]
+Klassert, et al.         Expires 28 August 2025                [Page 46]
 
 Internet-Draft                    EESP                     February 2025
 
 
-14.  Normative References
+13.  Security Considerations
+
+   In this section we discuss the security properties of EESP: TBD
+
+14.  Acknowledgments
+
+   TBD
+
+15.  Normative References
 
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
               Requirement Levels", BCP 14, RFC 2119,
@@ -2559,7 +2623,16 @@ Internet-Draft                    EESP                     February 2025
               DOI 10.17487/RFC9347, January 2023,
               <https://www.rfc-editor.org/info/rfc9347>.
 
-15.  Informative References
+16.  Informative References
+
+
+
+
+
+Klassert, et al.         Expires 28 August 2025                [Page 47]
+
+Internet-Draft                    EESP                     February 2025
+
 
    [Encryption]
               IANA, "IKEv2 Parameters",
@@ -2570,14 +2643,6 @@ Internet-Draft                    EESP                     February 2025
               He, Q., Pan, W., Chen, X., and B. Ding, "Shared Use of
               IPsec Tunnel in a Multi-VPN Environment", Work in
               Progress, Internet-Draft, draft-he-ipsecme-vpn-shared-
-
-
-
-Klassert, et al.         Expires 28 August 2025                [Page 46]
-
-Internet-Draft                    EESP                     February 2025
-
-
               ipsecsa-01, 8 July 2024,
               <https://datatracker.ietf.org/doc/html/draft-he-ipsecme-
               vpn-shared-ipsecsa-01>.
@@ -2615,6 +2680,16 @@ Internet-Draft                    EESP                     February 2025
               <https://www.iana.org/assignments/protocol-numbers/
               protocol-numbers.xhtml>.
 
+
+
+
+
+
+Klassert, et al.         Expires 28 August 2025                [Page 48]
+
+Internet-Draft                    EESP                     February 2025
+
+
    [PSP]      Google, "PSP Architecture Specification",
               <https://github.com/google/psp/blob/main/doc/
               PSP_Arch_Spec.pdf>.
@@ -2622,17 +2697,6 @@ Internet-Draft                    EESP                     February 2025
    [RFC2992]  Hopps, C., "Analysis of an Equal-Cost Multi-Path
               Algorithm", RFC 2992, DOI 10.17487/RFC2992, November 2000,
               <https://www.rfc-editor.org/info/rfc2992>.
-
-
-
-
-
-
-
-Klassert, et al.         Expires 28 August 2025                [Page 47]
-
-Internet-Draft                    EESP                     February 2025
-
 
    [RFC3948]  Huttunen, A., Swander, B., Volpe, V., DiBurro, L., and M.
               Stenberg, "UDP Encapsulation of IPsec ESP Packets",
@@ -2677,12 +2741,4 @@ Authors' Addresses
 
 
 
-
-
-
-
-
-
-
-
-Klassert, et al.         Expires 28 August 2025                [Page 48]
+Klassert, et al.         Expires 28 August 2025                [Page 49]
