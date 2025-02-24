@@ -1819,9 +1819,105 @@ then the receiver proceeds as follows:
    transport-layer frame (layer 4 payload encapsulation modes) from the ESP Payload
    Data field.
 
+* Key Derivation for Sub SAs
+
+When an EESP SA is using Sub SAs, each Sub SA (including the one
+with Session ID 0) uses separate keys. This allows each Sub SA to use
+its own independent Sequence Number and IV space.
+
+# We might have to formally define the interface for SSKDFs and
+# maybe even some properties that are required for a function to be
+# used as SSKDF
+In order to derive these keys, a Sub SA Key Derivation Function
+(SSKDF) MUST be configured as a property of the EESP SA if Sub SAs
+are to be used. If no SSKDF is configured, Sub SAs can't be used.
+
+If an SSKDF is set, the key material required for the EESP SA is
+determined by the key size of the negotiated SSKDF.  This single
+key is called ~root~ key and is the basis for the keys derived for
+all Sub SAs.
+
+# Should the argument be the Session_ID field or the Sub SA ID (as
+# only part of that field)?
+# [VS] Discussion: perhaps the key derivation argument can be part
+# [VS] of the SSKDF transform. In other words - definition of
+# [VS] a particular SSKDF would not only the specify KDF to use, but
+# [VS] also include its arguments. This would make key Sub SA
+# [VS] derivation more flexible (in future it can be defined over
+# [VS] other stuff than SPI + Session ID, e.g. over SN).
+# [VS] Disadvantage - the SSKDF definition would become more 'heavy'
+# [VS] and in adding new SSKDFs would in theory be more difficult
+
+The EESP SA root key and selected SSKDF are then used as follows to
+derive key material for each Sub SA:
+
+    KEYMAT_sub = SSKDF(KEY_root, Session ID, L)
+
+Where L is the total length of the key material KEYMAT_sub and the
+salt value is the full Session ID field of the Sub SA. The length of
+KEYMAT_sub and how it is used depends on the negotiated encryption
+algorithm.
+
+Keys for Sub SAs may be derived immediately or on demand when the
+first packet is processed. Memory constrained implementations may
+even decide to derive the Sub SA keys on the fly for each received
+packet as only the EESP key has to be stored to derive the keys of
+all Sub SAs.
+
+Because individual Sub SAs can't be rekeyed, the complete EESP SA
+MUST be rekeyed when either a cryptographic limit or a time-based
+limit is reached for any individual Sub SA.
+
 * UDP Encapsulation
 
-TBD
+UDP encapsulation for EESP is largely the same as UDP encapsulation
+for ESP specified in [[RFC3948]].  The primary difference is that
+the UDP source port used by EESP Sub SAs may be different from the
+IKE SA source port.  This allows more flexible handling of EESP
+traffic, particularly ECMP support along the path and in the NIC.
+
+A receiver intending to support both ESP and EESP encapsulated in UDP
+must be able to distinguish inbound ESP and EESP traffic on the same
+UDP port. To be able to handle this, the SPIs for the incoming ESP
+SAs MUST be chosen in such a way, that they can be distinguished from
+the EESP base header. Since the most significant bit of the EESP base
+header is fixed to be one, this can be achieved if ESP SPIs are
+selected in such a way, that the most significant bit of the ESP SPIs
+is always set to zero.
+
+** UDP Encapsulation of Sub SAs
+
+An EESP SA primarily uses UDP encapsulation to facilitate NAT
+traversal. However, an additional use case for UDP encapsulation is
+to introduce source port entropy, which supports ECMP or/and
+RSS (Receive Side Scaling) mechanisms. In such scenarios, the
+initiator MAY also use a distinct, ephemeral source port for
+Sub SA IDs greater than zero.
+
+It is important to note that IKE messages MUST NOT utilize these
+ephemeral source ports. Instead, IKE traffic should be confined to
+the source and destination ports to ensure proper protocol operation
+and maintain compatibility with existing implementations.
+
+# The following para is maybe a bit too implementation specific.
+# Since the SAs are inbound only, and the IKE implementation does not
+# use the ports anyway, why is it necessary to know that port? Or
+# trigger a mapping change/update?
+When using ephemeral source ports, the receiver can only set the
+source port upon arrival of an EESP packet with that Sub SA ID. If
+the receiver is pre-populating a Sub SA, it may have to install it
+with a source port set to zero and, upon arrival of a packet,
+update the source port using a mapping change.
+
+# This para is a bit unclear. What purpose does that mapping table
+# have exactly in relation to the routing? And what ambiguity is
+# there that it could avoid?
+Additionally, when multiple Sub SAs exist, the receiver SHOULD
+maintain a mapping table to track the source port associated with
+each Sub SA independently. This ensures that traffic is correctly
+routed and prevents ambiguity in handling packets associated with
+different Sub SAs when a NAT is present.
+
 
 # FIXME: What to do with this???
 # It has nothing to do with the packet format, maybe move to
