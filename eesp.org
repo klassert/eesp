@@ -526,10 +526,112 @@ padding, this too MUST be specified in that RFC.
 ** Integrity Check Value (ICV)
 
 The Integrity Check Value is a variable-length field computed over
-the EESP header, and Payload. The length of the field is
-specified by the algorithm selected and associated with the
-SA.  The algorithm specification MUST specify the length of
-the ICV and the comparison rules and processing steps for validation.
+the Encrypted Payload and Additional Authenticated Data, as defined
+in [ADD Construction]. The length of the field is specified by the
+algorithm selected and associated with the SA. The algorithm
+specification MUST specify the length of the ICV and the comparison
+rules and processing steps for validation.
+
+
+** AAD Construction
+Additional Authenticated Data (AAD) includes the Base
+Header, any Optional Headers and Peer Header.
+
+#+caption: EESP AAD
+#+name: eesp-aad
+#+begin_src
+   0                   1                   2                   3
+   0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+--+
+  |                                                               |  |
+  ~                          Base Header                          ~  |
+  |                                                               |  |
+  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ Int
+  |                                                               | egr
+  ~                     Peer Header (variable)                    ~ ity
+  |                                                               |   |
+  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ Pro
+  |                                                               | tec
+  ~                    Encrypted Payload Data (variable)          ~ ted
+  |                                                               |  |
+  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+--+
+  ~              Integrity Check Value-ICV (variable)             ~
+  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+#+end_src
+
+Additionally, if a Crypt Offset is used, the AAD includes the
+associated data exposed due to the offset. Payload Data covered
+by the Crypt Offset is transmitted in the clear, but is still
+included in the AAD.
+
+#+caption: EESP Tunnel Mode AAD with Crypt Offset
+#+name: eesp-aad-crypt-offset
+#+begin_src
+  0                   1                   2                   3
+  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+ +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+--+
+ |                                                               |  |
+ |                          Base Header                          ~  |
+ +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-++|
+ |                 Crypt Offset Optional Header                  |  |
+ +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-++| Int
+ |                                                               | egr
+ ~                     Peer Header (variable)                    ~ ity
+ |                                                               |  |
+ +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-++| Pro
+ |                  Plaintext Payload Data (variable)            | tec
+ +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-++| ted
+ |                                                               |  |
+ ~                    Encrypted Payload Data (variable)          ~  |
+ |                                                               |  |
+ +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+++--+
+ ~              Integrity Check Value-ICV (variable)            ~
+ +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-++
+#+end_src
+
+As an example consider a Tunnel mode SA, with replay protection
+enabled and 8 bytes explicit IV carrying an IPv4 UDP packet with
+crypto offset 8 (8x4 = 32 bytes). [eesp-aad-crypt-offset-example]
+
+#+begin_src
+#+caption: EESP Tunnel Mode AAD with Crypt Offset example
+#+name: eesp-aad-crypt-offset-example
+ 0                   1                   2                   3
+ 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+--+
+|1|Version|Flags|   Opt Len (4) |         Session ID            |  |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+  |
+|                              SPI                              |  |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+  |
+|  Crypt Offset(2)  |Opt Len (4)|POffset (7)|CryptOff(8)| F | R |  |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ Int
+|                       Sequence number 63-32                   | egr
+|                       Sequence number 31-0                    | ity
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+  |
+|                       IV 63-32                                | Pro
+|                       IV 31-0                                 | tec
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ ted
+|           Payload Info Header (Next header 4) Plain text)     |  |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+  |
+|               IP + UDP Headers 28 bytes Plain text            |  |
++---------------------------------------------------------------+  |
+|                      Remaining Encrypted Payload Data         |  |
+~                                                               ~  |
+|                                                               |  |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+--+
+|                                                               |
+~              Integrity Check Value-ICV (variable)             ~
+|                                                               |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+#+end_src
+
+The AAD specifications apply to all EESP cipher suites used with
+EESP. This document updates [[RFC4106]] to define EESP-specific
+handling of Additional Authenticated Data (AAD) when using
+AES-GCM. For AES-GMAC [[RFC4543]], the AAD includes all headers,
+i.e. the entire EESP payload except the Integrity Check Value (ICV).
+This document also updates AAD processing for the
+ENCR_CHACHA20_POLY1305 cipher suite, as specified in [[RFC7634]].
 
 ** Full and Optimized Packet Formats
 
@@ -936,7 +1038,8 @@ intermediate devices.
 
 *** EESP Crypt Offset Option
 This option is typically used for within one Datacenter use case
-such as [[PSP]].
+such as [[PSP]]. When enabled full packet format, with Payload Info
+Header MUST be used; for the intermediate router to have Next Header.
 
 NOTE: This is for the use in Datacenters ONLY. It might be moved to
 a separate document that defines the 'EESP use for Datacenters'.
@@ -1178,7 +1281,7 @@ packets.
 ** Algorithms
 
 # :NOTE: Not all AEAD algorithms provide both services, e.g.
-# ENCR_NULL_AUTH_AES_GMAC (RFC 4543) does not provide confidentiality
+# ENCR_NULL_AUTH_AES_GMAC [[RFC4543]] does not provide confidentiality
 
 EESP version 0 specifies combined mode algorithms only. Separate
 confidentiality and integrity algorithms MUST NOT be used with
@@ -1835,7 +1938,6 @@ TBD
 ** RFC2119
 ** RFC4301
 ** RFC4303
-** RFC4305
 ** RFC4494
 ** RFC7296
 ** RFC8200
@@ -1851,6 +1953,8 @@ TBD
 ** RFC3948
 ** RFC4106
 ** RFC8750
+** RFC4543
+** RFC7634
 ** PSP
 :PROPERTIES:
 :REF_TARGET: https://github.com/google/psp/blob/main/doc/PSP_Arch_Spec.pdf
