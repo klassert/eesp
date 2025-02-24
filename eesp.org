@@ -84,7 +84,7 @@ Though this document specifies IKEv2 as a negotiation protocol, EESP
 may use other protocols for negotiation and key derivation. The
 packet specification is portable to other keying protocol use cases,
 such as [[PSP]], and offers versioning at the packet level.
-The Flow Identifiers, Crypt Offset and the Session ID can 
+The Flow Identifiers, Crypt Offset and the Session ID can
 be used to cover the PSP use case.
 
 ** Requirements Language
@@ -231,12 +231,12 @@ The fixed portion of the base header is defined as follows.
 - Session ID :: 16 bits: The Session ID covers additional information
   that might be used to identify the SA and to route the packet to the
   correct stateless crypto context.
-  For instance, it can be used to encode a Replay Subspace ID or,
+  For instance, it can be used to encode a Sub SA ID or,
   if a Key Derivation Function (KDF) is
   used to do stateless key derivation, the crypto algorithm ID could be
   encoded there. The meaning of that field is opaque and MAY be
   negotiated by IKEv2. This document defines the use of the Session ID
-  as a Replay Subspace ID. Other usecases are not covered in this document.
+  as a Subs SA ID. Other usecases are not covered in this document.
 - Security Parameter Index (SPI) :: 32 bits: The SPI is an arbitrary
   32-bit value that is used by a receiver to identify the SA to which
   an incoming packet is bound. This combined with the 16-bit Session
@@ -360,7 +360,7 @@ in the context of multiple senders. However, EESP is capable to
 handle packet counters among multiple senders. This can be done by
 defining a new Base Header Option that covers a ~Sender ID~.
 Similar to the Session ID, this Sender ID can be used as an
-additional Replay Subspace ID (see [[Session ID as Replay Subspace ID]]).
+additional Subs SA ID (see [[Session ID as Sub SA ID]]).
 Defining such an Option is left for future documents.
 
 # Note STK: The text below needs to be reworded. It does not
@@ -673,10 +673,10 @@ fixed for the duration of the SA. In contrast, "mandatory" fields
 are always present in the EESP packet format for all SAs.
 
 
-** Session ID as Replay Subspace ID
+** Session ID as Sub SA ID
 
-This section specifies the use of the Session ID as a Replay Subspace ID.
-The use of the Session ID as a Replay Subspace ID MUST be negotiated by IKEv2,
+This section specifies the use of the Session ID as a Sub SA ID.
+The use of the Session ID as a Sub SA ID MUST be negotiated by IKEv2,
 or any other suitable protocol. In this case, Session ID is used as a
 16 bits Replay Subspace ID.
 Replay Subspaces were intially defined in [[I-D.ponchon-ipsecme-anti-replay-subspaces]].
@@ -692,6 +692,45 @@ To make sure that at most 2^64 sequence numbers are used for a given key,
 a KDF MUST be used used to derive a separate key for each anti-replay sequence
 number subspace. In this case, the full 64 bits of each anti-replay
 sequence number subspace can be used.
+
+Sub SAs can be created "on the fly" within the kernel IPsec subsystem.
+Sub SAs streamline traffic flow management, reduce overhead, and
+enable more efficient lifecycle operations.
+
+A pair of EESP SAs combined with multiple unidirectional Sub SAs
+provides a more flexible approach to carrying  asymmetric traffic
+patterns, particularly in high-speed environments.
+Sub SAs reduces overhead, improves resource utilization, and enhances
+scalability for large-scale deployments. In many use cases, several
+uni directinal SAs used, while others are unused which can result
+in unnecessary overhead for SA management, rekeying, and resource
+consumption. Furthermore, using multiple bidirectional Child SAs for
+granular traffic flows often leads to additional setup delays and
+complex lifetime management. This inefficiency is particularly acute
+in high-throughput or low-latency environments, where rapid setup and
+teardown of SAs is essential to maintain performance.
+
+Each Sub SA is identified by a Sub SA ID, which MUST be carried in
+each EESP packet in the Session ID field—consistent with the
+negotiation of the EESP Child SA. This Sub SA ID is used to derive a
+ unique key.
+
+Implementations using hierarchical key derivation, particularly with
+hardware offload, MAY derive Sub SA keys dynamically on a per-packet
+basis.This mitigates the risk of data-plane performance degradation
+caused by a large number of keys
+[[I-D.ponchon-ipsecme-anti-replay-subspaces]].
+
+AEAD transforms such as AES-GCM [[RFC4106]], [[RFC8750]] requires
+that the IV never repeat within a single Sub SA. Because each
+Sub SA uses a distinct key, the IV MAY be reused across different
+Sub SAs, satisfying the requirement that each key be paired with a
+unique IV. Implementations MUST also maintain an independent
+sequence number space for each Sub SA when full 64-bit sequence
+numbers are in use. For a given Sub SA key, sequence numbers MUST
+remain unique and monotonically increasing to meet cryptographic
+requirements.
+
 
 # - The Replay Subspace ID MUST also be encoded on the 16 MSB of the sequence
 #  number [[seq-nr-subspace]]. This means that there are 48 bits used
@@ -1663,7 +1702,7 @@ processing proceeds as follows:
    Implementations can use any set of steps that results in the
    same result as the following set of steps.  Begin by
    removing and saving the ICV field.  Next check the overall
-   length of the EESP packet minus the ICV field. 
+   length of the EESP packet minus the ICV field.
    # XXX: STK: No implicit padding please.
    # If implicit
    # padding is required, based on the block size of the
@@ -2054,6 +2093,8 @@ TBD
 ** RFC2992
 ** RFC7942
 ** RFC3948
+** RFC4106
+** RFC8750
 ** PSP
 :PROPERTIES:
 :REF_TARGET: https://github.com/google/psp/blob/main/doc/PSP_Arch_Spec.pdf
