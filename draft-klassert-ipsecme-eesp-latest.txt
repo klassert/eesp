@@ -1167,7 +1167,7 @@ Internet-Draft                    EESP                     February 2025
    protection, it MUST replicate the 16 bit Replay Subspace ID from the
    Session ID to the Flow Identifier.
 
-   NOTE STK: Is the above text clear?
+
 
 
 
@@ -1666,14 +1666,14 @@ Internet-Draft                    EESP                     February 2025
           the means by which the Sequence Number and SPI are included in
           the integrity computation, MUST be defined in an RFC that
           defines the use of the combined mode algorithm with EESP.
-          NOTE STK: Do we need to update RFC4106, RFC 4543, RFC 6054
-          etc.?
 
 4.3.4.  Sequence Number Generation
 
    Replay protection is negotiated by the IPsec peers.  If a SA chooses
    to do replay ptotection, the sequence numbers are generated in the
    following way.
+
+
 
 
 
