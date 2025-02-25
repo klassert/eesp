@@ -690,8 +690,8 @@ specified in section [[Sequence Number]].
 
 To make sure that at most 2^64 sequence numbers are used for a given key,
 a KDF MUST be used used to derive a separate key for each anti-replay sequence
-number subspace. In this case, the full 64 bits of each anti-replay
-sequence number subspace can be used.
+number subspace (see [[Key Derivation for Sub SAs]]). In this case, the full
+64 bits of each anti-replay sequence number subspace can be used.
 
 Sub SAs can be created "on the fly" within the kernel IPsec subsystem.
 Sub SAs streamline traffic flow management, reduce overhead, and
