@@ -5,9 +5,9 @@
 IPSECME Working Group                                        S. Klassert
 Internet-Draft                                                 A. Antony
 Intended status: Standards Track                                 secunet
-Expires: 28 August 2025                                         C. Hopps
+Expires: 29 August 2025                                         C. Hopps
                                                  LabN Consulting, L.L.C.
-                                                        24 February 2025
+                                                        25 February 2025
 
 
              Enhanced Encapsulating Security Payload (EESP)
@@ -43,7 +43,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 28 August 2025.
+   This Internet-Draft will expire on 29 August 2025.
 
 Copyright Notice
 
@@ -53,7 +53,7 @@ Copyright Notice
 
 
 
-Klassert, et al.         Expires 28 August 2025                 [Page 1]
+Klassert, et al.         Expires 29 August 2025                 [Page 1]
 
 Internet-Draft                    EESP                     February 2025
 
@@ -109,7 +109,7 @@ Table of Contents
 
 
 
-Klassert, et al.         Expires 28 August 2025                 [Page 2]
+Klassert, et al.         Expires 29 August 2025                 [Page 2]
 
 Internet-Draft                    EESP                     February 2025
 
@@ -122,39 +122,42 @@ Internet-Draft                    EESP                     February 2025
        4.1.1.  Layer 4 Encapsulation Modes . . . . . . . . . . . . .  23
        4.1.2.  Tunnel Mode Processing  . . . . . . . . . . . . . . .  27
      4.2.  Algorithms  . . . . . . . . . . . . . . . . . . . . . . .  28
-       4.2.1.  Encryption Algorithms . . . . . . . . . . . . . . . .  29
-       4.2.2.  Integrity Algorithms  . . . . . . . . . . . . . . . .  29
-       4.2.3.  Combined Mode Algorithms  . . . . . . . . . . . . . .  30
-     4.3.  Outbound Packet Processing  . . . . . . . . . . . . . . .  30
+       4.2.1.  Combined Mode Algorithms  . . . . . . . . . . . . . .  29
+     4.3.  Outbound Packet Processing  . . . . . . . . . . . . . . .  29
        4.3.1.  Security Association Lookup . . . . . . . . . . . . .  30
        4.3.2.  Packet Encryption and Integrity Check Value (ICV)
-               Calculation . . . . . . . . . . . . . . . . . . . . .  31
-       4.3.3.  Separate Confidentiality and Integrity Algorithms . .  31
-       4.3.4.  Combined Confidentiality and Integrity Algorithms . .  32
-       4.3.5.  Sequence Number Generation  . . . . . . . . . . . . .  33
-       4.3.6.  Fragmentation . . . . . . . . . . . . . . . . . . . .  34
-     4.4.  Inbound Packet Processing . . . . . . . . . . . . . . . .  35
-       4.4.1.  Reassembly  . . . . . . . . . . . . . . . . . . . . .  35
-       4.4.2.  Security Association Lookup . . . . . . . . . . . . .  35
-       4.4.3.  Sequence Number Verification  . . . . . . . . . . . .  36
-       4.4.4.  Integrity Check Value Verification  . . . . . . . . .  37
-   5.  Key Derivation for Sub SAs  . . . . . . . . . . . . . . . . .  40
-   6.  UDP Encapsulation . . . . . . . . . . . . . . . . . . . . . .  41
-     6.1.  UDP Encapsulation of Sub SAs  . . . . . . . . . . . . . .  41
-   7.  Auditing  . . . . . . . . . . . . . . . . . . . . . . . . . .  42
-   8.  Conformance Requirements  . . . . . . . . . . . . . . . . . .  43
-   9.  Security Considerations . . . . . . . . . . . . . . . . . . .  43
-   10. IANA Considerations . . . . . . . . . . . . . . . . . . . . .  43
-     10.1.  EESP IP Protocol Number  . . . . . . . . . . . . . . . .  43
-     10.2.  EESP Versions Registry . . . . . . . . . . . . . . . . .  44
-     10.3.  EESP Options Registry  . . . . . . . . . . . . . . . . .  44
-   11. Implementation Status . . . . . . . . . . . . . . . . . . . .  45
-   12. Security Considerations . . . . . . . . . . . . . . . . . . .  45
-   13. Acknowledgments . . . . . . . . . . . . . . . . . . . . . . .  45
-   14. Normative References  . . . . . . . . . . . . . . . . . . . .  46
-   15. Informative References  . . . . . . . . . . . . . . . . . . .  46
-   Appendix A.  Additional Stuff . . . . . . . . . . . . . . . . . .  48
-   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  48
+               Calculation . . . . . . . . . . . . . . . . . . . . .  30
+       4.3.3.  Combined Confidentiality and Integrity Algorithms . .  30
+       4.3.4.  Sequence Number Generation  . . . . . . . . . . . . .  31
+       4.3.5.  Fragmentation . . . . . . . . . . . . . . . . . . . .  32
+     4.4.  Inbound Packet Processing . . . . . . . . . . . . . . . .  32
+       4.4.1.  Reassembly  . . . . . . . . . . . . . . . . . . . . .  33
+       4.4.2.  Security Association Lookup . . . . . . . . . . . . .  33
+       4.4.3.  Sequence Number Verification  . . . . . . . . . . . .  33
+       4.4.4.  Packet Decryption and Integrity Check Value
+               Verification  . . . . . . . . . . . . . . . . . . . .  35
+   5.  Key Derivation for Sub SAs  . . . . . . . . . . . . . . . . .  36
+   6.  UDP Encapsulation . . . . . . . . . . . . . . . . . . . . . .  37
+     6.1.  UDP Encapsulation of Sub SAs  . . . . . . . . . . . . . .  37
+   7.  Stateless Decryption  . . . . . . . . . . . . . . . . . . . .  38
+     7.1.  Key Derivation  . . . . . . . . . . . . . . . . . . . . .  38
+     7.2.  Receiving without SAD . . . . . . . . . . . . . . . . . .  38
+     7.3.  Sending without SPD . . . . . . . . . . . . . . . . . . .  39
+     7.4.  Peer Authentication Database  . . . . . . . . . . . . . .  39
+   8.  Auditing  . . . . . . . . . . . . . . . . . . . . . . . . . .  39
+   9.  Conformance Requirements  . . . . . . . . . . . . . . . . . .  40
+   10. Security Considerations . . . . . . . . . . . . . . . . . . .  41
+   11. IANA Considerations . . . . . . . . . . . . . . . . . . . . .  41
+     11.1.  EESP IP Protocol Number  . . . . . . . . . . . . . . . .  41
+     11.2.  EESP Versions Registry . . . . . . . . . . . . . . . . .  41
+     11.3.  EESP Options Registry  . . . . . . . . . . . . . . . . .  41
+   12. Implementation Status . . . . . . . . . . . . . . . . . . . .  42
+   13. Security Considerations . . . . . . . . . . . . . . . . . . .  43
+   14. Acknowledgments . . . . . . . . . . . . . . . . . . . . . . .  43
+   15. Normative References  . . . . . . . . . . . . . . . . . . . .  43
+   16. Informative References  . . . . . . . . . . . . . . . . . . .  44
+   Appendix A.  Additional Stuff . . . . . . . . . . . . . . . . . .  45
+   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  45
 
 
 
@@ -162,10 +165,7 @@ Internet-Draft                    EESP                     February 2025
 
 
 
-
-
-
-Klassert, et al.         Expires 28 August 2025                 [Page 3]
+Klassert, et al.         Expires 29 August 2025                 [Page 3]
 
 Internet-Draft                    EESP                     February 2025
 
@@ -210,21 +210,28 @@ Internet-Draft                    EESP                     February 2025
    specified in [RFC4303].  EESP neither updates nor obsoletes
    [RFC4303].
 
+   EESP focuses on modern algorithms, hence it defines the use of
+   combined mode algorithms only.  This means that the integrity option
+   is always taken.
+
+
+
+
+
+
+
+
+Klassert, et al.         Expires 29 August 2025                 [Page 4]
+
+Internet-Draft                    EESP                     February 2025
+
+
    Though this document specifies IKEv2 as a negotiation protocol, EESP
    may use other protocols for negotiation and key derivation.  The
    packet specification is portable to other keying protocol use cases,
    such as [PSP], and offers versioning at the packet level.  The Flow
    Identifiers, Crypt Offset and the Session ID can be used to cover the
    PSP use case.
-
-
-
-
-
-Klassert, et al.         Expires 28 August 2025                 [Page 4]
-
-Internet-Draft                    EESP                     February 2025
-
 
 1.1.  Requirements Language
 
@@ -270,14 +277,7 @@ Internet-Draft                    EESP                     February 2025
 
 
 
-
-
-
-
-
-
-
-Klassert, et al.         Expires 28 August 2025                 [Page 5]
+Klassert, et al.         Expires 29 August 2025                 [Page 5]
 
 Internet-Draft                    EESP                     February 2025
 
@@ -333,7 +333,7 @@ Internet-Draft                    EESP                     February 2025
 
 
 
-Klassert, et al.         Expires 28 August 2025                 [Page 6]
+Klassert, et al.         Expires 29 August 2025                 [Page 6]
 
 Internet-Draft                    EESP                     February 2025
 
@@ -365,7 +365,7 @@ Internet-Draft                    EESP                     February 2025
 
                         Figure 2: Fixed Base Header
 
-   ESP compaitability  1 bit : set to 1 for compaitability with ESP-in-
+   ESP compatibility  1 bit : set to 1 for compatibility with ESP-in-
       UDP.  ESP-in-UDP SA MAY have this bit 0, the most significant bit
       of SPI is 0.
 
@@ -389,7 +389,7 @@ Internet-Draft                    EESP                     February 2025
 
 
 
-Klassert, et al.         Expires 28 August 2025                 [Page 7]
+Klassert, et al.         Expires 29 August 2025                 [Page 7]
 
 Internet-Draft                    EESP                     February 2025
 
@@ -412,7 +412,7 @@ Internet-Draft                    EESP                     February 2025
 
     0 1 2 3 4 5
    +-+-+-+-+-+-+
-   |F|P|S|   R |
+   |F|P|S|  R  |
    +-+-+-+-+-+-+
 
                         Figure 3: Base Header Flags
@@ -445,7 +445,7 @@ Internet-Draft                    EESP                     February 2025
 
 
 
-Klassert, et al.         Expires 28 August 2025                 [Page 8]
+Klassert, et al.         Expires 29 August 2025                 [Page 8]
 
 Internet-Draft                    EESP                     February 2025
 
@@ -501,7 +501,7 @@ Internet-Draft                    EESP                     February 2025
 
 
 
-Klassert, et al.         Expires 28 August 2025                 [Page 9]
+Klassert, et al.         Expires 29 August 2025                 [Page 9]
 
 Internet-Draft                    EESP                     February 2025
 
@@ -557,7 +557,7 @@ Internet-Draft                    EESP                     February 2025
 
 
 
-Klassert, et al.         Expires 28 August 2025                [Page 10]
+Klassert, et al.         Expires 29 August 2025                [Page 10]
 
 Internet-Draft                    EESP                     February 2025
 
@@ -613,7 +613,7 @@ Internet-Draft                    EESP                     February 2025
 
 
 
-Klassert, et al.         Expires 28 August 2025                [Page 11]
+Klassert, et al.         Expires 29 August 2025                [Page 11]
 
 Internet-Draft                    EESP                     February 2025
 
@@ -642,34 +642,34 @@ Internet-Draft                    EESP                     February 2025
    requirements noted above, but all implementations MUST support
    generation and consumption of padding.
 
-   If Padding bytes are needed but the encryption algorithm does not
-   specify the padding contents, then the following default processing
-   MUST be used.  The default processing follows exactly ESP as of
-   [RFC4303].  The Padding bytes are initialized with a series of
-   (unsigned, 1-byte) integer values.  The first padding byte appended
-   to the plaintext is numbered 1, with subsequent padding bytes making
-   up a monotonically increasing sequence: 1, 2, 3, ....  When this
-   padding scheme is employed, the receiver SHOULD inspect the Padding
-   field.  (This scheme was selected because of its relative simplicity,
-   ease of implementation in hardware, and because it offers limited
-   protection against certain forms of "cut and paste" attacks in the
-   absence of other integrity measures, if the receiver checks the
-   padding values upon decryption.)
+   If Padding bytes are needed but the algorithm does not specify the
+   padding contents, then the following default processing MUST be used.
+   The default processing follows exactly ESP as of [RFC4303].  The
+   Padding bytes are initialized with a series of (unsigned, 1-byte)
+   integer values.  The first padding byte appended to the plaintext is
+   numbered 1, with subsequent padding bytes making up a monotonically
+   increasing sequence: 1, 2, 3, ....  When this padding scheme is
+   employed, the receiver SHOULD inspect the Padding field.  (This
+   scheme was selected because of its relative simplicity, ease of
+   implementation in hardware, and because it offers limited protection
+   against certain forms of "cut and paste" attacks in the absence of
+   other integrity measures, if the receiver checks the padding values
+   upon decryption.)
 
-   If an encryption or combined mode algorithm imposes constraints on
-   the values of the bytes used for padding, they MUST be specified by
-   the RFC defining how the algorithm is employed with EESP.  If the
-   algorithm requires checking of the values of the bytes used for
-   padding, this too MUST be specified in that RFC.
-
-
+   If an algorithm imposes constraints on the values of the bytes used
+   for padding, they MUST be specified by the RFC defining how the
+   algorithm is employed with EESP.  If the algorithm requires checking
+   of the values of the bytes used for padding, this too MUST be
+   specified in that RFC.
 
 
 
 
 
 
-Klassert, et al.         Expires 28 August 2025                [Page 12]
+
+
+Klassert, et al.         Expires 29 August 2025                [Page 12]
 
 Internet-Draft                    EESP                     February 2025
 
@@ -677,13 +677,10 @@ Internet-Draft                    EESP                     February 2025
 2.7.  Integrity Check Value (ICV)
 
    The Integrity Check Value is a variable-length field computed over
-   the EESP header, and Payload.  The ICV field is optional.  It is
-   present only if the integrity service is selected and is provided by
-   either a separate integrity algorithm or a combined mode algorithm
-   that uses an ICV.  The length of the field is specified by the
-   integrity algorithm selected and associated with the SA.  The
-   integrity algorithm specification MUST specify the length of the ICV
-   and the comparison rules and processing steps for validation.
+   the EESP header, and Payload.  The length of the field is specified
+   by the algorithm selected and associated with the SA.  The algorithm
+   specification MUST specify the length of the ICV and the comparison
+   rules and processing steps for validation.
 
 2.8.  Full and Optimized Packet Formats
 
@@ -725,7 +722,10 @@ Internet-Draft                    EESP                     February 2025
 
 
 
-Klassert, et al.         Expires 28 August 2025                [Page 13]
+
+
+
+Klassert, et al.         Expires 29 August 2025                [Page 13]
 
 Internet-Draft                    EESP                     February 2025
 
@@ -781,7 +781,7 @@ Internet-Draft                    EESP                     February 2025
 
 
 
-Klassert, et al.         Expires 28 August 2025                [Page 14]
+Klassert, et al.         Expires 29 August 2025                [Page 14]
 
 Internet-Draft                    EESP                     February 2025
 
@@ -825,11 +825,11 @@ Internet-Draft                    EESP                     February 2025
    Unlike ESP, the IV is not considered to be a part of the payload data
    in EESP.
 
-   If a combined algorithm mode is employed, the explicit IV shown in
-   Table 1 may be omitted.  Because algorithms, modes and options are
-   fixed when an SA is established, the detailed format of EESP packets
-   for a given SA (including the 'Payload Data' substructure) is fixed
-   for all traffic on the SA.
+   The explicit IV shown in Table 1 depends on the used algorithm and
+   may be omitted.  Because algorithms, modes and options are fixed when
+   an SA is established, the detailed format of EESP packets for a given
+   SA (including the 'Payload Data' substructure) is fixed for all
+   traffic on the SA.
 
 
 
@@ -837,7 +837,7 @@ Internet-Draft                    EESP                     February 2025
 
 
 
-Klassert, et al.         Expires 28 August 2025                [Page 15]
+Klassert, et al.         Expires 29 August 2025                [Page 15]
 
 Internet-Draft                    EESP                     February 2025
 
@@ -861,7 +861,7 @@ Internet-Draft                    EESP                     February 2025
    | IV          |  variable  |     O     |         |   Y    | plain  |
    +-------------+------------+-----------+---------+--------+--------+
    | Payload     |     4      |     O     |    Y    |   Y    | cipher |
-   | Info Hdr[5] |            |           |         |        |  [3]   |
+   | Info Hdr[4] |            |           |         |        |  [3]   |
    +-------------+------------+-----------+---------+--------+--------+
    | Payload [2] |  variable  |     M     |    Y    |   Y    | cipher |
    |             |            |           |         |        |  [3]   |
@@ -872,7 +872,7 @@ Internet-Draft                    EESP                     February 2025
    | ICV Padding |  variable  |  if need  |         |   Y    |  not   |
    |             |            |           |         |        |  Tx'd  |
    +-------------+------------+-----------+---------+--------+--------+
-   | ICV         |  variable  |   M [4]   |         |        | plain  |
+   | ICV         |  variable  |     M     |         |        | plain  |
    +-------------+------------+-----------+---------+--------+--------+
 
          Table 1: High level layout for fields of an EESP packet
@@ -882,8 +882,7 @@ Internet-Draft                    EESP                     February 2025
       If transport mode -> next header and data.  If IP-TFS, IP-TFS
       header and payload.
    *  [3] Ciphertext if encryption has been selected
-   *  [4] Mandatory if a separate integrity algorithm is used
-   *  [5] Not present in Optimized Header otherwise mandatory
+   *  [4] Not present in Optimized Header otherwise mandatory
 
 
 
@@ -893,7 +892,8 @@ Internet-Draft                    EESP                     February 2025
 
 
 
-Klassert, et al.         Expires 28 August 2025                [Page 16]
+
+Klassert, et al.         Expires 29 August 2025                [Page 16]
 
 Internet-Draft                    EESP                     February 2025
 
@@ -923,8 +923,9 @@ Internet-Draft                    EESP                     February 2025
 
    To make sure that at most 2^64 sequence numbers are used for a given
    key, a KDF MUST be used used to derive a separate key for each anti-
-   replay sequence number subspace.  In this case, the full 64 bits of
-   each anti-replay sequence number subspace can be used.
+   replay sequence number subspace (see Section 5).  In this case, the
+   full 64 bits of each anti-replay sequence number subspace can be
+   used.
 
    Sub SAs can be created "on the fly" within the kernel IPsec
    subsystem.  Sub SAs streamline traffic flow management, reduce
@@ -948,8 +949,7 @@ Internet-Draft                    EESP                     February 2025
 
 
 
-
-Klassert, et al.         Expires 28 August 2025                [Page 17]
+Klassert, et al.         Expires 29 August 2025                [Page 17]
 
 Internet-Draft                    EESP                     February 2025
 
@@ -1005,7 +1005,7 @@ Internet-Draft                    EESP                     February 2025
 
 
 
-Klassert, et al.         Expires 28 August 2025                [Page 18]
+Klassert, et al.         Expires 29 August 2025                [Page 18]
 
 Internet-Draft                    EESP                     February 2025
 
@@ -1061,7 +1061,7 @@ Internet-Draft                    EESP                     February 2025
 
 
 
-Klassert, et al.         Expires 28 August 2025                [Page 19]
+Klassert, et al.         Expires 29 August 2025                [Page 19]
 
 Internet-Draft                    EESP                     February 2025
 
@@ -1117,7 +1117,7 @@ Internet-Draft                    EESP                     February 2025
 
 
 
-Klassert, et al.         Expires 28 August 2025                [Page 20]
+Klassert, et al.         Expires 29 August 2025                [Page 20]
 
 Internet-Draft                    EESP                     February 2025
 
@@ -1173,7 +1173,7 @@ Internet-Draft                    EESP                     February 2025
 
 
 
-Klassert, et al.         Expires 28 August 2025                [Page 21]
+Klassert, et al.         Expires 29 August 2025                [Page 21]
 
 Internet-Draft                    EESP                     February 2025
 
@@ -1229,7 +1229,7 @@ Internet-Draft                    EESP                     February 2025
 
 
 
-Klassert, et al.         Expires 28 August 2025                [Page 22]
+Klassert, et al.         Expires 29 August 2025                [Page 22]
 
 Internet-Draft                    EESP                     February 2025
 
@@ -1285,7 +1285,7 @@ Internet-Draft                    EESP                     February 2025
 
 
 
-Klassert, et al.         Expires 28 August 2025                [Page 23]
+Klassert, et al.         Expires 29 August 2025                [Page 23]
 
 Internet-Draft                    EESP                     February 2025
 
@@ -1341,7 +1341,7 @@ Internet-Draft                    EESP                     February 2025
 
 
 
-Klassert, et al.         Expires 28 August 2025                [Page 24]
+Klassert, et al.         Expires 29 August 2025                [Page 24]
 
 Internet-Draft                    EESP                     February 2025
 
@@ -1397,7 +1397,7 @@ Internet-Draft                    EESP                     February 2025
 
 
 
-Klassert, et al.         Expires 28 August 2025                [Page 25]
+Klassert, et al.         Expires 29 August 2025                [Page 25]
 
 Internet-Draft                    EESP                     February 2025
 
@@ -1453,7 +1453,7 @@ Internet-Draft                    EESP                     February 2025
 
 
 
-Klassert, et al.         Expires 28 August 2025                [Page 26]
+Klassert, et al.         Expires 29 August 2025                [Page 26]
 
 Internet-Draft                    EESP                     February 2025
 
@@ -1509,7 +1509,7 @@ Internet-Draft                    EESP                     February 2025
 
 
 
-Klassert, et al.         Expires 28 August 2025                [Page 27]
+Klassert, et al.         Expires 29 August 2025                [Page 27]
 
 Internet-Draft                    EESP                     February 2025
 
@@ -1522,12 +1522,12 @@ Internet-Draft                    EESP                     February 2025
 
               AFTER APPLYING ESP
 
-         -----------------------------------------------------------
-   IPv4  | new IP hdr* | EESP | orig IP hdr*  |   |    | EESP|
-         |(any options)| Hdr  | (any options) |TCP|Data| ICV |
-         -----------------------------------------------------------
-                              |<----- encryption ----->|
-                       |<---------- integrity -------->|
+         ----------------------------------------------------------
+   IPv4  | new IP hdr* | EESP | orig IP hdr*  |     |      | EESP |
+         |(any options)| Hdr  | (any options) | TCP | Data | ICV  |
+         ----------------------------------------------------------
+                              |<------- encryption ------->|
+                       |<------------ integrity ---------->|
 
                         Figure 20: IPv4 Tunnel Mode
 
@@ -1539,12 +1539,12 @@ Internet-Draft                    EESP                     February 2025
 
                   AFTER APPLYING ESP
 
-         ------------------------------------------------------------
-   IPv6  | new* |new ext | EESP | orig*|orig ext |   |    | EESP|
-         |IP hdr| hdrs*  | Hdr  |IP hdr| hdrs *  |TCP|Data| ICV |
-         ------------------------------------------------------------
-                                |<----- encryption ------>|
-                         |<---_------ integrity --------->|
+         --------------------------------------------------------------
+   IPv6  | new* |new ext | EESP | orig*| orig ext |     |      | EESP |
+         |IP hdr| hdrs*  | Hdr  |IP hdr|  hdrs *  | TCP | Data | ICV  |
+         --------------------------------------------------------------
+                                |<-------- encryption -------->|
+                         |<------------ integrity ------------>|
 
          * = if present, construction of outer IP hdr/extensions and
              modification of inner IP hdr/extensions is discussed in
@@ -1554,25 +1554,30 @@ Internet-Draft                    EESP                     February 2025
 
 4.2.  Algorithms
 
-   The mandatory-to-implement algorithms for use with EESP are the same
-   as for ESP and described in a separate RFC, to facilitate updating
-   the algorithm requirements independently from the protocol per se.
-   Additional algorithms, beyond those mandated for EESP, MAY be
-   supported.  Note that although both confidentiality and integrity are
-   optional, at least one of these services MUST be selected, hence both
-   algorithms MUST NOT be simultaneously NULL.
+   EESP version 0 specifies combined mode algorithms only.  Separate
+   confidentiality and integrity algorithms MUST NOT be used with
+   version 0 of EESP.  This means that both, confidentiality and
+   integrity services are provided always.  Although not specified here,
+   EESP can support separate confidentiality and integrity algorithms.
+   In case using separate confidentiality and integrity algorithms
+   becomes necessary, a new version of EESP MUST be defined.
 
 
 
 
-Klassert, et al.         Expires 28 August 2025                [Page 28]
+Klassert, et al.         Expires 29 August 2025                [Page 28]
 
 Internet-Draft                    EESP                     February 2025
 
 
-4.2.1.  Encryption Algorithms
+   The mandatory-to-implement algorithms for use with EESP described in
+   a separate RFC (TBD), to facilitate updating the algorithm
+   requirements independently from the protocol per se.  Additional
+   algorithms, beyond those mandated for EESP, MAY be supported.
 
-   The encryption algorithm employed to protect an EESP packet is
+4.2.1.  Combined Mode Algorithms
+
+   The combined mode algorithm employed to protect an EESP packet is
    specified by the SA via which the packet is transmitted/received.
    Because IP packets may arrive out of order, and not all packets may
    arrive (packet loss), each packet must carry any data required to
@@ -1590,61 +1595,13 @@ Internet-Draft                    EESP                     February 2025
    implementation.  In the case of FIPS 140-2 [NIST01], this could
    significantly extend the scope of a cryptographic module evaluation.)
 
-   Because EESP makes provision for padding of the plaintext, encryption
-   algorithms employed with EESP may exhibit either block or stream mode
-   characteristics.  Note that because encryption (confidentiality) MAY
-   be an optional service (e.g., integrity-only EESP), this algorithm
-   MAY be "NULL" [RFC4301].
-
-   #confidentiality and integrity???
-
-   To allow an EESP implementation to compute the encryption padding
-   required by a block mode encryption algorithm, and to determine the
-   MTU impact of the algorithm, the RFC for each encryption algorithm
-   used with EESP must specify the padding modulus for the algorithm.
-
-4.2.2.  Integrity Algorithms
-
-   The integrity algorithm employed for the ICV computation is specified
-   by the SA via which the packet is transmitted/received.  As was the
-   case for encryption algorithms, any integrity algorithm employed with
-   EESP must make provisions to permit processing of packets that arrive
-   out of order and to accommodate packet loss.  The same admonition
-   noted above applies to use of any plaintext data to facilitate
-   receiver synchronization of integrity algorithms.  Note that because
-   the integrity service MAY be optional, this algorithm may be "NULL".
-
-   #confidentiality and integrity???
-
-
-
-
-
-
-Klassert, et al.         Expires 28 August 2025                [Page 29]
-
-Internet-Draft                    EESP                     February 2025
-
-
-   To allow an EESP implementation to compute any implicit integrity
-   algorithm padding required, the RFC for each algorithm used with EESP
-   must specify the padding modulus for the algorithm.
-
-4.2.3.  Combined Mode Algorithms
-
-   If a combined mode algorithm is employed, both confidentiality and
-   integrity services are provided.  As was the case for encryption
-   algorithms, a combined mode algorithm must make provisions for per-
-   packet cryptographic synchronization, to permit decryption of packets
-   that arrive out of order and to accommodate packet loss.  The means
-   by which a combined mode algorithm provides integrity for the
-   payload, and for the SPI and Sequence Number fields, may vary for
-   different algorithm choices.  In order to provide a uniform,
+   Because EESP makes provision for padding of the plaintext, combined
+   mode algorithms employed with EESP may exhibit either block or stream
+   mode characteristics.  The means by which a combined mode algorithm
+   provides integrity for the payload, and for the header fields, may
+   vary for different algorithm choices.  In order to provide a uniform,
    algorithm-independent approach to invocation of combined mode
-   algorithms, no payload substructure is defined.  For example, the SPI
-   and Sequence Number fields might be replicated within the ciphertext
-   envelope and an ICV may be appended to the EESP payload data.  None
-   of these details should be observable externally.
+   algorithms, no payload substructure is defined.
 
    To allow an EESP implementation to determine the MTU impact of a
    combined mode algorithm, the RFC for each algorithm used with EESP
@@ -1661,6 +1618,14 @@ Internet-Draft                    EESP                     February 2025
    outer IP header/extensions during the encapsulation process is
    described in the Security Architecture document.
 
+
+
+
+Klassert, et al.         Expires 29 August 2025                [Page 29]
+
+Internet-Draft                    EESP                     February 2025
+
+
 4.3.1.  Security Association Lookup
 
    EESP is applied to an outbound packet only after an IPsec
@@ -1669,105 +1634,19 @@ Internet-Draft                    EESP                     February 2025
    any, IPsec processing is applied to outbound traffic is described in
    the Security Architecture document.
 
-
-
-
-
-
-
-
-
-Klassert, et al.         Expires 28 August 2025                [Page 30]
-
-Internet-Draft                    EESP                     February 2025
-
-
 4.3.2.  Packet Encryption and Integrity Check Value (ICV) Calculation
 
    In this section, we speak in terms of encryption always being applied
    because of the formatting implications.  This is done with the
-   understanding that "no confidentiality" is offered by using the NULL
-   encryption algorithm (RFC 2410).  There are several algorithmic
-   options.
+   understanding that "no confidentiality" is offered, for instance, by
+   using the AES-CMAC algorithm ([RFC4494]).
 
-4.3.3.  Separate Confidentiality and Integrity Algorithms
+4.3.3.  Combined Confidentiality and Integrity Algorithms
 
-   If separate confidentiality and integrity algorithms are employed,
-   the Sender proceeds as follows:
+   The Sender proceeds for combined confidentiality/integrity algorithm
+   as follows:
 
-   1.  Encapsulate (into the EESP Payload field):
-
-       *  for transport, beet and payload encryption mode -- just the
-          original next layer protocol information.
-
-       *  for tunnel mode -- the entire original IP datagram.
-
-   2.  Add any necessary encryption padding
-
-   3.  Encrypt the result using the key, encryption algorithm, and
-       algorithm mode specified for the SA and using any required
-       cryptographic synchronization data.
-
-       *  If explicit cryptographic synchronization data, e.g., an IV,
-          is indicated, it is input to the encryption algorithm per the
-          algorithm specification and placed in the IV field of the peer
-          header.
-
-       *  If implicit cryptographic synchronization data is employed, it
-          is constructed and input to the encryption algorithm as per
-          the algorithm specification.
-
-       *  If integrity is selected, encryption is performed first,
-          before the integrity algorithm is applied, and the encryption
-          does not encompass the ICV field.  This order of processing
-          facilitates rapid detection and rejection of replayed or bogus
-          packets by the receiver, prior to decrypting the packet, hence
-          potentially reducing the impact of denial of service (DoS)
-          attacks.  It also allows for the possibility of parallel
-          processing of packets at the receiver, i.e., decryption can
-          take place in parallel with integrity checking.  Note that
-          because the ICV is not protected by encryption, a keyed
-          integrity algorithm must be employed to compute the ICV.
-
-
-
-
-
-Klassert, et al.         Expires 28 August 2025                [Page 31]
-
-Internet-Draft                    EESP                     February 2025
-
-
-   4.  Compute the ICV over the EESP packet minus the ICV field.  Thus,
-       the ICV computation encompasses the Base Header including any
-       options (if present), Peer Header, Payload Info Header (if
-       present), Payload Data and Padding (if present).
-
-   For some integrity algorithms, the byte string over which the ICV
-   computation is performed must be a multiple of a block size specified
-   by the algorithm.  If the length of EESP packet (as described above)
-   does not match the block size requirements for the algorithm,
-   implicit padding MUST be appended to the end of the EESP packet.
-   (This padding is added after the Payload field) The block size (and
-   hence the length of the padding) is specified by the integrity
-   algorithm specification.
-
-   This padding is not transmitted with the packet.  The document that
-   defines an integrity algorithm MUST be consulted to determine if
-   implicit padding is required as described above.  If the document
-   does not specify an answer to this question, then the default is to
-   assume that implicit padding is required (as needed to match the
-   packet length to the algorithm's block size.)  If padding bytes are
-   needed but the algorithm does not specify the padding contents, then
-   the padding octets MUST have a value of zero.
-   ####################################################################
-
-4.3.4.  Combined Confidentiality and Integrity Algorithms
-
-   If a combined confidentiality/integrity algorithm is employed, the
-   Sender proceeds as follows:
-
-   1.  Encapsulate into the ESP Payload Data field:
+   1.  Encapsulate into the EESP Payload Data field:
 
        *  for transport, beet and payload encryption mode -- just the
           original next layer protocol information.
@@ -1785,26 +1664,25 @@ Internet-Draft                    EESP                     February 2025
           the algorithm specification and placed in the IV field of the
           peer header.
 
-
-
-
-
-Klassert, et al.         Expires 28 August 2025                [Page 32]
-
-Internet-Draft                    EESP                     February 2025
-
-
        *  If implicit cryptographic synchronization data is employed, it
           is constructed and input to the encryption algorithm as per
           the algorithm specification.
 
-       *  The Sequence Number (if present) and the SPI are inputs to the
-          algorithm, as they must be included in the integrity check
-          computation.  The means by which these values are included in
-          this computation are a function of the combined mode algorithm
-          employed and thus not specified in this standard.
+       *  The EESP header fields are inputs to the algorithm, as they
+          must be included in the integrity check computation.  The
+          means by which these values are included in this computation
+          are a function of the combined mode algorithm employed and
+          thus not specified in this standard.
 
-       *  The (explicit) ICV field MAY be a part of the ESP packet
+
+
+
+Klassert, et al.         Expires 29 August 2025                [Page 30]
+
+Internet-Draft                    EESP                     February 2025
+
+
+       *  The (explicit) ICV field MAY be a part of the EESP packet
           format when a combined mode algorithm is employed.  If one is
           not used, an analogous field usually will be a part of the
           ciphertext payload.  The location of any integrity fields, and
@@ -1814,7 +1692,7 @@ Internet-Draft                    EESP                     February 2025
           NOTE STK: Do we need to update RFC4106, RFC 4543, RFC 6054
           etc.?
 
-4.3.5.  Sequence Number Generation
+4.3.4.  Sequence Number Generation
 
    Replay protection is negotiated by the IPsec peers.  If a SA chooses
    to do replay ptotection, the sequence numbers are generated in the
@@ -1835,21 +1713,6 @@ Internet-Draft                    EESP                     February 2025
    MUST ensure that the sequence number is strictly monotonic
    increasing.
 
-
-
-
-
-
-
-
-
-
-
-Klassert, et al.         Expires 28 August 2025                [Page 33]
-
-Internet-Draft                    EESP                     February 2025
-
-
    The sender checks to ensure that the counter has not cycled before
    inserting the new value in the Sequence Number field.  In other
    words, the sender MUST NOT send a packet on an SA.  If doing so would
@@ -1867,11 +1730,19 @@ Internet-Draft                    EESP                     February 2025
    If the key used to compute an ICV is manually distributed, a
    compliant implementation SHOULD NOT provide anti-replay service.  If
    a user chooses to employ anti-replay in conjunction with SAs that are
+
+
+
+Klassert, et al.         Expires 29 August 2025                [Page 31]
+
+Internet-Draft                    EESP                     February 2025
+
+
    manually keyed, the sequence number counter at the sender MUST be
    correctly maintained across local reboots, etc., until the key is
    replaced.
 
-4.3.6.  Fragmentation
+4.3.5.  Fragmentation
 
    If necessary, fragmentation is performed after EESP processing within
    an IPsec implementation.  Thus, transport, beet and payload
@@ -1898,14 +1769,6 @@ Internet-Draft                    EESP                     February 2025
    Fragmentation, whether performed by an IPsec implementation or by
    routers along the path between IPsec peers, significantly reduces
    performance.  Moreover, the requirement for an EESP receiver to
-
-
-
-Klassert, et al.         Expires 28 August 2025                [Page 34]
-
-Internet-Draft                    EESP                     February 2025
-
-
    accept fragments for reassembly creates denial of service
    vulnerabilities.  Thus, an EESP implementation MAY choose to not
    support fragmentation and may mark transmitted packets with the DF
@@ -1917,6 +1780,19 @@ Internet-Draft                    EESP                     February 2025
    Architecture document.
 
 4.4.  Inbound Packet Processing
+
+
+
+
+
+
+
+
+
+Klassert, et al.         Expires 29 August 2025                [Page 32]
+
+Internet-Draft                    EESP                     February 2025
+
 
 4.4.1.  Reassembly
 
@@ -1950,18 +1826,6 @@ Internet-Draft                    EESP                     February 2025
    will specify the algorithms and keys to be employed for decryption
    and ICV computation (if applicable).
 
-
-
-
-
-
-
-
-Klassert, et al.         Expires 28 August 2025                [Page 35]
-
-Internet-Draft                    EESP                     February 2025
-
-
    If no valid Security Association exists for this packet, the receiver
    MUST discard the packet; this is an auditable event.  The audit log
    entry for this event SHOULD include the SPI value, date/time
@@ -1976,6 +1840,15 @@ Internet-Draft                    EESP                     February 2025
    also is enabled for the SA, because otherwise the Sequence Number
    field has not been integrity protected.  Anti-replay is applicable to
    unicast as well as multicast SAs.
+
+
+
+
+
+Klassert, et al.         Expires 29 August 2025                [Page 33]
+
+Internet-Draft                    EESP                     February 2025
+
 
    However, this standard specifies no mechanisms for providing anti-
    replay for a multi-sender SA (unicast or multicast).  In the absence
@@ -2009,15 +1882,6 @@ Internet-Draft                    EESP                     February 2025
    the receiver cannot yet modify its local counter, because the
    integrity of the Sequence Number has not been verified at this point.
 
-
-
-
-
-Klassert, et al.         Expires 28 August 2025                [Page 36]
-
-Internet-Draft                    EESP                     February 2025
-
-
    Duplicates are rejected through the use of a sliding receive window.
    How the window is implemented is a local matter, but the following
    text describes the functionality that the implementation must
@@ -2034,6 +1898,14 @@ Internet-Draft                    EESP                     February 2025
    separate integrity algorithm is employed, then the receiver proceeds
    to integrity verification.  If a combined mode algorithm is employed,
    the integrity check is performed along with decryption.  In either
+
+
+
+Klassert, et al.         Expires 29 August 2025                [Page 34]
+
+Internet-Draft                    EESP                     February 2025
+
+
    case, if the integrity check fails, the receiver MUST discard the
    received IP datagram as invalid; this is an auditable event.  The
    audit log entry for this event SHOULD include the SPI value, date/
@@ -2051,115 +1923,11 @@ Internet-Draft                    EESP                     February 2025
    and recommended receive window sizes for very high-speed (e.g.,
    multi-terabit/second) devices are not specified by this standard.
 
-4.4.4.  Integrity Check Value Verification
+4.4.4.  Packet Decryption and Integrity Check Value Verification
 
-   As with outbound processing, there are several options for inbound
-   processing, based on features of the algorithms employed.
+4.4.4.1.  Combined Confidentiality and Integrity Algorithms
 
-4.4.4.1.  Separate Confidentiality and Integrity Algorithms
-
-   If separate confidentiality and integrity algorithms are employed
-   processing proceeds as follows:
-
-   1.  If integrity has been selected, the receiver computes the ICV
-       over the EESP packet minus the ICV, using the specified integrity
-       algorithm and verifies that it is the same as the ICV carried in
-       the packet.  Details of the computation are provided below.
-
-
-
-
-Klassert, et al.         Expires 28 August 2025                [Page 37]
-
-Internet-Draft                    EESP                     February 2025
-
-
-       If the computed and received ICVs match, then the datagram is
-       valid, and it is accepted.  If the test fails, then the receiver
-       MUST discard the received IP datagram as invalid; this is an
-       auditable event.  The log data SHOULD include the SPI value,
-       date/time received, Source Address, Destination Address, the
-       Sequence Number, and (for IPv6) the cleartext Flow ID.
-
-       Implementation Note:
-
-       Implementations can use any set of steps that results in the same
-       result as the following set of steps.  Begin by removing and
-       saving the ICV field.  Next check the overall length of the EESP
-       packet minus the ICV field.
-
-       Perform the ICV computation and compare the result with the saved
-       value, using the comparison rules defined by the algorithm
-       specification.
-
-   2.  The receiver decrypts the EESP the paylod info header (if
-       present), Payload Data, Padding, using the key, encryption
-       algorithm, algorithm mode, and cryptographic synchronization data
-       (if any), indicated by the SA.  As in Section 4.3.2, we speak
-       here in terms of encryption always being applied because of the
-       formatting implications.  This is done with the understanding
-       that "no confidentiality" is offered by using the NULL encryption
-       algorithm (RFC 2410).
-
-   *  If explicit cryptographic synchronization data, e.g., an IV, is
-      indicated, it is taken from the IV field of the peer header and
-      input to the decryption algorithm as per the algorithm
-      specification.
-
-   *  If implicit cryptographic synchronization data is indicated, a
-      local version of the IV is constructed and input to the decryption
-      algorithm as per the algorithm specification.
-
-   *  The receiver processes any Padding as specified in the encryption
-      algorithm specification.  If the default padding scheme (see
-      Section 2.6) has been employed, the receiver SHOULD inspect the
-      Padding field before removing the padding prior to passing the
-      decrypted data to the next layer.
-
-   *  The receiver checks the Next Header field.  If the value is "59"
-      (no next header), the (dummy) packet is discarded without further
-      processing.
-
-   *  The receiver reconstructs the original IP datagram from:
-
-
-
-
-Klassert, et al.         Expires 28 August 2025                [Page 38]
-
-Internet-Draft                    EESP                     February 2025
-
-
-      -  for layer 4 payload encapsulation modes -- outer IP header plus
-         the original next layer protocol information in the ESP Payload
-         field
-
-      -  for tunnel mode -- the entire IP datagram in the ESP Payload
-         field.
-
-      The exact steps for reconstructing the original datagram depend on
-      the mode (transport or tunnel) and are described in the Security
-      Architecture document.
-
-   At a minimum, in an IPv6 context, the receiver SHOULD ensure that the
-   decrypted data is 8-byte aligned, to facilitate processing by the
-   protocol identified in the Next Header field.
-
-   If integrity checking and encryption are performed in parallel,
-   integrity checking MUST be completed before the decrypted packet is
-   passed on for further processing.  This order of processing
-   facilitates rapid detection and rejection of replayed or bogus
-   packets by the receiver, prior to decrypting the packet, hence
-   potentially reducing the impact of denial of service attacks.
-
-   Note: If the receiver performs decryption in parallel with integrity
-   checking, care must be taken to avoid possible race conditions with
-   regard to packet access and extraction of the decrypted packet.
-
-4.4.4.2.  Combined Confidentiality and Integrity Algorithms
-
-   If a combined confidentiality and integrity algorithm is employed,
-   then the receiver proceeds as follows:
+   The receiver proceeds for combined mode algorithms as follows:
 
    1.  Decrypts and integrity checks the EESP Payload Info Header (if
        present), Payload Data, Padding, using the key, algorithm,
@@ -2177,15 +1945,6 @@ Internet-Draft                    EESP                     February 2025
       indicated, a local version of the IV is constructed and input to
       the decryption algorithm as per the algorithm specification.
 
-
-
-
-
-Klassert, et al.         Expires 28 August 2025                [Page 39]
-
-Internet-Draft                    EESP                     February 2025
-
-
    *  If the integrity check performed by the combined mode algorithm
       fails, the receiver MUST discard the received IP datagram as
       invalid; this is an auditable event.  The log data SHOULD include
@@ -2195,6 +1954,14 @@ Internet-Draft                    EESP                     February 2025
    *  Process any Padding as specified in the encryption algorithm
       specification, if the algorithm has not already done so.
 
+
+
+
+Klassert, et al.         Expires 29 August 2025                [Page 35]
+
+Internet-Draft                    EESP                     February 2025
+
+
    *  The receiver checks the Next Header field.  If the value is "59"
       (no next header), the (dummy) packet is discarded without further
       processing.
@@ -2202,6 +1969,13 @@ Internet-Draft                    EESP                     February 2025
    *  Extract the original IP datagram (tunnel mode) or transport-layer
       frame (layer 4 payload encapsulation modes) from the ESP Payload
       Data field.
+
+   The exact steps for reconstructing the original datagram depend on
+   the mode and are described in the Security Architecture document.
+
+   At a minimum, in an IPv6 context, the receiver SHOULD ensure that the
+   decrypted data is 8-byte aligned, to facilitate processing by the
+   protocol identified in the Next Header field.
 
 5.  Key Derivation for Sub SAs
 
@@ -2237,7 +2011,9 @@ Internet-Draft                    EESP                     February 2025
 
 
 
-Klassert, et al.         Expires 28 August 2025                [Page 40]
+
+
+Klassert, et al.         Expires 29 August 2025                [Page 36]
 
 Internet-Draft                    EESP                     February 2025
 
@@ -2293,12 +2069,90 @@ Internet-Draft                    EESP                     February 2025
 
 
 
-Klassert, et al.         Expires 28 August 2025                [Page 41]
+Klassert, et al.         Expires 29 August 2025                [Page 37]
 
 Internet-Draft                    EESP                     February 2025
 
 
-7.  Auditing
+7.  Stateless Decryption
+
+   In large-scale deployments, such as data center traffic, stateful
+   IPsec using databases outlined in [RFC4301] and [RFC4303] can become
+   a performance bottleneck.  Traditional IPsec implementations
+   typically maintain three databases: the Security Association Database
+   (SAD), the Security Policy Database (SPD), and the Peer Authorization
+   Database (PAD).  SAD and SPD are used in the data path for each
+   packet, while PAD is used to derive and/or exchange keys.
+   Additionally, both the SAD and SPD are divided into two paths: one
+   for sending and another for receiving.
+
+   A high data rate, combined with frequent changes in the SAD and SPD,
+   can slow down the system.  As the data flow increases, adding and
+   removing entries in the control plane creates locking issues and
+   contention in both software and hardware.  These operations are
+   resource-intensive and can cause bottlenecks due to software locks or
+   limited hardware insertion speeds, such as memory bandwidth or
+   content-addressable memory limits.  These problems are more
+   noticeable in high-speed data paths, where delays from locking can
+   severely affect performance.
+
+7.1.  Key Derivation
+
+   To avoid storing per-SA decryption keys on the receiver side, the
+   decryption keys MAY be derived from the EESP header plus a secret
+   known only to the receiver side.  Both peers need to agree on a
+   commonly used cipher, key and KDF.  This is usually done by using
+   IKEv2, or any other suitalbe protocol.  The sender MUST remember the
+   encryption key for the SA, but the receiver can re-derive it for each
+   packet.  The same arrangement is repeated in reverse, to provide
+   encryption for response packets flowing from the receiver to the
+   sender.
+
+   The KDF used to derive the key for decryption MUST be one of the KDFs
+   specified in [NIST02] section 4, and used in the way described there.
+
+7.2.  Receiving without SAD
+
+   When using Stateless Encryption, implementations can bypass the
+   monolithic SAD in the receiving path.  Using fields from the EESP
+   packet's SPI + Session ID, the Session ID contains the [Encryption]
+   context ID used by stateless encryption hardware to directly decrypt
+   a packet at line rate, without needing to consult the receive-side
+   SAD on a per-packet basis.  For the receiving side, the system may be
+   stateless, as specified in [PSP].  In this approach, packets are
+   decrypted and authenticated directly, without requiring SAD lookups
+   for each packet.  However, Security Policy validation MUST be done
+
+
+
+Klassert, et al.         Expires 29 August 2025                [Page 38]
+
+Internet-Draft                    EESP                     February 2025
+
+
+   later in the stack using policies specified in the socket or route.
+
+   stateless encryption not only reduces CPU overhead but also reduces
+   stateful checks (such as anti-replay protection or sequence number
+   tracking, packet limit).  These checks can be offloaded to hardware
+   or handled asynchronously, further optimizing performance in high-
+   throughput environments like large data centers.
+
+7.3.  Sending without SPD
+
+   The sending-side Security Policy and symetric key can be associated
+   with a local socket or route instead of a monolithic SPD and SAD.  A
+   send call could preappend crypto parameters for stateless encryption
+   and encapsulation in hardware to plain text data.
+
+7.4.  Peer Authentication Database
+
+   The data path does not use the PAD, but it is used for key
+   derivation.  The Key Derivation Function (KDF) is outside the scope
+   of this document.  However, IKEv2 [RFC7296] can handle key
+   derivation.
+
+8.  Auditing
 
    Not all systems that implement EESP will implement auditing.
    However, if EESP is incorporated into a system that supports
@@ -2325,6 +2179,13 @@ Internet-Draft                    EESP                     February 2025
       SPI value, current date/time, Source Address, Destination Address,
       Sequence Number, and (for IPv6) the cleartext Flow ID.
 
+
+
+Klassert, et al.         Expires 29 August 2025                [Page 39]
+
+Internet-Draft                    EESP                     February 2025
+
+
    *  The received packet fails the anti-replay checks.  The audit log
       entry for this event SHOULD include the SPI value, date/time
       received, Source Address, Destination Address, the Sequence
@@ -2342,19 +2203,7 @@ Internet-Draft                    EESP                     February 2025
    purported sender in response to the detection of an auditable event,
    because of the potential to induce denial of service via such action.
 
-
-
-
-
-
-
-
-Klassert, et al.         Expires 28 August 2025                [Page 42]
-
-Internet-Draft                    EESP                     February 2025
-
-
-8.  Conformance Requirements
+9.  Conformance Requirements
 
    Implementations that claim conformance or compliance with this
    specification MUST implement the EESP syntax and processing described
@@ -2386,29 +2235,28 @@ Internet-Draft                    EESP                     February 2025
    integrity and encryption may each be "NULL" under the circumstances
    noted above, they MUST NOT both be "NULL".
 
-9.  Security Considerations
+
+
+Klassert, et al.         Expires 29 August 2025                [Page 40]
+
+Internet-Draft                    EESP                     February 2025
+
+
+10.  Security Considerations
 
    Security is central to the design of this protocol, and thus security
    considerations permeate the specification.  Additional security-
    relevant aspects of using the IPsec protocol are discussed in the
    Security Architecture document.
 
-10.  IANA Considerations
+11.  IANA Considerations
 
-10.1.  EESP IP Protocol Number
+11.1.  EESP IP Protocol Number
 
    This document requests IANA allocate an IP protocol number from
    "Protocol Numbers - Assigned Internet Protocol Numbers" registry
 
    *  Decimal: TBD
-
-
-
-
-Klassert, et al.         Expires 28 August 2025                [Page 43]
-
-Internet-Draft                    EESP                     February 2025
-
 
    *  Keyword: EESP
 
@@ -2416,7 +2264,7 @@ Internet-Draft                    EESP                     February 2025
 
    *  Reference: This document
 
-10.2.  EESP Versions Registry
+11.2.  EESP Versions Registry
 
    This document requests IANA to create a registry called
    "EESP_VERSIONS" Type Registry" under a new category named
@@ -2438,10 +2286,17 @@ Internet-Draft                    EESP                     February 2025
 
               Figure 22: EESP Version Initial Registry Values
 
-10.3.  EESP Options Registry
+11.3.  EESP Options Registry
 
    This document requests IANA to create a registry called "EESP_OPTIONS
    Type Registry" under a new category named "EESP_OPTIONS Parameters".
+
+
+
+Klassert, et al.         Expires 29 August 2025                [Page 41]
+
+Internet-Draft                    EESP                     February 2025
+
 
    *  Name: EESP Options Registry
 
@@ -2450,21 +2305,6 @@ Internet-Draft                    EESP                     February 2025
    *  Reference: This document
 
    The initial content for this registry is as follows:
-
-
-
-
-
-
-
-
-
-
-
-Klassert, et al.         Expires 28 August 2025                [Page 44]
-
-Internet-Draft                    EESP                     February 2025
-
 
    Value     EESP Header Options Types         Reference
    -------   ------------------------------    ---------------
@@ -2477,7 +2317,7 @@ Internet-Draft                    EESP                     February 2025
 
                      Figure 23: Initial Registry Values
 
-11.  Implementation Status
+12.  Implementation Status
 
    [Note to RFC Editor: Please remove this section and the reference to
    [RFC7942] before publication.]
@@ -2506,23 +2346,23 @@ Internet-Draft                    EESP                     February 2025
    this section, advising the Editor to remove the entire section before
    publication, as well as the reference to [RFC7942].
 
-12.  Security Considerations
-
-   In this section we discuss the security properties of EESP: TBD
-
-13.  Acknowledgments
-
-   TBD
 
 
 
-
-Klassert, et al.         Expires 28 August 2025                [Page 45]
+Klassert, et al.         Expires 29 August 2025                [Page 42]
 
 Internet-Draft                    EESP                     February 2025
 
 
-14.  Normative References
+13.  Security Considerations
+
+   In this section we discuss the security properties of EESP: TBD
+
+14.  Acknowledgments
+
+   TBD
+
+15.  Normative References
 
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
               Requirement Levels", BCP 14, RFC 2119,
@@ -2543,6 +2383,11 @@ Internet-Draft                    EESP                     February 2025
               DOI 10.17487/RFC4305, December 2005,
               <https://www.rfc-editor.org/info/rfc4305>.
 
+   [RFC4494]  Song, JH., Poovendran, R., and J. Lee, "The AES-CMAC-96
+              Algorithm and Its Use with IPsec", RFC 4494,
+              DOI 10.17487/RFC4494, June 2006,
+              <https://www.rfc-editor.org/info/rfc4494>.
+
    [RFC7296]  Kaufman, C., Hoffman, P., Nir, Y., Eronen, P., and T.
               Kivinen, "Internet Key Exchange Protocol Version 2
               (IKEv2)", STD 79, RFC 7296, DOI 10.17487/RFC7296, October
@@ -2553,13 +2398,25 @@ Internet-Draft                    EESP                     February 2025
               DOI 10.17487/RFC8200, July 2017,
               <https://www.rfc-editor.org/info/rfc8200>.
 
+
+
+
+
+
+
+
+Klassert, et al.         Expires 29 August 2025                [Page 43]
+
+Internet-Draft                    EESP                     February 2025
+
+
    [RFC9347]  Hopps, C., "Aggregation and Fragmentation Mode for
               Encapsulating Security Payload (ESP) and Its Use for IP
               Traffic Flow Security (IP-TFS)", RFC 9347,
               DOI 10.17487/RFC9347, January 2023,
               <https://www.rfc-editor.org/info/rfc9347>.
 
-15.  Informative References
+16.  Informative References
 
    [Encryption]
               IANA, "IKEv2 Parameters",
@@ -2570,14 +2427,6 @@ Internet-Draft                    EESP                     February 2025
               He, Q., Pan, W., Chen, X., and B. Ding, "Shared Use of
               IPsec Tunnel in a Multi-VPN Environment", Work in
               Progress, Internet-Draft, draft-he-ipsecme-vpn-shared-
-
-
-
-Klassert, et al.         Expires 28 August 2025                [Page 46]
-
-Internet-Draft                    EESP                     February 2025
-
-
               ipsecsa-01, 8 July 2024,
               <https://datatracker.ietf.org/doc/html/draft-he-ipsecme-
               vpn-shared-ipsecsa-01>.
@@ -2605,6 +2454,18 @@ Internet-Draft                    EESP                     February 2025
               Laboratory, National Institute of Standards and
               Technology, May 25, 2001.".
 
+
+
+
+
+
+
+
+Klassert, et al.         Expires 29 August 2025                [Page 44]
+
+Internet-Draft                    EESP                     February 2025
+
+
    [NIST02]   NIST, "NIST Special Publication 800 NIST SP
               800-108r1-upd1, "Recommendation for Key Derivation Using
               Pseudorandom Functions", National Institute of Standards
@@ -2622,17 +2483,6 @@ Internet-Draft                    EESP                     February 2025
    [RFC2992]  Hopps, C., "Analysis of an Equal-Cost Multi-Path
               Algorithm", RFC 2992, DOI 10.17487/RFC2992, November 2000,
               <https://www.rfc-editor.org/info/rfc2992>.
-
-
-
-
-
-
-
-Klassert, et al.         Expires 28 August 2025                [Page 47]
-
-Internet-Draft                    EESP                     February 2025
-
 
    [RFC3948]  Huttunen, A., Swander, B., Volpe, V., DiBurro, L., and M.
               Stenberg, "UDP Encapsulation of IPsec ESP Packets",
@@ -2666,6 +2516,12 @@ Authors' Addresses
    Email: steffen.klassert@secunet.com
 
 
+
+Klassert, et al.         Expires 29 August 2025                [Page 45]
+
+Internet-Draft                    EESP                     February 2025
+
+
    Antony Antony
    secunet Security Networks AG
    Email: antony.antony@secunet.com
@@ -2685,4 +2541,36 @@ Authors' Addresses
 
 
 
-Klassert, et al.         Expires 28 August 2025                [Page 48]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Klassert, et al.         Expires 29 August 2025                [Page 46]
