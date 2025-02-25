@@ -20,3 +20,5 @@ The latest version of the draft in HTML format is at:
 * References
 For more detailed information, refer to the following resources:
 - [[https://klassert.github.io/eesp-ikev2/draft-klassert-ipsecme-eesp-ikev2-latest.html][EESP IKEv2 Editor's Copy]]
+
+- [[https://datatracker.ietf.org/doc/draft-klassert-ipsecme-eesp-ikev2][IETF Datatracker: draft-klassert-ipsecme-eesp-ikev2]]
