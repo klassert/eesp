@@ -1945,12 +1945,12 @@ TBD
 :REF_ORG: IANA
 :END:
 
-** Encryption
-:PROPERTIES:
-:REF_TARGET: https://www.iana.org/assignments/ikev2-parameters/ikev2-parameters.xhtml#ikev2-parameters-5
-:REF_TITLE: IKEv2 Parameters
-:REF_ORG: IANA
-:END:
+# ** Encryption
+# :PROPERTIES:
+# :REF_TARGET: https://www.iana.org/assignments/ikev2-parameters/ikev2-parameters.xhtml#ikev2-parameters-5
+# :REF_TITLE: IKEv2 Parameters
+# :REF_ORG: IANA
+# :END:
 
 ** NIST01
 :PROPERTIES:
@@ -1958,12 +1958,12 @@ TBD
 :REF_ORG: NIST
 :END:
 
-** NIST02
-:PROPERTIES:
-:REF_TITLE: NIST Special Publication 800 NIST SP 800-108r1-upd1, "Recommendation for Key Derivation Using Pseudorandom Functions", National Institute of Standards and Technology, August, 2022.
-:REF_TARGET: https://doi.org/10.6028/NIST.SP.800-108r1-upd1
-:REF_ORG: NIST
-:END:
+# ** NIST02
+# :PROPERTIES:
+# :REF_TITLE: NIST Special Publication 800 NIST SP 800-108r1-upd1, "Recommendation for Key Derivation Using Pseudorandom Functions", National Institute of Standards and Technology, August, 2022.
+# :REF_TARGET: https://doi.org/10.6028/NIST.SP.800-108r1-upd1
+# :REF_ORG: NIST
+# :END:
 
 
 * Additional Stuff
