@@ -213,7 +213,7 @@ The fixed portion of the base header is defined as follows.
    |                              SPI                              |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #+end_src
-- ESP compaitability :: 1 bit : set to 1 for compaitability with
+- ESP compatibility :: 1 bit : set to 1 for compatibility with
   ESP-in-UDP. ESP-in-UDP SA MAY have this bit 0, the most significant
   bit of SPI is 0.
 - Version :: 4 bits: MUST be set to zero and checked by the receiver.
@@ -249,7 +249,7 @@ The Flags field in the fixed Base Header is defined as follows:
 #+begin_src
     0 1 2 3 4 5
    +-+-+-+-+-+-+
-   |F|P|S|   R |
+   |F|P|S|  R  |
    +-+-+-+-+-+-+
 #+end_src
 
