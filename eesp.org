@@ -936,7 +936,7 @@ Therefore, if a Flow Identifier is used in combination with replay
 protection, it MUST replicate the 16 bit Replay Subspace ID
 from the Session ID to the Flow Identifier.
 
-NOTE STK: Is the above text clear?
+# NOTE STK: Is the above text clear?
 
 #+caption: Flow Identifier with replay protection
 #+name: fid-replay
@@ -1370,8 +1370,9 @@ The Sender proceeds for combined confidentiality/integrity algorithm as follows:
       by which the Sequence Number and SPI are included in
       the integrity computation, MUST be defined in an RFC
       that defines the use of the combined mode algorithm
-      with EESP. NOTE STK: Do we need to update RFC4106,
-      RFC 4543, RFC 6054 etc.?
+      with EESP.
+
+# NOTE STK: Do we need to update RFC4106, RFC 4543, RFC 6054 etc.?
 
 *** Sequence Number Generation
 
