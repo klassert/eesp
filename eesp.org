@@ -652,7 +652,6 @@ processing details are described in later sections.
 | Payload Info Hdr[4] |     4      |     O     |       Y        |      Y       | cipher [3] |
 | Payload [2]         |  variable  |     M     |       Y        |      Y       | cipher [3] |
 | Padding             |   0-255    |     M     |       Y        |      Y       | cipher [3] |
-| ICV Padding         |  variable  |  if need  |                |      Y       |  not Tx'd  |
 | ICV                 |  variable  |     M     |                |              |   plain    |
 |---------------------+------------+-----------+----------------+--------------+------------|
 
