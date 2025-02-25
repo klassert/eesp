@@ -2342,10 +2342,10 @@ Internet-Draft                    EESP                     February 2025
 
 15.  Informative References
 
-   [Encryption]
-              IANA, "IKEv2 Parameters",
-              <https://www.iana.org/assignments/ikev2-parameters/
-              ikev2-parameters.xhtml#ikev2-parameters-5>.
+   [I-D.he-ipsecme-vpn-shared-ipsecsa]
+              He, Q., Pan, W., Chen, X., and B. Ding, "Shared Use of
+              IPsec Tunnel in a Multi-VPN Environment", Work in
+              Progress, Internet-Draft, draft-he-ipsecme-vpn-shared-
 
 
 
@@ -2354,10 +2354,6 @@ Klassert, et al.         Expires 29 August 2025                [Page 42]
 Internet-Draft                    EESP                     February 2025
 
 
-   [I-D.he-ipsecme-vpn-shared-ipsecsa]
-              He, Q., Pan, W., Chen, X., and B. Ding, "Shared Use of
-              IPsec Tunnel in a Multi-VPN Environment", Work in
-              Progress, Internet-Draft, draft-he-ipsecme-vpn-shared-
               ipsecsa-01, 8 July 2024,
               <https://datatracker.ietf.org/doc/html/draft-he-ipsecme-
               vpn-shared-ipsecsa-01>.
@@ -2385,12 +2381,6 @@ Internet-Draft                    EESP                     February 2025
               Laboratory, National Institute of Standards and
               Technology, May 25, 2001.".
 
-   [NIST02]   NIST, "NIST Special Publication 800 NIST SP
-              800-108r1-upd1, "Recommendation for Key Derivation Using
-              Pseudorandom Functions", National Institute of Standards
-              and Technology, August, 2022.",
-              <https://doi.org/10.6028/NIST.SP.800-108r1-upd1>.
-
    [Protocol] IANA, "Assigned Internet Protocol Numbers",
               <https://www.iana.org/assignments/protocol-numbers/
               protocol-numbers.xhtml>.
@@ -2403,13 +2393,6 @@ Internet-Draft                    EESP                     February 2025
               Algorithm", RFC 2992, DOI 10.17487/RFC2992, November 2000,
               <https://www.rfc-editor.org/info/rfc2992>.
 
-
-
-Klassert, et al.         Expires 29 August 2025                [Page 43]
-
-Internet-Draft                    EESP                     February 2025
-
-
    [RFC3948]  Huttunen, A., Swander, B., Volpe, V., DiBurro, L., and M.
               Stenberg, "UDP Encapsulation of IPsec ESP Packets",
               RFC 3948, DOI 10.17487/RFC3948, January 2005,
@@ -2419,6 +2402,13 @@ Internet-Draft                    EESP                     February 2025
               (GCM) in IPsec Encapsulating Security Payload (ESP)",
               RFC 4106, DOI 10.17487/RFC4106, June 2005,
               <https://www.rfc-editor.org/info/rfc4106>.
+
+
+
+Klassert, et al.         Expires 29 August 2025                [Page 43]
+
+Internet-Draft                    EESP                     February 2025
+
 
    [RFC7942]  Sheffer, Y. and A. Farrel, "Improving Awareness of Running
               Code: The Implementation Status Section", BCP 205,
@@ -2450,6 +2440,16 @@ Authors' Addresses
    Christian Hopps
    LabN Consulting, L.L.C.
    Email: chopps@chopps.org
+
+
+
+
+
+
+
+
+
+
 
 
 
