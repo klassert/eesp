@@ -1,0 +1,2165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="rfc2629.xslt"?>
+<rfc category="std"
+    consensus="true"
+     docName="draft-klassert-ipsecme-eesp-02"
+     ipr="pre5378Trust200902"
+    sortRefs="true"
+    submissionType="IETF"
+    symRefs="true"
+    tocDepth="3"
+    tocInclude="true"
+    version="3">
+  <front>
+    <title abbrev="EESP">Enhanced Encapsulating Security Payload (EESP)</title>
+<author initials='S.' surname='Klassert' fullname='Steffen Klassert'><organization abbrev="secunet">secunet Security Networks AG</organization>
+<address><email>steffen.klassert@secunet.com</email></address>
+</author>
+<author initials='A.' surname='Antony' fullname='Antony Antony'><organization abbrev="secunet">secunet Security Networks AG</organization>
+<address><email>antony.antony@secunet.com</email></address>
+</author>
+<author initials='C.' surname='Hopps' fullname='Christian Hopps'><organization>LabN Consulting, L.L.C.</organization>
+<address><email>chopps@chopps.org</email></address>
+</author>
+  <date/>
+    <area>SEC</area>
+    <workgroup>IPSECME Working Group</workgroup>
+<keyword>EESP</keyword>
+<keyword>IKEv2</keyword>
+<abstract><t>This document describes the Enhanced Encapsulating Security Payload
+(EESP) protocol, which builds on the existing IP Encapsulating
+Security Payload (ESP) protocol. It is designed to modernize and
+overcome limitations in the ESP protocol.</t>
+
+<t>EESP adds Session IDs (e.g., to support CPU pinning), changes some
+previously mandatory fields to optional,
+and moves the ESP trailer into the EESP header. Additionally, EESP
+adds header options adapted from IPv6 to allow for future extension.
+New header options are defined which add Flow IDs (e.g., for CPU
+pinning and QoS support), and a crypt-offset to allow for exposing
+inner flow information for middlebox use.</t></abstract>
+  </front>
+  <middle>
+
+<section title="Introduction">
+<t>Due to the absence of a version number in the packet header of the ESP
+protocol, ESP can't be updated in a transparent way. Any updates
+to ESP must be negotiated by IKEv2 and are therefore indiscernible to
+intermediate devices such as routers and firewalls. In the recent
+past, several attempts were taken to introduce a Flow Identifier for
+certain use cases. Examples are
+<xref target="I-D.ponchon-ipsecme-anti-replay-subspaces"/> and
+<xref target="I-D.he-ipsecme-vpn-shared-ipsecsa"/>. Such a Flow Identifier could
+also be used to perform ECMP based on the inner flows at intermediate
+devices or endpoints.  Additionally to that, there exists a
+specification of the <xref target="PSP"/> protocol that has the need of a Flow
+Identifier, called Network Identifier (VNI) there. PSP also defines a
+Crypt Offset to expose parts of the headers of the inner packet.
+EESP provides a solution for all the aforementioned use cases.</t>
+
+<t>This document defines Flow Identifier Options and a Crypt Offset Option
+along with a Session ID.
+Future documents can define the meaning of additional Options
+for their particular use-case. With this, all existing and potential new
+use cases can be covered. For instance, it can be
+used for the case of <xref target="I-D.ponchon-ipsecme-anti-replay-subspaces"/> or
+<xref target="I-D.he-ipsecme-vpn-shared-ipsecsa"/> etc., or combinations thereof. EESP
+does not have a trailer as ESP had, instead the Next Header and Pad
+Length values are moved to the EESP header. Additionally, an optimized
+EESP header is defined which eliminates these 2 values when using simple
+IPv4 or IPv6 tunnel mode. EESP also does not define TFC padding, IP-TFS
+as of <xref target="RFC9347"/> SHOULD be used instead. A detailed discussion
+about the problems of the ESP protocol can be found in
+<xref target="I-D.mrossberg-ipsecme-multiple-sequence-counters"/>.</t>
+
+<t>EESP follows the Security Architecture for the Internet Protocol
+<xref target="RFC4301"/> and uses ESP as of <xref target="RFC4303"/> as reference. That means
+this document is seen as a modern version of ESP (with new protocol
+number), but it follows the design principles of ESP. Protocol parts that
+are not mentioned here MUST be handled exactly the way as specified
+in <xref target="RFC4303"/>. EESP neither updates nor obsoletes <xref target="RFC4303"/>.</t>
+
+<t>EESP focuses on modern algorithms, hence it defines the use of
+combined mode algorithms only. This means that the integrity
+option is always taken.</t>
+
+<t>Though this document specifies IKEv2 as a negotiation protocol, EESP
+may use other protocols for negotiation and key derivation. The
+packet specification is portable to other keying protocol use cases,
+such as <xref target="PSP"/>, and offers versioning at the packet level.
+The Flow Identifiers, Crypt Offset and the Session ID can
+be used to cover the PSP use case.</t>
+
+<section title="Requirements Language">
+<t>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+"SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
+document are to be interpreted as described in <xref target="RFC2119"/>.</t>
+
+</section>
+
+
+<section title="Terminology">
+<t>This document uses the following terms defined in IKEv2 <xref target="RFC7296"/>:
+Child SA, CREATE_CHILD_SA, IKE_AUTH exchange, USE_TRANSPORT_MODE</t>
+
+<t>This document uses the following terms defined in <xref target="PSP"/>: PSP (a
+recursive acronym for PSP Security Protocol), Virtual Network Identifier
+(VNI), Crypt Offset.</t>
+
+<t>This document uses the following terms defined in <xref target="RFC2992"/>:
+Equal-cost multi-path (ECMP)</t>
+
+<t>This document uses the following terms defined in <xref target="RFC4303"/>:
+Encapsulating Security Payload (ESP).</t>
+
+<t>This document uses the following terms defined in
+<xref target="I-D.mrossberg-ipsecme-multiple-sequence-counters"/>: Sub-Child SA.</t>
+
+<t>This document uses the following terms defined in <xref target="RFC3948"/>:
+Non-ESP Marker.</t>
+
+</section>
+
+</section>
+
+
+<section title="Enhanced Encapsulating Security Payload Packet Format">
+<t>This section defines the exact packet formats, the
+section is normative.</t>
+
+<section title="Top-Level EESP format">
+<t>The (outer) protocol header (IPv4, IPv6, or Extension) that
+immediately precedes the ESP header SHALL contain the value TBD in
+its <xref target="Protocol"/> (IPv4) or Next Header (IPv6, Extension) field.
+<xref target="eesp-top-level-packet-format"/> illustrates the top-level format of
+an EESP packet. The EESP header is split into multiple parts.</t>
+
+<figure anchor="eesp-top-level-packet-format">
+<name>Top-Level Format of an EESP Packet</name>
+<sourcecode><![CDATA[
+ 0                   1                   2                   3
+ 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                                                               |
+~                          Base Header                          ~
+|                                                               |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                                                               |
+~                     Peer Header (variable)                    ~
+|                                                               |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                 Payload Info Header (optional)                |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                      Payload Data (variable)                  |
+~                                                               ~
+|               +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|               |          Padding (0-255 bytes)                |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                                                               |
+~              Integrity Check Value-ICV (variable)             ~
+|                                                               |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+]]></sourcecode></figure>
+
+<t>The packet starts with a '<tt>Base Header</tt>' that can be used by protocol
+parsing engines of middleboxes such as routers or firewalls in
+addition to the IPsec peer that use it to route the packet to the
+correct cryptographic context.</t>
+
+<t>The '<tt>Peer Header</tt>' follows the '<tt>Base Header</tt>'. The '<tt>Peer Header</tt>' is
+used to support replay protection and to store cryptographic
+synchronization data, e.g., an Initialization Vector (IV)
+for the IPsec peer. The '<tt>Peer Header</tt>' is private to the
+IPsec peers.</t>
+
+<t>Unlike ESP, EESP does not have a trailer. Instead, these values have
+moved to a '<tt>Payload Info Header</tt>' directly following the '<tt>Peer Header</tt>'.
+With classic transport and tunnel mode, the '<tt>Payload Info Header</tt>'
+is encrypted, and therefore private to the IPsec peers. However,
+with '<tt>Payload Encryption Mode</tt>' as specified in
+<xref target="sec-payload-encryption-mode-processing"/> or with a positive crypt offset
+(see <xref target="sec-eesp-crypt-offset-option"/>), the '<tt>Payload Info Header</tt>'
+might be left unencrypted. In these modes, protocol parsing engines
+of middleboxes can act upon it (e.g., for telemetry).</t>
+
+<t>The '<tt>Payload Data</tt>' follows these 3 header parts, and has a structure
+that depends on the choice of encryption algorithm and mode.</t>
+
+<t>'<tt>Padding</tt>' is an optional field following the '<tt>Payload Data</tt>',
+primarily for alignment when using a block cipher.</t>
+
+<t>Finally, the packet ends with an '<tt>Integrity Check Value</tt>' (ICV)
+(see <xref target="sec-packet-encryption-and-integrity-check-value-icv-calculation"/>).
+The length of this ICV depends on the cryptographic suite.</t>
+
+</section>
+
+<section title="Base Header">
+<t>The '<tt>Base Header</tt>' is comprised of a fixed base header followed by an
+optional '<tt>Options</tt>' field. IPsec Peers and middleboxes MAY act upon
+the Base Header and any possible Options.</t>
+
+<section title="Fixed Base Header">
+<t>The fixed portion of the base header is defined as follows.</t>
+
+<figure anchor="base-header">
+<name>Fixed Base Header</name>
+<sourcecode><![CDATA[
+ 0                   1                   2                   3
+ 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|1|Version| Opt Len |   Flags   |         Session ID            |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                              SPI                              |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+]]></sourcecode></figure>
+<dl>
+<dt>ESP compatibility</dt><dd><t>1 bit : set to 1 for compatibility with
+ESP-in-UDP. ESP-in-UDP SAs MAY set this bit, the most significant
+bit of the SPI, to 0.</t></dd>
+<dt>Version</dt><dd><t>4 bits: MUST be set to zero and checked by the receiver.
+If the version is different than an expected version
+number (e.g., negotiated via the control channel), then the packet
+MUST be dropped by the receiver. Future modifications to the EESP
+header require a new version number. In particular, the version of
+EESP defined in this document does not allow for any extensions.
+Intermediate nodes dealing with unknown versions are not
+necessarily able to parse the packet correctly. Intermediate
+treatment of such packets is policy-dependent (e.g., it may dictate
+dropping such packets).</t></dd>
+<dt>Opt Len</dt><dd><t>5 bits: Length in 4 bytes of the '<tt>Options</tt>' field.</t></dd>
+<dt>Flags</dt><dd><t>6 bits: The Flags field is used as specified in <xref target="flags"/>.</t></dd>
+<dt>Session ID</dt><dd><t>16 bits: The Session ID covers additional information
+that might be used to identify the SA.
+For instance, it can be used to encode a Sub SA ID. The meaning of
+that field is opaque and MAY be
+negotiated by IKEv2. This document defines the use of the Session ID
+as a Subs SA ID. Other use cases are not covered in this document.</t></dd>
+<dt>Security Parameter Index (SPI)</dt><dd><t>32 bits: The SPI is an arbitrary
+32-bit value that is used by a receiver to identify the SA to which
+an incoming packet is bound. This combined with the 16-bit Session
+ID is the Enhanced SPI.</t></dd>
+</dl>
+
+<t>The Flags field in the fixed Base Header is defined as follows:</t>
+
+<figure anchor="flags">
+<name>Base Header Flags</name>
+<sourcecode><![CDATA[
+ 0 1 2 3 4 5
++-+-+-+-+-+-+
+|F|P|S|  R  |
++-+-+-+-+-+-+
+]]></sourcecode></figure>
+
+<dl>
+<dt>Packet Format (F)</dt><dd><t>1 bit: Set to zero for full EESP packet Format (i.e., the EESP header includes the
+'<tt>Payload Info Header</tt>'), set to 1 for Optimized EESP Packet format.</t></dd>
+<dt>Payload Encryption Mode (P)</dt><dd><t>1 bit: If set, the
+following Layer 4 Header is authenticated, but not encrypted.
+This bit MUST be set to 0 on any mode other than payload encryption mode .
+The receiver MUST drop packets with this bit set, if the mode is
+different to payload encryption mode. See <xref target="sec-payload-encryption-mode-processing"/></t></dd>
+<dt>Sequence Number absent (S)</dt><dd><t>1 bit: If set, the peer header does not
+carry the sequence number field in the packet. This bit MUST be set
+to the same value for all packets on a given SA.</t></dd>
+<dt>Reserved (R)</dt><dd><t>3 bits: Reserved for future versions, MUST be set to 0,
+and ignored by the receiver.</t></dd>
+</dl>
+
+</section>
+
+<section title="Base Header Options">
+<t>The base header '<tt>Options</tt>' field is optional, its size is given in the
+fixed header field '<tt>Opt Len</tt>' and may be zero if no options are
+present.</t>
+
+<t>When present, the '<tt>Options</tt>' field carries a variable number of
+type-length-value (TLV) encoded options. The format of these options
+has been derived from the IPv6 extension header options as defined in
+Section 4.2 of <xref target="RFC8200"/>, with the following exceptions. No special
+meaning is attached to the top 3 bits of the option type value, and
+the processing order of the options is not restricted.</t>
+
+<t>Option type values are allocated from one of two ranges of values.
+One range is used for standardized option types and the second
+range is reserved for private options.</t>
+
+<t>This document defines 4 initial standard option types, '<tt>Pad1 Option</tt>',
+'<tt>PadN Option</tt>', '<tt>Flow Identifier Option</tt>', and '<tt>Crypt Offset Option</tt>'.
+These options are defined in section <xref target="sec-eesp-option-types"/>.</t>
+
+<t>Private options use '<tt>Option Type</tt>' values from the private option
+reserved range and can be used for any purposes that are out of scope
+for standardization. For example, they can be used to encode hardware
+specific information, such as used encryption/authentication
+algorithms as done in <xref target="PSP"/>.</t>
+
+<section title="Options Field End-Alignment">
+<t>When options are present, padding options (i.e., '<tt>Pad1</tt>' and '<tt>PadN</tt>')
+MUST be used to align the fields following the '<tt>Options</tt>' field. This
+alignment is dictated by the packet format. For the Full EESP
+packet format the '<tt>Payload Info Header</tt>' must be 4 byte aligned. For
+the optimized packet format the alignment is given by the contained
+packet type, namely, 4 byte alignment for an IPv4 packet, and 8 byte
+alignment for IPv6 packet.</t>
+
+</section>
+
+</section>
+
+</section>
+
+<section title="Peer Header">
+<t>The '<tt>Peer Header</tt>' follows the '<tt>Base Header</tt>' and '<tt>Options</tt>' field.
+The '<tt>Peer Header</tt>' containing an optional '<tt>Sequence Number</tt>' and an
+optional '<tt>Initialization Vector</tt>', and the format is shown below.
+The Peer Header is private to the IPsec peers, middleboxes MUST
+NOT act upon the Peer Header fields.</t>
+
+
+<figure anchor="peer-header">
+<name>Peer Header</name>
+<sourcecode><![CDATA[
+ 0                   1                   2                   3
+ 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                    Sequence Number (optional)                 |
+|                                                               |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                          IV (optional)                        |
+|                                                               |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+]]></sourcecode></figure>
+
+<t>When present, the '<tt>Sequence Number</tt>' is a full 64bit sequence number.
+EESP only support 64bit sequence numbers, a.k.a ESN and transmits the
+entire sequence number on each packet. The actual size of the
+'<tt>Initialization Vector</tt>' depends on the choice of the cipher suite.</t>
+
+<t>The '<tt>Sequence Number</tt>' and '<tt>Initialization Vector</tt>' fields are defined
+in the following sections.</t>
+
+<section title="Sequence Number" anchor="sec-sequence-number">
+<t>This unsigned 64-bit field contains a counter value that increases
+for each packet sent, i.e., a per-SA packet sequence number. For a
+unicast SA or a single-sender multicast SA, the sender MUST increment
+this field for every transmitted packet. The sequence number MUST
+increase strictly monotonically, sequence numbers MUST NOT repeat and
+MUST NOT cycle for any given SA. Thus, the sender's counter and the
+receiver's counter MUST be reset (by establishing a new SA and thus a
+new key) prior to the transmission of the 2^64nd packet on an SA.
+Implementations that do replay protection SHOULD increase the
+sequence number by one for each sent packet. Even if recommended to
+increase the sequence number by one, implementations MAY employ other
+methods to increase the sequence number, as long as the
+aforementioned requirements are met. Sharing an SA among multiple
+senders is permitted, though generally not recommended. This document
+provides no means of synchronizing packet counters among multiple
+senders or meaningfully managing a receiver packet counter and window
+in the context of multiple senders. However, EESP is capable to
+handle packet counters among multiple senders. This can be done by
+defining a new Base Header Option that covers a '<tt>Sender ID</tt>'.
+Similar to the Session ID, this Sender ID can be used as an
+additional Subs SA ID (see <xref target="sec-session-id-as-sub-sa-id"/>).
+Defining such an Option is left for future documents.</t>
+
+</section>
+
+<section title="Initialization Vector">
+<t>If the algorithm used to encrypt the payload requires cryptographic
+synchronization data, e.g., an Initialization Vector (IV), then this
+data is carried explicitly in the '<tt>Peer Header</tt>' which is in front of
+the encrypted part of the packet. Any encryption algorithm that requires
+such explicit, per-packet synchronization data MUST indicate the
+length, any structure for such data, and the location of this data as
+part of an RFC specifying how the algorithm is used with EESP.
+(Typically, the IV immediately precedes the ciphertext.  See Table 1)
+If such synchronization data is implicit, the algorithm for deriving
+the data MUST be part of the algorithm definition RFC.  (If included,
+cryptographic synchronization data, e.g., an Initialization Vector
+(IV), usually is not encrypted per se (see Table 1), although it
+sometimes is referred to as being part of the ciphertext.)</t>
+
+<t>Counter mode algorithms MAY encode the 64-bit counter of the
+Initialization Vector (IV) on the Sequence number Field.  This option
+saves 8 header bytes on each packet.  Whether or not this option is
+selected is determined as part of Security Association (SA)
+establishment.</t>
+
+</section>
+
+</section>
+
+<section title="Payload Info Header">
+<t>The Payload Info Header is needed if the contained payload is
+not a single IPv4 or IPv6 packet (e.g., when using Transport Mode or
+IP-TFS). It is optional on tunnel mode because this information
+can be derived from the inner IPv4 or IPv6 header. This document
+specifies a full and an optimized packet format. The Payload Info
+Header is present in the Full EESP packet format, but not in the
+optimized format see <xref target="sec-full-and-optimized-packet-formats"/>.
+IPsec peers and middleboxes MAY act upon the Payload Info
+Header.</t>
+
+<figure anchor="payload-info-header">
+<name>Payload Info Header</name>
+<sourcecode><![CDATA[
+ 0                   1                   2                   3
+ 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|  0x0  |        Reserved       | Next Header   | Pad Length    |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+]]></sourcecode></figure>
+
+<section title="Next Header">
+<t>The Next Header is an 8-bit field that identifies the type of data
+contained in the Payload Data field, e.g., a next layer header and
+data. The value of this field is chosen from the set of IP Protocol
+Numbers defined on the web page of the IANA (e.g., a value of 6
+indicates TCP and a value of 17 indicates UDP).</t>
+
+</section>
+
+<section title="Pad Length">
+<t>The Pad Length field indicates the number of pad bytes immediately
+following the payload data and is used to align the ICV field. The
+range of valid values is 0 to 255, where a value of zero indicates
+that no Padding bytes are present.</t>
+
+</section>
+
+</section>
+
+<section title="Payload Data">
+<t>Payload Data is a variable-length field containing data from the
+original IP packet.  The Payload
+Data field is mandatory and is an integral number of bytes in length.</t>
+
+<t>Note that the beginning of the next layer protocol header MUST be
+aligned relative to the beginning of the EESP header as follows.  For
+IPv4, this alignment is a multiple of 4 bytes.  For IPv6, the
+alignment is a multiple of 8 bytes.</t>
+
+</section>
+
+<section title="Padding (for Encryption)">
+<t>Two primary factors require or motivate use of the Padding
+field.</t>
+
+<ul>
+<li><t>If an encryption algorithm is employed that requires the
+plaintext to be a multiple of some number of bytes, e.g.,
+the block size of a block cipher, the Padding field is used
+to fill the plaintext (consisting of the Payload Data,
+Padding, and Payload Info Header) to the size
+required by the algorithm.</t></li>
+
+<li><t>Padding also may be required, irrespective of encryption
+algorithm requirements, to ensure that the resulting
+ciphertext terminates on a 4-byte boundary to make sure
+the ICV is properly aligned.</t></li>
+</ul>
+
+<t>The sender MAY add 0 to 255 bytes of padding.  Inclusion of the
+Padding field in an EESP packet is optional, subject to the
+requirements noted above, but all implementations MUST support
+generation and consumption of padding.</t>
+
+<t>If Padding bytes are needed but the algorithm does not
+specify the padding contents, then the following default processing
+MUST be used.  The default processing follows exactly ESP as of <xref target="RFC4303"/>.
+The Padding bytes are initialized with a series of
+(unsigned, 1-byte) integer values.  The first padding byte appended
+to the plaintext is numbered 1, with subsequent padding bytes making
+up a monotonically increasing sequence: 1, 2, 3, ....  When this
+padding scheme is employed, the receiver SHOULD inspect the Padding
+field.  (This scheme was selected because of its relative simplicity,
+ease of implementation in hardware, and because it offers limited
+protection against certain forms of "cut and paste" attacks in the
+absence of other integrity measures, if the receiver checks the
+padding values upon decryption.)</t>
+
+<t>If an algorithm imposes constraints on
+the values of the bytes used for padding, they MUST be specified by
+the RFC defining how the algorithm is employed with EESP.  If the
+algorithm requires checking of the values of the bytes used for
+padding, this too MUST be specified in that RFC.</t>
+
+</section>
+
+<section title="Integrity Check Value (ICV)">
+<t>The Integrity Check Value is a variable-length field computed over
+the EESP header, and Payload. The length of the field is
+specified by the algorithm selected and associated with the
+SA.  The algorithm specification MUST specify the length of
+the ICV and the comparison rules and processing steps for validation.</t>
+
+</section>
+
+<section title="Full and Optimized Packet Formats" anchor="sec-full-and-optimized-packet-formats">
+<t>The resulting two packet formats are described in this section.
+The default packet format for EESP is the full packet format.
+When IPv4 or IPv6 tunnel mode is used, the '<tt>Payload Info Header</tt>' MAY
+be omitted. Whether this option is chosen MUST be negotiated
+by IKEv2, or any other suitable protocol.
+In this optimized mode the payload will always start with
+an IPv4 or IPv6 header. IPv4 or IPv6 packets always start with a
+Version field at the first nibble, so it is possible to identify IPv4
+and IPv6 by reading the first nibble of the inner packet, and there
+is no need for a next header field. Additionally, IPv4 and IPv6 also
+have a field describing the overall size of the inner packet, so a
+pad length field is also not needed as it can be derived.</t>
+
+<t>The packet format containing the '<tt>Payload Info Header</tt>' is called the
+"Full EESP packet format", while the packet format without the
+'<tt>Payload Info Header</tt>' is the called the "Optimized EESP packet format".
+Which of these two formats are is encoded in the '<tt>Packet Format</tt>' bit in
+the '<tt>Base Header</tt>'.</t>
+
+<t>The two packet formats are shown below. <xref target="eesp-full-packet-format"/>
+shows the full packet format used as the default for modes of operation.
+<xref target="eesp-optimized-packet-format"/> illustrates the resulting optimized
+packet format for use with IPv4 or IPv6 Tunnel Mode when the
+'<tt>Payload Info Header</tt>' is elided.</t>
+
+<figure anchor="eesp-full-packet-format">
+<name>Full EESP packet format</name>
+<sourcecode><![CDATA[
+ 0                   1                   2                   3
+ 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|1|Version| Opt Len |   Flags   |        Session ID             |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                              SPI                              |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                                                               |
+~                   Options (variable, optional)                ~
+|                                                               |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                    Sequence Number (optional)                 |
+|                                                               |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                          IV* (optional)                       |
+|                                                               |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|  0x0  |        Reserved       | Next Header   | Pad Length    |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                   L4 Payload Data (variable)                  |
+~                                                               ~
+|               +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|               |          Padding (0-255 bytes)                |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                                                               |
+~              Integrity Check Value-ICV (variable)             ~
+|                                                               |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+]]></sourcecode></figure>
+
+<figure anchor="eesp-optimized-packet-format">
+<name>Optimized EESP packet format</name>
+<sourcecode><![CDATA[
+
+ 0                   1                   2                   3
+ 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|1|Version| Opt Len |   Flags   |        Session ID             |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                              SPI                              |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                                                               |
+~                   Options (variable, optional)                ~
+|                                                               |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                    Sequence Number (optional)                 |
+|                                                               |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                          IV* (optional)                       |
+|                                                               |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                                                               |
+~                     IPv4/IPv6 Header                          ~
+|                                                               |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                   L4 Payload Data (variable)                  |
+~                                                               ~
+|               +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|               |          Padding (0-255 bytes)                |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|                                                               |
+~              Integrity Check Value-ICV (variable)             ~
+|                                                               |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+]]></sourcecode></figure>
+
+<t>[*] If included, cryptographic synchronization data, e.g., an
+'<tt>Initialization Vector</tt>' (IV), usually is not encrypted per se, although
+it often is referred to as being part of the cipher-text. Unlike ESP,
+the IV is not considered to be a part of the payload data in EESP.</t>
+
+<t>The explicit IV shown in <xref target="eesp-packet-separate-algos"/> depends on the
+used algorithm and may be omitted.  Because algorithms,
+modes and options are fixed when an SA is established, the detailed
+format of EESP packets for a given SA (including the '<tt>Payload Data</tt>'
+substructure) is fixed for all traffic on the SA.</t>
+
+<t>The table below refers to the fields in the preceding figures and
+illustrate how several categories of algorithmic options, each with a
+different processing model, affect the fields noted above.  The
+processing details are described in later sections.</t>
+
+<table anchor="eesp-packet-separate-algos">
+<name>High level layout for fields of an EESP packet</name>
+<thead><tr><th>Field</th><th align="center"># of bytes</th><th align="center">Req'd [1]</th><th align="center">Encrypt Covers</th><th align="center">Integ Covers</th><th align="center">Tx'd</th></tr>
+</thead>
+<tbody><tr><td>Base Header</td><td align="center">8</td><td align="center">M</td><td align="center">&#xa0;</td><td align="center">Y</td><td align="center">plain</td></tr>
+<tr><td>Options</td><td align="center">variable</td><td align="center">O</td><td align="center">&#xa0;</td><td align="center">Y</td><td align="center">plain</td></tr>
+<tr><td>Sequence Number</td><td align="center">8</td><td align="center">O</td><td align="center">&#xa0;</td><td align="center">Y</td><td align="center">plain</td></tr>
+<tr><td>IV</td><td align="center">variable</td><td align="center">O</td><td align="center">&#xa0;</td><td align="center">Y</td><td align="center">plain</td></tr>
+<tr><td>Payload Info Hdr[4]</td><td align="center">4</td><td align="center">O</td><td align="center">Y</td><td align="center">Y</td><td align="center">cipher [3]</td></tr>
+<tr><td>Payload [2]</td><td align="center">variable</td><td align="center">M</td><td align="center">Y</td><td align="center">Y</td><td align="center">cipher [3]</td></tr>
+<tr><td>Padding</td><td align="center">0-255</td><td align="center">M</td><td align="center">Y</td><td align="center">Y</td><td align="center">cipher [3]</td></tr>
+<tr><td>ICV</td><td align="center">variable</td><td align="center">M</td><td align="center">&#xa0;</td><td align="center">&#xa0;</td><td align="center">plain</td></tr>
+</tbody>
+</table>
+
+<ul spacing="compact">
+<li><t>[1] M = mandatory; O = optional</t></li>
+<li><t>[2] If tunnel mode -&gt; IP datagram. If beet mode -&gt; IP datagram. If
+transport mode -&gt; next header and data. If IP-TFS, IP-TFS header
+and payload.</t></li>
+<li><t>[3] Ciphertext if encryption has been selected</t></li>
+<li><t>[4] Not present in Optimized Header otherwise mandatory</t></li>
+</ul>
+
+<t>In the table "optional" means that the field is omitted if the option is not
+selected, i.e., it is not present in the packet as transmitted
+or as formatted for computation of an ICV. Whether or not an option
+is selected is determined as part of Security Association (SA)
+establishment. Thus, the format of EESP packets for a given SA is
+fixed for the duration of the SA. In contrast, "mandatory" fields
+are always present in the EESP packet format for all SAs.</t>
+
+</section>
+
+
+<section title="Session ID as Sub SA ID" anchor="sec-session-id-as-sub-sa-id">
+<t>This section specifies the use of the Session ID as a Sub SA ID.
+The use of the Session ID as a Sub SA ID MUST be negotiated by IKEv2,
+or any other suitable protocol. In this case, Session ID is used as a
+16 bits Replay Subspace ID.
+Replay Subspaces were initially defined in <xref target="I-D.ponchon-ipsecme-anti-replay-subspaces"/>.</t>
+
+<t>Each number of the 16 bits Replay Subspace ID encodes a single
+64 bit anti-replay sequence number space.
+This means that each core, path, or QoS class, or any combination of
+those, can then use their own unique anti-replay sequence number subspace.
+Each anti-replay sequence number subspace uses Sequence Numbers as
+specified in section <xref target="sec-sequence-number"/>.</t>
+
+<t>To make sure that at most 2^64 sequence numbers are used for a given key,
+a KDF MUST be used used to derive a separate key for each anti-replay sequence
+number subspace (see <xref target="sec-key-derivation-for-sub-sas"/>). In this case, the full
+64 bits of each anti-replay sequence number subspace can be used.</t>
+
+<t>Sub SAs can be created "on the fly" within the kernel IPsec subsystem.
+Sub SAs streamline traffic flow management, reduce overhead, and
+enable more efficient lifecycle operations.</t>
+
+<t>A pair of EESP SAs combined with multiple unidirectional Sub SAs
+provides a more flexible approach to carrying  asymmetric traffic
+patterns, particularly in high-speed environments.
+Sub SAs reduces overhead, improves resource utilization, and enhances
+scalability for large-scale deployments. In many use cases, several
+unidirectional SAs used, while others are unused which can result
+in unnecessary overhead for SA management, rekeying, and resource
+consumption. Furthermore, using multiple bidirectional Child SAs for
+granular traffic flows often leads to additional setup delays and
+complex lifetime management. This inefficiency is particularly acute
+in high-throughput or low-latency environments, where rapid setup and
+teardown of SAs is essential to maintain performance.</t>
+
+<t>Each Sub SA is identified by a Sub SA ID, which MUST be carried in
+each EESP packet in the Session ID field—consistent with the
+negotiation of the EESP Child SA. This Sub SA ID is used to derive a
+unique key.</t>
+
+<t>Particularly implementations with hardware offload, MAY derive Sub SA
+keys dynamically on a per-packet basis. This mitigates the risk of
+data-plane performance degradation caused by a large number of keys
+<xref target="I-D.ponchon-ipsecme-anti-replay-subspaces"/>.</t>
+
+<t>AEAD transforms such as AES-GCM <xref target="RFC4106"/>, <xref target="RFC8750"/> requires
+that the IV never repeat within a single Sub SA. Because each
+Sub SA uses a distinct key, the IV MAY be reused across different
+Sub SAs, satisfying the requirement that each key be paired with a
+unique IV. Implementations MUST also maintain an independent
+sequence number space for each Sub SA when full 64-bit sequence
+numbers are in use. For a given Sub SA key, sequence numbers MUST
+remain unique and monotonically increasing to meet cryptographic
+requirements.</t>
+
+<section title="Sender Behavior">
+<t>This section defines the IPsec sender's behavior when transmitting
+packets using an IPsec Child SA that has been previously configured or
+negotiated with IKE to use at most N different sequence number
+subspace IDs.</t>
+
+<t>The sender MAY set the sequence number subspace ID to any value
+between 0 and N-1.  How the different subspace IDs are used is up to
+the implementation, but as an example, the sender could use different
+subspace ID values per path or per processing core (or combination of
+both).</t>
+
+<t>The sender MUST NOT use any subspace ID values greater or equal to N
+(since the IPsec Child SA has been configured to use at most N different
+values).  This requirement was introduced to improve the
+implementation performance, as opposed to allowing the sender to use
+arbitrary subspace ID values.</t>
+
+<t>The sender MUST maintain one sequence number counter per sequence
+number subspace that it makes use of.  But the sender MAY use only
+some (and as few as a single one) of the available N subspace ID
+values between 0 and N-1.</t>
+
+<t>When transmitting a packet, the sender MUST use the sequence number
+counter associated with the sequence number subspace in use for that
+packet.</t>
+
+</section>
+
+<section title="Receiver Behavior">
+<t>This section defines the IPsec receiver's behavior when receiving
+packets using an IPsec SA that has been previously configured or
+negotiated to use at most N different sequence number subspace IDs.</t>
+
+<t>The receiver MUST maintain one anti-replay window and counter for
+each sequence number subspace being used.</t>
+
+<t>When receiving a packet, the receiver MUST use the anti-replay window
+and counter associated with the sequence number subspace identified
+with the subspace ID field.</t>
+
+<t>The receiver MUST drop any packet received with a subpace ID value
+greater or equal to N.  Such packets SHOULD be counted for reporting.</t>
+
+<t>Note: Since the sender may decide to only use a subset of the
+available N subspace values, the receiver MAY reactively allocate an
+anti-replay window when receiving the first packet for a given
+subspace.  When doing so, the receiver SHOULD first check the
+authenticity of the packet before allocating the new anti-replay
+window.</t>
+
+</section>
+
+</section>
+
+</section>
+
+<section title="EESP Header Options" anchor="sec-eesp-header-options">
+<t>The EESP header '<tt>Options</tt>' field carries a variable number of
+type-length-value (TLV) encoded "options" of the following format:</t>
+
+<figure>
+<name>EESP Header Option Format</name>
+<sourcecode><![CDATA[
+
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+- - - - - - - - -
+|  Option Type  |  Opt Data Len |  Option Data
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+- - - - - - - - -
+
+]]></sourcecode></figure>
+
+<dl>
+<dt>Option Type</dt><dd><t>8-bit identifier of the type of option.</t></dd>
+<dt>Opt Data Len</dt><dd><t>8-bit unsigned integer.  Length of the Option Data
+field of this option, in octets.</t></dd>
+<dt>Option Data</dt><dd><t>Variable-length field. Option-Type-specific data.</t></dd>
+</dl>
+
+<t>The overall length of all Options is limited to 128 bytes by the
+OptLen field in the '<tt>Base Header</tt>'.</t>
+
+<section title="EESP Option Types" anchor="sec-eesp-option-types">
+<t>This document defines two padding options '<tt>Pad1</tt>' and '<tt>PadN</tt>', a '<tt>Flow
+Identifier Option</tt>', and a '<tt>Crypt Offset Option</tt>'. Future documents can
+define additional options. Appendix A of <xref target="RFC8200"/> contains applicable
+formatting guidelines for designing new options.</t>
+
+<section title="Padding Options">
+<t>Individual options may have specific alignment requirements, to
+ensure that multi-octet values within Option Data fields fall on
+natural boundaries. The alignment requirement of an option is
+specified using the notation xn+y, meaning the '<tt>Option Type</tt>' must
+appear at an integer multiple of x octets from the start of the
+'<tt>Options</tt>' field, plus y octets. For example:</t>
+
+<ul>
+<li><t>2n means any 2-octet offset from the start of the '<tt>Options</tt>' field.</t></li>
+<li><t>8n+2 means any 8-octet offset from the start of the '<tt>Options</tt>'
+field, plus 2 octets.</t></li>
+</ul>
+
+<t>Unless otherwise specified EESP options have no alignment
+requirements.</t>
+
+<t>There are two padding options which are used when necessary to align
+subsequent options and to pad out the containing options field. These
+padding options must be recognized by all implementations:</t>
+
+<section title="Pad1 option">
+<figure>
+<name>Pad1 Option</name>
+<sourcecode><![CDATA[
++-+-+-+-+-+-+-+-+
+|       0       |
++-+-+-+-+-+-+-+-+
+]]></sourcecode></figure>
+
+<t><strong>Note:</strong> the format of the Pad1 option is a special case -- it does
+not have length and value fields.</t>
+
+<t>The '<tt>Pad1</tt>' option is used to insert one octet of padding into the
+Options field. If more than one octet of padding is required, the
+'<tt>PadN</tt>' option, described next, should be used, rather than multiple
+'<tt>Pad1</tt>' options.</t>
+
+</section>
+
+<section title="PadN option">
+<figure>
+<name>PadN Option</name>
+<sourcecode><![CDATA[
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+- - - - - - - - -
+|       1       |  Opt Data Len |  Option Data
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+- - - - - - - - -
+]]></sourcecode></figure>
+
+<t>The '<tt>PadN</tt>' option is used to insert two or more octets of padding
+into the '<tt>Options</tt>' field. For N octets of padding, the Opt Data Len
+field contains the value N-2, and the '<tt>Option Data</tt>' consists of N-2
+zero-valued octets.</t>
+
+</section>
+
+</section>
+
+<section title="EESP Flow Identifier Option">
+<t>Flow Identifier (FID) Options are used to carry characteristic
+information of the inner flow and SHOULD NOT change on per packet
+basis inside any inner flow to avoid packet reordering.
+The Flow Identifier SHOULD be negotiated by IKEv2 or another
+suitable protocol. The detailed specification of FIDs MAY be provided
+in subsequent documents. The precise meaning of a FID is opaque to
+intermediate devices; however, intermediate devices MAY use it for
+identifying flows for ECMP or similar purposes. e.g. Sub-Child SAs,
+in <xref target="I-D.mrossberg-ipsecme-multiple-sequence-counters"/> could be encoded
+here.</t>
+
+<figure anchor="fid-option">
+<name>Flow Identifier Option</name>
+<sourcecode><![CDATA[
+ 0                   1                   2                   3
+ 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|  Option Type  | Option Length |                               |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+                               |
+|                                                               |
+~                    Flow Identifier (FID)                      ~
+|                                                               |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+]]></sourcecode></figure>
+
+<dl>
+<dt>Option Type</dt><dd><t>8 bits: See <xref target="sec-eesp-header-options"/></t></dd>
+<dt>Option Length</dt><dd><t>8 bits: See <xref target="sec-eesp-header-options"/></t></dd>
+<dt>FID</dt><dd><t>Variable length, carries characteristic information of a
+inner flow and MUST NOT change for a given inner flow within a SA.</t></dd>
+</dl>
+
+</section>
+
+<section title="EESP Flow Identifiers combined with replay protection">
+<t>Flow Identifiers characterize the inner i.e. the protected flows.
+Packets of these flows should not be reordered while EESP protected.
+Therefore, if a Flow Identifier is used in combination with replay
+protection, it MUST replicate the 16 bit Replay Subspace ID
+from the Session ID to the Flow Identifier.</t>
+
+<figure anchor="fid-replay">
+<name>Flow Identifier with replay protection</name>
+<sourcecode><![CDATA[
+ 0                   1                   2                   3
+ 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|  Option Type  | Option Length |     Replay Subspace ID        |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-|
+|                                                               |
+~                    Flow Identifier (FID)                      ~
+|                                                               |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+]]></sourcecode></figure>
+
+<dl>
+<dt>Option Type</dt><dd><t>8 bits: See <xref target="sec-eesp-header-options"/></t></dd>
+<dt>Option Length</dt><dd><t>8 bits: See <xref target="sec-eesp-header-options"/></t></dd>
+<dt>Replay Subspace ID</dt><dd><t>16 bits:</t></dd>
+<dt>FID</dt><dd><t>Variable length, carries characteristic information of a
+inner flow and MUST NOT change for a given inner flow within a SA.</t></dd>
+</dl>
+
+</section>
+
+<section title="EESP Crypt Offset Option" anchor="sec-eesp-crypt-offset-option">
+<t>This option is typically used for within one Datacenter use case
+such as <xref target="PSP"/>.</t>
+
+<t>NOTE: This is for the use in Datacenters ONLY. It might be moved to
+a separate document that defines the 'EESP use for Datacenters'.</t>
+
+<figure anchor="crypt-offset-option">
+<name>Crypt Offset Option</name>
+<sourcecode><![CDATA[
+ 0                   1                   2                   3
+ 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|  Option Type  | Option Length |Payl.Offset|CryptOffset| R | F |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+]]></sourcecode></figure>
+
+<dl>
+<dt>Option Type</dt><dd><t>8 bits: See <xref target="sec-eesp-header-options"/></t></dd>
+
+<dt>Option Length</dt><dd><t>8 bits: See <xref target="sec-eesp-header-options"/></t></dd>
+
+<dt>Payload Offset</dt><dd><t>6 bits: The offset from the start of the fixed
+header to the start of the payload header (or the payload for
+optimized packet format) measured in 4-octet units.</t></dd>
+
+<dt>CryptOffset</dt><dd><t>6 bits: The offset from the start of the payload
+header (or the payload for optimized packet format) to the start of
+the encrypted portion of the packet, measured in 4-octet units. The
+resulting value MUST NOT be larger than the size of the inner
+packet.</t></dd>
+
+<dt>R[eserved]</dt><dd><t>2-bits: Reserved MUST be sent 0 and ignored on receipt.</t></dd>
+
+<dt>F[lags]</dt><dd><t>2-bits: Flags used for stateless crypto signaling such as the
+S-bit and D-bit in the PSP specification.</t>
+
+<t><strong>NOTE:</strong> I tend to remove the Flags if we keep the Crypt Offset
+in this document, as we don't define PSP here.</t></dd>
+</dl>
+
+</section>
+
+</section>
+
+</section>
+
+<section title="Enhanced Encapsulating Security Protocol Processing">
+<section title="EESP Header Location">
+<t>EESP may be employed in multiple ways. To secure end-to-end
+network traffic, transport mode and payload encryption mode
+may be used. For the VPN use case, tunnel and beet mode may
+be employed.</t>
+
+
+<section title="Layer 4 Encapsulation Modes" anchor="sec-layer-4-encapsulation-modes">
+<t>Layer 4 Encapsulation Modes are  transport mode, BEET mode
+and payload encryption mode. Layer 4 Encapsulation Modes
+distinguish from tunnel mode on the position of the EESP
+header in the packet. On Layer 4 Encapsulation Modes the
+EESP header is inserted between the original IPv4/IPv6
+header and the following Layer 4 header. In contrast to this,
+in tunnel mode the full ipv4/IPv6 datagram is encapsulated.
+This means the the EESP header is placed in front of the
+original IPv4/IPv6 datagram and a new 'outer IPv4/IPv6 header'
+is added in front of the EESP header. The following sections
+illustrate the positioning of the EESP header</t>
+
+<t>Note that in Layer 4 Encapsulation Modes, for "bump-in-the-stack" or "bump-in-
+the-wire" implementations, as defined in the Security Architecture
+document, inbound and outbound IP fragments may require an IPsec
+implementation to perform extra IP reassembly/fragmentation in order
+to both conform to this specification and provide transparent IPsec
+support.  Special care is required to perform such operations within
+these implementations when multiple interfaces are in use.</t>
+
+<section title="Transport Mode Processing">
+<t>In transport mode, EESP is inserted after the IP header and before a
+next layer protocol, e.g., TCP, UDP, ICMP, etc.  In the context of
+IPv4, this translates to placing EESP after the IP header (and any
+options that it contains), but before the next layer protocol.  (If
+AH is also applied to a packet, it is applied to the EESP header,
+Payload and ICV, if present.)  (Note that the term
+"transport" mode should not be misconstrued as restricting its use to
+TCP and UDP.)  The following diagram illustrates EESP transport mode
+positioning for a typical IPv4 packet, on a "before and after" basis.
+(This and subsequent diagrams in this section show the ICV field, the
+presence of which is a function of the security services and the
+algorithm/mode selected.)</t>
+
+
+<figure anchor="ipv4-transport-mode">
+<name>IPv4 Transport Mode</name>
+<sourcecode><![CDATA[
+           BEFORE APPLYING EESP
+      ----------------------------
+IPv4  |orig IP hdr  |     |      |
+      |(any options)| TCP | Data |
+      ----------------------------
+
+           AFTER APPLYING EESP
+      ---------------------------------------------------
+IPv4  |orig IP hdr  | EESP |     |               | EESP |
+      |(any options)| Hdr  | TCP | L4 pyld Data  | ICV  |
+      ---------------------------------------------------
+                           |<---- encryption --->|
+                    |<-------- integrity ------->|
+]]></sourcecode></figure>
+
+<t>In the IPv6 context, EESP is viewed as an end-to-end payload, and thus
+should appear after hop-by-hop, routing, and fragmentation extension
+headers.  Destination options extension header(s) could appear
+before, after, or both before and after the EESP header depending on
+the semantics desired.  However, because EESP protects only fields
+after the EESP header, it generally will be desirable to place the
+destination options header(s) after the EESP header.  The following
+diagram illustrates EESP transport mode positioning for a typical IPv6
+packet.</t>
+
+<figure anchor="ipv6-transport-mode">
+<name>IPv6 Transport Mode</name>
+<sourcecode><![CDATA[
+
+               BEFORE APPLYING EESP
+      ---------------------------------------
+IPv6  |             | ext hdrs |     |      |
+      | orig IP hdr |if present| TCP | Data |
+      ---------------------------------------
+
+               AFTER APPLYING EESP
+      ----------------------------------------------------------
+IPv6  | orig |hop-by-hop,dest*,|EESP|dest|   |   Layer 4  |EESP|
+      |IP hdr|routing,fragment.|Hdr |opt*|TCP|Payload Data|ICV |
+      ----------------------------------------------------------
+                                    |<--- encryption ---->|
+                               |<------ integrity ------->|
+
+          * = if present, could be before EESP, after EESP, or both
+]]></sourcecode></figure>
+
+</section>
+
+<section title="Payload Encryption Mode Processing" anchor="sec-payload-encryption-mode-processing">
+<t>In payload encryption mode, EESP is inserted exactly at the same position
+as it is done for transport mode. The only difference to transport mode
+is that the next layer protocol header following the original IP or IPv6
+header is left in cleartext. Additionally to that, the 'C' bit in the EESP
+header flags is set.</t>
+
+
+<t>The following diagrams illustrate EESP payload encryption mode
+positioning for a typical IPv4 and IPv6 packet, on a "before and after" basis.</t>
+
+
+<figure anchor="ipv4-pe-mode">
+<name>IPv4 Payload Encryption Mode</name>
+<sourcecode><![CDATA[
+           BEFORE APPLYING EESP
+      ----------------------------
+IPv4  |orig IP hdr  |     |      |
+      |(any options)| TCP | Data |
+      ----------------------------
+
+           AFTER APPLYING EESP
+      ----------------------------------------------------
+IPv4  |orig IP hdr  | EESP |     |                | EESP |
+      |(any options)| Hdr  | TCP |  L4 pyld Data  | ICV  |
+      ----------------------------------------------------
+                                 |<- encryption ->|
+                    |<-------- integrity -------->|
+]]></sourcecode></figure>
+
+<figure anchor="ipv6-pe-mode">
+<name>IPv6 Payload Encryption Mode</name>
+<sourcecode><![CDATA[
+
+               BEFORE APPLYING EESP
+      ---------------------------------------
+IPv6  |             | ext hdrs |     |      |
+      | orig IP hdr |if present| TCP | Data |
+      ---------------------------------------
+
+               AFTER APPLYING EESP
+      --------------------------------------------------------------
+IPv6  | orig |hop-by-hop,dest*,|EESP|dest|   |     Layer 4    |EESP|
+      |IP hdr|routing,fragment.|Hdr |opt*|TCP|  Payload Data  |ICV |
+      --------------------------------------------------------------
+                                             |<- encryption ->|
+                               |<-------- integrity --------->|
+
+          * = if present, could be before EESP, after EESP, or both
+]]></sourcecode></figure>
+
+</section>
+
+<section title="BEET Mode Processing">
+<t>In BEET mode, EESP is inserted exactly at the same position
+as it is done for transport mode. The original IP or IPv6 header
+is replaced by a new one. The new header SHOULD be negotiated by IKEv2
+or any other suitable protocol.</t>
+
+<figure anchor="ipv4-beet-mode">
+<name>IPv6 BEET Mode</name>
+<sourcecode><![CDATA[
+           BEFORE APPLYING EESP
+      ----------------------------
+IPv4  |orig IP hdr  |     |      |
+      |(any options)| TCP | Data |
+      ----------------------------
+
+           AFTER APPLYING EESP
+      ---------------------------------------------------
+IPv4  | new IP hdr  | EESP |     |               | EESP |
+      |(any options)| Hdr  | TCP | L4 pyld Data  | ICV  |
+      ---------------------------------------------------
+                           |<---- encryption --->|
+                    |<-------- integrity ------->|
+]]></sourcecode></figure>
+
+<figure anchor="ipv6-beet-mode">
+<name>IPv6 BEET Mode</name>
+<sourcecode><![CDATA[
+
+               BEFORE APPLYING EESP
+      ---------------------------------------
+IPv6  |             | ext hdrs |     |      |
+      | orig IP hdr |if present| TCP | Data |
+      ---------------------------------------
+
+               AFTER APPLYING EESP
+      ----------------------------------------------------------
+IPv6  | new  |hop-by-hop,dest*,|EESP|dest|   |   Layer 4  |EESP|
+      |IP hdr|routing,fragment.|Hdr |opt*|TCP|Payload Data|ICV |
+      ----------------------------------------------------------
+                                    |<--- encryption ---->|
+                               |<------ integrity ------->|
+
+          * = if present, could be before EESP, after EESP, or both
+]]></sourcecode></figure>
+
+</section>
+
+</section>
+
+<section title="Tunnel Mode Processing">
+<t>In tunnel mode, the "inner" IP header carries the ultimate (IP)
+source and destination addresses, while an "outer" IP header contains
+the addresses of the IPsec "peers", e.g., addresses of security
+gateways.  Mixed inner and outer IP versions are allowed, i.e., IPv6
+over IPv4 and IPv4 over IPv6.  In tunnel mode, EESP protects the
+entire inner IP packet, including the entire inner IP header.  The
+position of EESP in tunnel mode, relative to the outer IP header, is
+the same as for EESP in transport mode.  The following diagram
+illustrates EESP tunnel mode positioning for typical IPv4 and IPv6
+packets.</t>
+
+
+<figure anchor="ipv4-tunnel-mode">
+<name>IPv4 Tunnel Mode</name>
+<sourcecode><![CDATA[
+           BEFORE APPLYING ESP
+      ----------------------------
+IPv4  |orig IP hdr  |     |      |
+      |(any options)| TCP | Data |
+      ----------------------------
+
+           AFTER APPLYING ESP
+
+      ----------------------------------------------------------
+IPv4  | new IP hdr* | EESP | orig IP hdr*  |     |      | EESP |
+      |(any options)| Hdr  | (any options) | TCP | Data | ICV  |
+      ----------------------------------------------------------
+                           |<------- encryption ------->|
+                    |<------------ integrity ---------->|
+
+]]></sourcecode></figure>
+
+<figure anchor="ipv6-tunnel-mode">
+<name>IPv6 Tunnel Mode</name>
+<sourcecode><![CDATA[
+                BEFORE APPLYING ESP
+      ---------------------------------------
+IPv6  |             | ext hdrs |     |      |
+      | orig IP hdr |if present| TCP | Data |
+      ---------------------------------------
+
+               AFTER APPLYING ESP
+
+      --------------------------------------------------------------
+IPv6  | new* |new ext | EESP | orig*| orig ext |     |      | EESP |
+      |IP hdr| hdrs*  | Hdr  |IP hdr|  hdrs *  | TCP | Data | ICV  |
+      --------------------------------------------------------------
+                             |<-------- encryption -------->|
+                      |<------------ integrity ------------>|
+
+      * = if present, construction of outer IP hdr/extensions and
+          modification of inner IP hdr/extensions is discussed in
+          the Security Architecture document.
+]]></sourcecode></figure>
+
+</section>
+
+</section>
+
+<section title="Algorithms">
+<t>EESP version 0 specifies combined mode algorithms only. Separate
+confidentiality and integrity algorithms MUST NOT be used with
+version 0 of EESP. This means that both, confidentiality and
+integrity services are provided always.
+Although not specified here, EESP can support
+separate confidentiality and integrity algorithms. In case
+using separate confidentiality and integrity algorithms becomes
+necessary, a new version of EESP MUST be defined.</t>
+
+<t>The mandatory-to-implement algorithms for use with EESP described
+in a separate RFC (TBD), to facilitate updating the algorithm requirements
+independently from the protocol per se.  Additional algorithms,
+beyond those mandated for EESP, MAY be supported.</t>
+
+<section title="Combined Mode Algorithms">
+<t>The combined mode algorithm employed to protect an EESP packet is
+specified by the SA via which the packet is transmitted/received.
+Because IP packets may arrive out of order, and not all packets may
+arrive (packet loss), each packet must carry any data required to
+allow the receiver to establish cryptographic synchronization for
+decryption.  This data may be carried explicitly, e.g., as an
+IV (as described above), or the data may be
+derived from the plaintext portions of the (outer IP or EESP) packet
+header.  (Note that if plaintext header information is used to derive
+an IV, that information may become security critical and thus the
+protection boundary associated with the encryption process may grow.</t>
+
+<t>For example, if one were to use the EESP Sequence Number to derive an
+IV, the Sequence Number generation logic (hardware or software) would
+have to be evaluated as part of the encryption algorithm
+implementation.  In the case of FIPS 140-2 <xref target="NIST01"/>, this could
+significantly extend the scope of a cryptographic module evaluation.)</t>
+
+<t>Because EESP makes provision for padding of the plaintext, combined mode
+algorithms employed with EESP may exhibit either block or stream mode
+characteristics.  The means
+by which a combined mode algorithm provides integrity for the
+payload, and for the header fields, may
+vary for different algorithm choices.  In order to provide a uniform,
+algorithm-independent approach to invocation of combined mode
+algorithms, no payload substructure is defined.</t>
+
+
+<t>To allow an EESP implementation to determine the MTU impact of a
+combined mode algorithm, the RFC for each algorithm used with EESP
+must specify a (simple) formula that yields encrypted payload size,
+as a function of the plaintext payload and sequence number sizes.</t>
+
+</section>
+
+</section>
+
+<section title="Outbound Packet Processing">
+<t>In Layer 4 Encapsulation Modes, the sender encapsulates the next
+layer protocol information behind the EESP header fields, and
+retains the specified IP header (and any IP extension headers in the
+IPv6 context).  In tunnel mode, the outer and inner IP
+header/extensions can be interrelated in a variety of ways.  The
+construction of the outer IP header/extensions during the
+encapsulation process is described in the Security Architecture
+document.</t>
+
+<section title="Security Association Lookup">
+<t>EESP is applied to an outbound packet only after an IPsec
+implementation determines that the packet is associated with an SA
+that calls for EESP processing.  The process of determining what, if
+any, IPsec processing is applied to outbound traffic is described in
+the Security Architecture document.</t>
+
+</section>
+
+<section title="Packet Encryption and Integrity Check Value (ICV) Calculation" anchor="sec-packet-encryption-and-integrity-check-value-icv-calculation">
+<t>In this section, we speak in terms of encryption always being applied
+because of the formatting implications.  This is done with the
+understanding that "no confidentiality" is offered, for instance,
+by using the AES-CMAC algorithm (<xref target="RFC4494"/>).</t>
+
+</section>
+
+<section title="Combined Confidentiality and Integrity Algorithms">
+<t>The Sender proceeds for combined confidentiality/integrity algorithm as follows:</t>
+
+<ol>
+<li><t>Encapsulate into the EESP Payload Data field:</t>
+<ul>
+<li><t>for transport, beet and payload encryption mode -- just the original next layer
+protocol information.</t></li>
+<li><t>for tunnel mode -- the entire original IP datagram.</t></li>
+</ul></li>
+
+<li><t>Add any necessary (encryption) Padding.</t></li>
+
+<li><t>Encrypt and integrity protect the result using the key
+and combined mode algorithm specified for the SA and using
+any required cryptographic synchronization data.</t>
+<ul>
+<li><t>If explicit cryptographic synchronization data,
+e.g., an IV, is indicated, it is input to the
+combined mode algorithm per the algorithm
+specification and placed in the IV field of the peer header.</t></li>
+<li><t>If implicit cryptographic synchronization data is
+employed, it is constructed and input to the
+encryption algorithm as per the algorithm
+specification.</t></li>
+<li><t>The EESP header fields are inputs to the
+algorithm, as they must be included in the integrity
+check computation.  The means by which these values
+are included in this computation are a function of
+the combined mode algorithm employed and thus not
+specified in this standard.</t></li>
+<li><t>The (explicit) ICV field MAY be a part of the EESP
+packet format when a combined mode algorithm is
+employed.  If one is not used, an analogous field
+usually will be a part of the ciphertext payload.
+The location of any integrity fields, and the means
+by which the Sequence Number and SPI are included in
+the integrity computation, MUST be defined in an RFC
+that defines the use of the combined mode algorithm
+with EESP.</t></li>
+</ul></li>
+</ol>
+
+</section>
+
+<section title="Sequence Number Generation">
+<t>Replay protection is negotiated by the IPsec peers. If
+a SA chooses to do replay protection, the sequence numbers
+are generated in the following way.</t>
+
+<t>The sender's counter SHOULD be initialized to 0 when an SA is established.
+The sender increments the sequence number counter for this
+SA and inserts this value into the Sequence Number field of the Peer Header.
+Note that 0 is not a valid sequence number. Thus, the minimal sequence
+number to use for the first packet sent using given SA 1. This means that
+the first packet sent using given SA will contain a sequence number of 1,
+or bigger. The most natural method to increase the sequence number
+is to increase only by one for each sent packet. This method SHOULD
+be implemented when possible. However, peers MAY choose different
+replay protection algorithms, i.e. not by using sequence numbers
+that are incremented by one for each packet. In case the peers choose
+such an algorithm, the sender MUST ensure that the sequence
+number is strictly monotonic increasing.</t>
+
+<t>The sender checks to ensure
+that the counter has not cycled before inserting the new value in the
+Sequence Number field.  In other words, the sender MUST NOT send a
+packet on an SA. If doing so would cause the sequence number to cycle.
+An attempt to transmit a packet that would result in sequence number
+overflow is an auditable event.  The audit log entry for this event
+SHOULD include the SPI value, current date/time, Source Address,
+Destination Address, and (in IPv6) the cleartext Flow ID.</t>
+
+<t>Typical behavior of an EESP implementation calls for the sender to
+establish a new SA when the Sequence Number of the SA cycles, or if
+sequence number subspaces are used any one of the subspaces cycles,
+or in anticipation of this values cycling.</t>
+
+<t>If the key used to compute an ICV is manually distributed, a
+compliant implementation SHOULD NOT provide anti-replay service.  If
+a user chooses to employ anti-replay in conjunction with SAs that are
+manually keyed, the sequence number counter at the sender MUST be
+correctly maintained across local reboots, etc., until the key is
+replaced.</t>
+
+</section>
+
+<section title="Fragmentation">
+<t>If necessary, fragmentation is performed after EESP processing within
+an IPsec implementation.  Thus, transport, beet and payload encryption
+mode, EESP is applied only to
+whole IP datagrams (not to IP fragments).  An IP packet to which EESP
+has been applied may itself be fragmented by routers en route, and
+such fragments must be reassembled prior to EESP processing at a
+receiver.  In tunnel mode, EESP is applied to an IP packet, which may
+be a fragment of an IP datagram.  For example, a security gateway or
+a "bump-in-the-stack" or "bump-in-the-wire" IPsec implementation (as
+defined in the Security Architecture document) may apply tunnel mode
+EESP to such fragments.</t>
+
+<t>NOTE: For Layer 4 Encapsulation Modes -- As mentioned at the end of <xref target="sec-layer-4-encapsulation-modes"/>,
+bump-in-the-stack and bump-in-the-wire implementations may have to
+first reassemble a packet fragmented by the local IP layer, then
+apply IPsec, and then fragment the resulting packet.</t>
+
+<t>NOTE: For IPv6 -- For bump-in-the-stack and bump-in-the-wire
+implementations, it will be necessary to examine all the extension
+headers to determine if there is a fragmentation header and hence
+that the packet needs reassembling prior to IPsec processing.</t>
+
+<t>Fragmentation, whether performed by an IPsec implementation or by
+routers along the path between IPsec peers, significantly reduces
+performance.  Moreover, the requirement for an EESP receiver to accept
+fragments for reassembly creates denial of service vulnerabilities.
+Thus, an EESP implementation MAY choose to not support fragmentation
+and may mark transmitted packets with the DF bit, to facilitate Path
+MTU (PMTU) discovery.  In any case, an EESP implementation MUST
+support generation of ICMP PMTU messages (or equivalent internal
+signaling for native host implementations) to minimize the likelihood
+of fragmentation.  Details of the support required for MTU management
+are contained in the Security Architecture document.</t>
+
+</section>
+
+</section>
+
+<section title="Inbound Packet Processing">
+<section title="Reassembly">
+<t>If required, reassembly is performed prior to EESP processing.  If a
+packet offered to EESP for processing appears to be an IP fragment,
+i.e., the OFFSET field is non-zero or the MORE FRAGMENTS flag is set,
+the receiver MUST discard the packet; this is an auditable event.
+The audit log entry for this event SHOULD include the SPI value,
+date/time received, Source Address, Destination Address, Sequence
+Number, and (in IPv6) the Flow ID.</t>
+
+<t>NOTE: For packet reassembly, the current IPv4 spec does NOT require
+either the zeroing of the OFFSET field or the clearing of the MORE
+FRAGMENTS flag.  In order for a reassembled packet to be processed by
+IPsec (as opposed to discarded as an apparent fragment), the IP code
+must do these two things after it reassembles a packet.</t>
+
+</section>
+
+<section title="Security Association Lookup">
+<t>Upon receipt of a packet containing an EESP Header, the receiver
+determines the appropriate (unidirectional) SA via lookup in the SAD.
+For a unicast SA, this determination is based on the SPI or the SPI
+plus protocol field, as described in Section 2.1.  If an
+implementation supports multicast traffic, the destination address is
+also employed in the lookup (in addition to the SPI), and the sender
+address also may be employed, as described in Section 2.1.  (This
+process is described in more detail in the Security Architecture
+document.)  The SAD entry for the SA also indicates whether the
+Sequence Number field is present, and whether the (explicit) ICV field
+should be present (and if so, its size).  Also, the SAD entry will
+specify the algorithms and keys to be employed for decryption and ICV
+computation (if applicable).</t>
+
+<t>If no valid Security Association exists for this packet, the receiver
+MUST discard the packet; this is an auditable event.  The audit log
+entry for this event SHOULD include the SPI value, date/time
+received, Source Address, Destination Address, Sequence Number, and
+(in IPv6) the cleartext Flow ID.</t>
+
+</section>
+
+<section title="Sequence Number Verification">
+<t>All EESP implementations MUST support the anti-replay service, though
+its use may be enabled or disabled by negotiation on a per-SA basis.
+This service MUST NOT be enabled unless the EESP integrity service
+also is enabled for the SA, because otherwise the Sequence Number
+field has not been integrity protected.  Anti-replay is applicable to
+unicast as well as multicast SAs.</t>
+
+<t>However, this standard specifies
+no mechanisms for providing anti-replay for a multi-sender SA
+(unicast or multicast).  In the absence of negotiation (or manual
+configuration) of an anti-replay mechanism for such an SA, it is
+recommended that sender and receiver checking of the sequence number
+for the SA be disabled (via negotiation or manual configuration), as
+noted below.</t>
+
+<t>If anti-replay service is enabled for this SA, the
+receive packet counter for the SA MUST be initialized to zero when
+the SA is established.  For each received packet, the receiver MUST
+verify that the packet contains a Sequence Number that does not
+duplicate the Sequence Number of any other packets received during
+the life of this SA.  This SHOULD be the first ESP check applied to a
+packet after it has been matched to an SA, to speed rejection of
+duplicate packets.</t>
+
+<t>EESP permits two-stage verification of packet sequence numbers.  This
+capability is important whenever an ESP implementation (typically the
+cryptographic module portion thereof) is not capable of performing
+decryption and/or integrity checking at the same rate as the
+interface(s) to unprotected networks.  If the implementation is
+capable of such "line rate" operation, then it is not necessary to
+perform the preliminary verification stage described below.</t>
+
+<t>The preliminary Sequence Number check is effected utilizing the
+Sequence Number value in the EESP Header and is performed prior to
+integrity checking and decryption.  If this preliminary check fails,</t>
+
+<t>the packet is discarded, thus avoiding the need for any cryptographic
+operations by the receiver.  If the preliminary check is successful,
+the receiver cannot yet modify its local counter, because the
+integrity of the Sequence Number has not been verified at this point.</t>
+
+<t>Duplicates are rejected through the use of a sliding receive window.
+How the window is implemented is a local matter, but the following
+text describes the functionality that the implementation must
+exhibit.</t>
+
+<t>The "right" edge of the window represents the highest, validated
+Sequence Number value received on this SA.  Packets that contain
+sequence numbers lower than the "left" edge of the window are
+rejected.  Packets falling within the window are checked against a
+list of received packets within the window.</t>
+
+<t>If the received packet falls within the window and is not a
+duplicate, or if the packet is to the right of the window, and if a
+separate integrity algorithm is employed, then the receiver proceeds
+to integrity verification.  If a combined mode algorithm is employed,
+the integrity check is performed along with decryption.  In either
+case, if the integrity check fails, the receiver MUST discard the
+received IP datagram as invalid; this is an auditable event.  The
+audit log entry for this event SHOULD include the SPI value,
+date/time received, Source Address, Destination Address, the Sequence
+Number, and (in IPv6) the Flow ID.  The receive window is updated
+only if the integrity verification succeeds.  (If a combined mode
+algorithm is being used, then the integrity protected Sequence Number
+must also match the Sequence Number used for anti-replay protection.)</t>
+
+<t>A minimum window size of 64 packets MUST be supported.
+Another window size (larger than
+the minimum) MAY be chosen by the receiver.  (The receiver does NOT
+notify the sender of the window size.)  The receive window size
+should be increased for higher-speed environments, irrespective of
+assurance issues.  Values for minimum and recommended receive window
+sizes for very high-speed (e.g., multi-terabit/second) devices are
+not specified by this standard.</t>
+
+</section>
+
+<section title="Packet Decryption and Integrity Check Value Verification">
+<section title="Combined Confidentiality and Integrity Algorithms">
+<t>The receiver proceeds for combined mode algorithms as follows:</t>
+
+<ol>
+<li><t>Decrypts and integrity checks the EESP Payload Info Header (if present),
+Payload Data, Padding, using the key, algorithm,
+algorithm mode, and cryptographic synchronization data (if
+any), indicated by the SA.</t></li>
+</ol>
+
+<t>The Base Header and the Peer Header are are inputs
+to this algorithm, as they are required for the integrity
+check.</t>
+
+<ul>
+<li><t>If explicit cryptographic synchronization data, e.g.,
+an IV, is indicated, it is taken from the IV
+field and input to the decryption algorithm as per
+the algorithm specification.</t></li>
+
+<li><t>If implicit cryptographic synchronization data, e.g.,
+an IV, is indicated, a local version of the IV is
+constructed and input to the decryption algorithm as
+per the algorithm specification.</t></li>
+</ul>
+<ul>
+<li><t>If the integrity check performed by the combined mode
+algorithm fails, the receiver MUST discard the received IP
+datagram as invalid; this is an auditable event.  The log
+data SHOULD include the SPI value, date/time received,
+Source Address, Destination Address, the Sequence Number,
+and (in IPv6) the cleartext Flow ID.</t></li>
+
+<li><t>Process any Padding as specified in the encryption algorithm
+specification, if the algorithm has not already done so.</t></li>
+
+<li><t>The receiver checks the Next Header field.  If the value is
+"59" (no next header), the (dummy) packet is discarded
+without further processing.</t></li>
+
+<li><t>Extract the original IP datagram (tunnel mode) or
+transport-layer frame (layer 4 payload encapsulation modes) from the ESP Payload
+Data field.</t></li>
+</ul>
+
+
+<t>The exact steps for reconstructing the original datagram
+depend on the mode and are described in the Security
+Architecture document.</t>
+
+<t>At a minimum, in an
+IPv6 context, the receiver SHOULD ensure that the decrypted
+data is 8-byte aligned, to facilitate processing by the
+protocol identified in the Next Header field.</t>
+
+</section>
+
+</section>
+
+</section>
+
+</section>
+
+
+<section title="Key Derivation for Sub SAs" anchor="sec-key-derivation-for-sub-sas">
+<t>When an EESP SA is using Sub SAs, each Sub SA (including the one
+with Session ID 0) uses separate keys. This allows each Sub SA to use
+its own independent Sequence Number and IV space.</t>
+
+<t>In order to derive these keys, a Sub SA Key Derivation Function
+(SSKDF) MUST be configured as a property of the EESP SA if Sub SAs
+are to be used. If no SSKDF is configured, Sub SAs can't be used.</t>
+
+<t>If an SSKDF is set, the key material required for the EESP SA is
+determined by the key size of the negotiated SSKDF.  This single
+key is called '<tt>root</tt>' key and is the basis for the keys derived for
+all Sub SAs.</t>
+
+<t>The EESP SA root key and selected SSKDF are then used as follows to
+derive key material for each Sub SA:</t>
+
+<t>KEYMAT_sub = SSKDF(KEY_root, Session ID, L)</t>
+
+<t>Where L is the total length of the key material KEYMAT_sub and the
+salt value is the full Session ID field of the Sub SA. The length of
+KEYMAT_sub and how it is used depends on the negotiated encryption
+algorithm.</t>
+
+<t>Keys for Sub SAs may be derived immediately or on demand when the
+first packet is processed. Memory constrained implementations may
+even decide to derive the Sub SA keys on the fly for each received
+packet as only the EESP key has to be stored to derive the keys of
+all Sub SAs.</t>
+
+<t>Because individual Sub SAs can't be rekeyed, the complete EESP SA
+MUST be rekeyed when either a cryptographic limit or a time-based
+limit is reached for any individual Sub SA.</t>
+
+</section>
+
+<section title="UDP Encapsulation">
+<t>UDP encapsulation for EESP is largely the same as UDP encapsulation
+for ESP specified in <xref target="RFC3948"/>.  The primary difference is that
+the UDP source port used by EESP Sub SAs may be different from the
+IKE SA source port.  This allows more flexible handling of EESP
+traffic, particularly ECMP support along the path and in the NIC.</t>
+
+<t>A receiver intending to support both ESP and EESP encapsulated in UDP
+must be able to distinguish inbound ESP and EESP traffic on the same
+UDP port. To be able to handle this, the SPIs for the incoming ESP
+SAs MUST be chosen in such a way, that they can be distinguished from
+the EESP base header. Since the most significant bit of the EESP base
+header is fixed to be one, this can be achieved if ESP SPIs are
+selected in such a way, that the most significant bit of the ESP SPIs
+is always set to zero.</t>
+
+<section title="UDP Encapsulation of Sub SAs">
+<t>An EESP SA primarily uses UDP encapsulation to facilitate NAT
+traversal. However, an additional use case for UDP encapsulation is
+to introduce source port entropy, which supports ECMP or/and
+RSS (Receive Side Scaling) mechanisms. In such scenarios, the
+initiator MAY also use a distinct, ephemeral source port for
+Sub SA IDs greater than zero.</t>
+
+<t>It is important to note that IKE messages MUST NOT utilize these
+ephemeral source ports. Instead, IKE traffic should be confined to
+the source and destination ports to ensure proper protocol operation
+and maintain compatibility with existing implementations.</t>
+
+<t>When using ephemeral source ports, the receiver can only set the
+source port upon arrival of an EESP packet with that Sub SA ID. If
+the receiver is pre-populating a Sub SA, it may have to install it
+with a source port set to zero and, upon arrival of a packet,
+update the source port using a mapping change.</t>
+
+<t>Additionally, when multiple Sub SAs exist, the receiver SHOULD
+maintain a mapping table to track the source port associated with
+each Sub SA independently. This ensures that traffic is correctly
+routed and prevents ambiguity in handling packets associated with
+different Sub SAs when a NAT is present.</t>
+
+</section>
+
+</section>
+
+<section title="Auditing">
+<t>Not all systems that implement EESP will implement auditing.  However,
+if EESP is incorporated into a system that supports auditing, then the
+EESP implementation MUST also support auditing and MUST allow a system
+administrator to enable or disable auditing for EESP.  For the most
+part, the granularity of auditing is a local matter.  However,
+several auditable events are identified in this specification and for
+each of these events a minimum set of information that SHOULD be
+included in an audit log is defined.</t>
+
+<ul>
+<li><t>No valid Security Association exists for a session.  The
+audit log entry for this event SHOULD include the SPI value,
+date/time received, Source Address, Destination Address,
+Sequence Number, and (for IPv6) the cleartext Flow ID.</t></li>
+
+<li><t>A packet offered to EESP for processing appears to be an IP
+fragment, i.e., the OFFSET field is non-zero or the MORE
+FRAGMENTS flag is set.  The audit log entry for this event
+SHOULD include the SPI value, date/time received, Source
+Address, Destination Address, Sequence Number, and (in IPv6)
+the Flow ID.</t></li>
+
+<li><t>Attempt to transmit a packet that would result in Sequence
+Number overflow.  The audit log entry for this event SHOULD
+include the SPI value, current date/time, Source Address,
+Destination Address, Sequence Number, and (for IPv6) the
+cleartext Flow ID.</t></li>
+
+<li><t>The received packet fails the anti-replay checks.  The audit
+log entry for this event SHOULD include the SPI value,
+date/time received, Source Address, Destination Address, the
+Sequence Number, and (in IPv6) the Flow ID.</t></li>
+
+<li><t>The integrity check fails.  The audit log entry for this
+event SHOULD include the SPI value, date/time received,
+Source Address, Destination Address, the Sequence Number, and
+(for IPv6) the Flow ID.</t></li>
+</ul>
+
+<t>Additional information also MAY be included in the audit log for each
+of these events, and additional events, not explicitly called out in
+this specification, also MAY result in audit log entries.  There is
+no requirement for the receiver to transmit any message to the
+purported sender in response to the detection of an auditable event,
+because of the potential to induce denial of service via such action.</t>
+
+</section>
+
+<section title="Conformance Requirements">
+<t>Implementations that claim conformance or compliance with this
+specification MUST implement the EESP syntax and processing described
+here for unicast traffic, and MUST comply with all additional packet
+processing requirements levied by the Security Architecture document
+<xref target="RFC4301"/>.  Additionally, if an implementation claims to support
+multicast traffic, it MUST comply with the additional requirements
+specified for support of such traffic.  If the key used to compute an
+ICV is manually distributed, correct provision of the anti-replay
+service requires correct maintenance of the counter state at the
+sender (across local reboots, etc.), until the key is replaced, and
+there likely would be no automated recovery provision if counter
+overflow were imminent.  Thus, a compliant implementation SHOULD NOT
+provide anti-replay service in conjunction with SAs that are manually
+keyed.</t>
+
+<t>The mandatory-to-implement algorithms for use with EESP are described
+in a separate document <xref target="RFC4305"/>, to facilitate updating the algorithm
+requirements independently from the protocol per se.  Additional
+algorithms, beyond those mandated for EESP, MAY be supported.</t>
+
+<t>Because use of encryption in EESP is optional, support for the "NULL"
+encryption algorithm also is required to maintain consistency with
+the way ESP services are negotiated.  Support for the
+confidentiality-only service version of EESP is optional.  If an
+implementation offers this service, it MUST also support the
+negotiation of the "NULL" integrity algorithm.  NOTE that although
+integrity and encryption may each be "NULL" under the circumstances
+noted above, they MUST NOT both be "NULL".</t>
+
+</section>
+
+<section title="Security Considerations">
+<t>Security is central to the design of this protocol, and thus security
+considerations permeate the specification.  Additional security-
+relevant aspects of using the IPsec protocol are discussed in the
+Security Architecture document.</t>
+
+</section>
+
+<section title="IANA Considerations">
+<section title="EESP IP Protocol Number">
+<t>This document requests IANA allocate an IP protocol number from
+"Protocol Numbers - Assigned Internet Protocol Numbers" registry</t>
+
+<ul>
+<li><t>Decimal: TBD</t></li>
+<li><t>Keyword: EESP</t></li>
+<li><t>Protocol: Enhanced Encapsulating Security Payload</t></li>
+<li><t>Reference: This document</t></li>
+</ul>
+
+</section>
+
+<section title="EESP Versions Registry">
+<t>This document requests IANA to create a registry called "EESP_VERSIONS"
+Type Registry" under a new category named "EESP_VERSIONS Parameters".</t>
+
+<ul>
+<li><t>Name: EESP Versions Registry</t></li>
+<li><t>Description: EESP Base Header Version</t></li>
+<li><t>Reference: This document</t></li>
+</ul>
+
+<t>The initial content for this registry is as follows:</t>
+
+<figure anchor="iana_requests_versions_reg">
+<name>EESP Version Initial Registry Values</name>
+<sourcecode><![CDATA[
+Value     EESP Version                      Reference
+-------   ------------------------------    ---------------
+    0      V0                              [this document]
+  1-13     Unassigned                      [this document]
+ 13-15     Private Use                     [this document]
+]]></sourcecode></figure>
+
+</section>
+
+
+<section title="EESP Options Registry">
+<t>This document requests IANA to create a registry called "EESP_OPTIONS
+Type Registry" under a new category named "EESP_OPTIONS Parameters".</t>
+
+<ul>
+<li><t>Name: EESP Options Registry</t></li>
+<li><t>Description: EESP Base Header Options</t></li>
+<li><t>Reference: This document</t></li>
+</ul>
+
+<t>The initial content for this registry is as follows:</t>
+
+<figure anchor="iana_requests_options_reg">
+<name>Initial Registry Values</name>
+<sourcecode><![CDATA[
+Value     EESP Header Options Types         Reference
+-------   ------------------------------    ---------------
+      0   Pad1                              [this document]
+      1   PadN                              [this document]
+      2   Crypt Offset                      [this document]
+      3   FID                               [this document]
+  4-223   Unassigned                        [this document]
+224-255   Private                           [this document]
+]]></sourcecode></figure>
+
+</section>
+
+</section>
+
+<section title="Implementation Status">
+<t>[Note to RFC Editor: Please remove this section and the reference to
+<xref target="RFC7942"/> before publication.]</t>
+
+<t>This section records the status of known implementations of the
+protocol defined by this specification at the time of posting of this
+Internet-Draft, and is based on a proposal described in <xref target="RFC7942"/>.
+The description of implementations in this section is intended to
+assist the IETF in its decision processes in progressing drafts to
+RFCs. Please note that the listing of any individual implementation
+here does not imply endorsement by the IETF. Furthermore, no effort
+has been spent to verify the information presented here that was
+supplied by IETF contributors. This is not intended as, and must not
+be construed to be, a catalog of available implementations or their
+features. Readers are advised to note that other implementations may
+exist.</t>
+
+<t>According to <xref target="RFC7942"/>, "this will allow reviewers and working
+groups to assign due consideration to documents that have the benefit
+of running code, which may serve as evidence of valuable
+experimentation and feedback that have made the implemented protocols
+more mature. It is up to the individual working groups to use this
+information as they see fit".</t>
+
+<t>Authors are requested to add a note to the RFC Editor at the top of
+this section, advising the Editor to remove the entire section before
+publication, as well as the reference to <xref target="RFC7942"/>.</t>
+
+</section>
+
+
+<section title="Security Considerations">
+<t>In this section we discuss the security properties of EESP: TBD</t>
+
+</section>
+
+<section title="Acknowledgments">
+<t>TBD</t>
+
+</section>
+
+</middle>
+<back>
+<references title="Normative References">
+<reference anchor="RFC2119" target="https://www.rfc-editor.org/info/rfc2119">
+  <front>
+    <title>Key words for use in RFCs to Indicate Requirement Levels</title>
+    <author fullname="S. Bradner" initials="S." surname="Bradner"/>
+    <date month="March" year="1997"/>
+    <abstract>
+      <t>In many standards track documents several words are used to signify the requirements in the specification. These words are often capitalized. This document defines these words as they should be interpreted in IETF documents. This document specifies an Internet Best Current Practices for the Internet Community, and requests discussion and suggestions for improvements.</t>
+    </abstract>
+  </front>
+  <seriesInfo name="BCP" value="14"/>
+  <seriesInfo name="RFC" value="2119"/>
+  <seriesInfo name="DOI" value="10.17487/RFC2119"/>
+</reference>
+<reference anchor="RFC4301" target="https://www.rfc-editor.org/info/rfc4301">
+  <front>
+    <title>Security Architecture for the Internet Protocol</title>
+    <author fullname="S. Kent" initials="S." surname="Kent"/>
+    <author fullname="K. Seo" initials="K." surname="Seo"/>
+    <date month="December" year="2005"/>
+    <abstract>
+      <t>This document describes an updated version of the "Security Architecture for IP", which is designed to provide security services for traffic at the IP layer. This document obsoletes RFC 2401 (November 1998). [STANDARDS-TRACK]</t>
+    </abstract>
+  </front>
+  <seriesInfo name="RFC" value="4301"/>
+  <seriesInfo name="DOI" value="10.17487/RFC4301"/>
+</reference>
+<reference anchor="RFC4303" target="https://www.rfc-editor.org/info/rfc4303">
+  <front>
+    <title>IP Encapsulating Security Payload (ESP)</title>
+    <author fullname="S. Kent" initials="S." surname="Kent"/>
+    <date month="December" year="2005"/>
+    <abstract>
+      <t>This document describes an updated version of the Encapsulating Security Payload (ESP) protocol, which is designed to provide a mix of security services in IPv4 and IPv6. ESP is used to provide confidentiality, data origin authentication, connectionless integrity, an anti-replay service (a form of partial sequence integrity), and limited traffic flow confidentiality. This document obsoletes RFC 2406 (November 1998). [STANDARDS-TRACK]</t>
+    </abstract>
+  </front>
+  <seriesInfo name="RFC" value="4303"/>
+  <seriesInfo name="DOI" value="10.17487/RFC4303"/>
+</reference>
+<reference anchor="RFC4305" target="https://www.rfc-editor.org/info/rfc4305">
+  <front>
+    <title>Cryptographic Algorithm Implementation Requirements for Encapsulating Security Payload (ESP) and Authentication Header (AH)</title>
+    <author fullname="D. Eastlake 3rd" initials="D." surname="Eastlake 3rd"/>
+    <date month="December" year="2005"/>
+    <abstract>
+      <t>The IPsec series of protocols makes use of various cryptographic algorithms in order to provide security services. The Encapsulating Security Payload (ESP) and the Authentication Header (AH) provide two mechanisms for protecting data being sent over an IPsec Security Association (SA). To ensure interoperability between disparate implementations, it is necessary to specify a set of mandatory-to-implement algorithms to ensure that there is at least one algorithm that all implementations will have available. This document defines the current set of mandatory-to-implement algorithms for ESP and AH as well as specifying algorithms that should be implemented because they may be promoted to mandatory at some future time. [STANDARDS-TRACK]</t>
+    </abstract>
+  </front>
+  <seriesInfo name="RFC" value="4305"/>
+  <seriesInfo name="DOI" value="10.17487/RFC4305"/>
+</reference>
+<reference anchor="RFC4494" target="https://www.rfc-editor.org/info/rfc4494">
+  <front>
+    <title>The AES-CMAC-96 Algorithm and Its Use with IPsec</title>
+    <author fullname="JH. Song" initials="JH." surname="Song"/>
+    <author fullname="R. Poovendran" initials="R." surname="Poovendran"/>
+    <author fullname="J. Lee" initials="J." surname="Lee"/>
+    <date month="June" year="2006"/>
+    <abstract>
+      <t>The National Institute of Standards and Technology (NIST) has recently specified the Cipher-based Message Authentication Code (CMAC), which is equivalent to the One-Key CBC-MAC1 (OMAC1) algorithm submitted by Iwata and Kurosawa. OMAC1 efficiently reduces the key size of Extended Cipher Block Chaining mode (XCBC). This memo specifies the use of CMAC mode as an authentication mechanism of the IPsec Encapsulating Security Payload (ESP) and the Authentication Header (AH) protocols. This new algorithm is named AES-CMAC-96. [STANDARDS-TRACK]</t>
+    </abstract>
+  </front>
+  <seriesInfo name="RFC" value="4494"/>
+  <seriesInfo name="DOI" value="10.17487/RFC4494"/>
+</reference>
+<reference anchor="RFC7296" target="https://www.rfc-editor.org/info/rfc7296">
+  <front>
+    <title>Internet Key Exchange Protocol Version 2 (IKEv2)</title>
+    <author fullname="C. Kaufman" initials="C." surname="Kaufman"/>
+    <author fullname="P. Hoffman" initials="P." surname="Hoffman"/>
+    <author fullname="Y. Nir" initials="Y." surname="Nir"/>
+    <author fullname="P. Eronen" initials="P." surname="Eronen"/>
+    <author fullname="T. Kivinen" initials="T." surname="Kivinen"/>
+    <date month="October" year="2014"/>
+    <abstract>
+      <t>This document describes version 2 of the Internet Key Exchange (IKE) protocol. IKE is a component of IPsec used for performing mutual authentication and establishing and maintaining Security Associations (SAs). This document obsoletes RFC 5996, and includes all of the errata for it. It advances IKEv2 to be an Internet Standard.</t>
+    </abstract>
+  </front>
+  <seriesInfo name="STD" value="79"/>
+  <seriesInfo name="RFC" value="7296"/>
+  <seriesInfo name="DOI" value="10.17487/RFC7296"/>
+</reference>
+<reference anchor="RFC8200" target="https://www.rfc-editor.org/info/rfc8200">
+  <front>
+    <title>Internet Protocol, Version 6 (IPv6) Specification</title>
+    <author fullname="S. Deering" initials="S." surname="Deering"/>
+    <author fullname="R. Hinden" initials="R." surname="Hinden"/>
+    <date month="July" year="2017"/>
+    <abstract>
+      <t>This document specifies version 6 of the Internet Protocol (IPv6). It obsoletes RFC 2460.</t>
+    </abstract>
+  </front>
+  <seriesInfo name="STD" value="86"/>
+  <seriesInfo name="RFC" value="8200"/>
+  <seriesInfo name="DOI" value="10.17487/RFC8200"/>
+</reference>
+<reference anchor="RFC9347" target="https://www.rfc-editor.org/info/rfc9347">
+  <front>
+    <title>Aggregation and Fragmentation Mode for Encapsulating Security Payload (ESP) and Its Use for IP Traffic Flow Security (IP-TFS)</title>
+    <author fullname="C. Hopps" initials="C." surname="Hopps"/>
+    <date month="January" year="2023"/>
+    <abstract>
+      <t>This document describes a mechanism for aggregation and fragmentation of IP packets when they are being encapsulated in Encapsulating Security Payload (ESP). This new payload type can be used for various purposes, such as decreasing encapsulation overhead for small IP packets; however, the focus in this document is to enhance IP Traffic Flow Security (IP-TFS) by adding Traffic Flow Confidentiality (TFC) to encrypted IP-encapsulated traffic. TFC is provided by obscuring the size and frequency of IP traffic using a fixed-size, constant-send-rate IPsec tunnel. The solution allows for congestion control, as well as nonconstant send-rate usage.</t>
+    </abstract>
+  </front>
+  <seriesInfo name="RFC" value="9347"/>
+  <seriesInfo name="DOI" value="10.17487/RFC9347"/>
+</reference>
+</references>
+
+<references title="Informative References">
+<reference anchor="I-D.mrossberg-ipsecme-multiple-sequence-counters" target="https://datatracker.ietf.org/doc/html/draft-mrossberg-ipsecme-multiple-sequence-counters-02">
+  <front>
+    <title>Broadening the Scope of Encapsulating Security Payload (ESP) Protocol</title>
+    <author fullname="Michael Rossberg" initials="M." surname="Rossberg">
+      <organization>Technische Universität Ilmenau</organization>
+    </author>
+    <author fullname="Steffen Klassert" initials="S." surname="Klassert">
+      <organization>secunet Security Networks AG</organization>
+    </author>
+    <author fullname="Michael Pfeiffer" initials="M." surname="Pfeiffer">
+      <organization>Technische Universität Ilmenau</organization>
+    </author>
+    <date day="15" month="February" year="2024"/>
+    <abstract>
+      <t>There are certain use cases where the Encapusalating Security Payload (ESP) protocol in its current form cannot reach its maximum potential regarding security, features and performance. Although these scenarios are quite different, the shortcomings could be remedied by three measures: Introducing more fine-grained sub-child-SAs, adapting the ESP header and trailer format, and allowing parts of the transport layer header to be unencrypted. These mechanisms are neither completely interdependent, nor are they entirely orthogonal, as the implementation of one measure does influence the integration of another. Although an independent specification and implementation of these mechanisms is possible, it may be worthwhile to consider a combined solution to avoid a combinatorial explosion of optional features. Therefore, this document does not yet propose a specific change to ESP. Instead, explains the relevant scenarios, details possible modifications of the protocol, collects arguments for (and against) these changes, and discusses their implications.</t>
+    </abstract>
+  </front>
+  <seriesInfo name="Internet-Draft" value="draft-mrossberg-ipsecme-multiple-sequence-counters-02"/>
+</reference>
+<reference anchor="I-D.ponchon-ipsecme-anti-replay-subspaces" target="https://datatracker.ietf.org/doc/html/draft-ponchon-ipsecme-anti-replay-subspaces-03">
+  <front>
+    <title>IPsec and IKE anti-replay sequence number subspaces for traffic-engineered paths and multi-core processing</title>
+    <author fullname="Paul Ponchon" initials="P." surname="Ponchon">
+      <organization>Cisco Meraki</organization>
+    </author>
+    <author fullname="Mohsin Shaikh" initials="M." surname="Shaikh">
+      <organization>Cisco Meraki</organization>
+    </author>
+    <author fullname="Hadi Dernaika" initials="H." surname="Dernaika">
+      <organization>Cisco Meraki</organization>
+    </author>
+    <author fullname="Pierre Pfister" initials="P." surname="Pfister">
+      <organization>Cisco Meraki</organization>
+    </author>
+    <author fullname="Guillaume Solignac" initials="G." surname="Solignac">
+      <organization>Cisco Meraki</organization>
+    </author>
+    <date day="23" month="October" year="2023"/>
+    <abstract>
+      <t>This document discusses the challenges of running IPsec with anti- replay in multi-core environments where packets may be re-ordered (e.g., when sent over multiple IP paths, traffic-engineered paths and/or using different QoS classes). A new solution based on splitting the anti-replay sequence number space into multiple different sequencing subspaces is proposed. Since this solution requires support on both parties, an IKE extension is proposed in order to negotiate the use of the anti-replay sequence number subspaces.</t>
+    </abstract>
+  </front>
+  <seriesInfo name="Internet-Draft" value="draft-ponchon-ipsecme-anti-replay-subspaces-03"/>
+</reference>
+<reference anchor="I-D.he-ipsecme-vpn-shared-ipsecsa" target="https://datatracker.ietf.org/doc/html/draft-he-ipsecme-vpn-shared-ipsecsa-01">
+  <front>
+    <title>Shared Use of IPsec Tunnel in a Multi-VPN Environment</title>
+    <author fullname="Qi He" initials="Q." surname="He">
+      <organization>Huawei Technologies</organization>
+    </author>
+    <author fullname="Wei Pan" initials="W." surname="Pan">
+      <organization>Huawei Technologies</organization>
+    </author>
+    <author fullname="Xiaolan Chen" initials="X." surname="Chen">
+      <organization>Huawei Technologies</organization>
+    </author>
+    <author fullname="Beijing Ding" initials="B." surname="Ding">
+      <organization>Huawei Technologies</organization>
+    </author>
+    <date day="8" month="July" year="2024"/>
+    <abstract>
+      <t>In a multi-VPN environment, currently, different IPsec tunnels (i.e., different IKE SAs and Child SAs) have to be created to differentiate and protect the traffic of each VPN between the device and its peer. When the number of neighbors of a device and the number of VPNs increases, the number of IPsec tunnels also increases considerably. This results in the need for a large number of SAs, which exceeds the device's capacity. This document proposes a method for different VPNs to share the use of a single IPsec tunnel, which can greatly reduce the number of SAs required in a multi-VPN scenario.</t>
+    </abstract>
+  </front>
+  <seriesInfo name="Internet-Draft" value="draft-he-ipsecme-vpn-shared-ipsecsa-01"/>
+</reference>
+<reference anchor="RFC2992" target="https://www.rfc-editor.org/info/rfc2992">
+  <front>
+    <title>Analysis of an Equal-Cost Multi-Path Algorithm</title>
+    <author fullname="C. Hopps" initials="C." surname="Hopps"/>
+    <date month="November" year="2000"/>
+    <abstract>
+      <t>Equal-cost multi-path (ECMP) is a routing technique for routing packets along multiple paths of equal cost. The forwarding engine identifies paths by next-hop. When forwarding a packet the router must decide which next-hop (path) to use. This document gives an analysis of one method for making that decision. The analysis includes the performance of the algorithm and the disruption caused by changes to the set of next-hops. This memo provides information for the Internet community.</t>
+    </abstract>
+  </front>
+  <seriesInfo name="RFC" value="2992"/>
+  <seriesInfo name="DOI" value="10.17487/RFC2992"/>
+</reference>
+<reference anchor="RFC7942" target="https://www.rfc-editor.org/info/rfc7942">
+  <front>
+    <title>Improving Awareness of Running Code: The Implementation Status Section</title>
+    <author fullname="Y. Sheffer" initials="Y." surname="Sheffer"/>
+    <author fullname="A. Farrel" initials="A." surname="Farrel"/>
+    <date month="July" year="2016"/>
+    <abstract>
+      <t>This document describes a simple process that allows authors of Internet-Drafts to record the status of known implementations by including an Implementation Status section. This will allow reviewers and working groups to assign due consideration to documents that have the benefit of running code, which may serve as evidence of valuable experimentation and feedback that have made the implemented protocols more mature.</t>
+      <t>This process is not mandatory. Authors of Internet-Drafts are encouraged to consider using the process for their documents, and working groups are invited to think about applying the process to all of their protocol specifications. This document obsoletes RFC 6982, advancing it to a Best Current Practice.</t>
+    </abstract>
+  </front>
+  <seriesInfo name="BCP" value="205"/>
+  <seriesInfo name="RFC" value="7942"/>
+  <seriesInfo name="DOI" value="10.17487/RFC7942"/>
+</reference>
+<reference anchor="RFC3948" target="https://www.rfc-editor.org/info/rfc3948">
+  <front>
+    <title>UDP Encapsulation of IPsec ESP Packets</title>
+    <author fullname="A. Huttunen" initials="A." surname="Huttunen"/>
+    <author fullname="B. Swander" initials="B." surname="Swander"/>
+    <author fullname="V. Volpe" initials="V." surname="Volpe"/>
+    <author fullname="L. DiBurro" initials="L." surname="DiBurro"/>
+    <author fullname="M. Stenberg" initials="M." surname="Stenberg"/>
+    <date month="January" year="2005"/>
+    <abstract>
+      <t>This protocol specification defines methods to encapsulate and decapsulate IP Encapsulating Security Payload (ESP) packets inside UDP packets for traversing Network Address Translators. ESP encapsulation, as defined in this document, can be used in both IPv4 and IPv6 scenarios. Whenever negotiated, encapsulation is used with Internet Key Exchange (IKE). [STANDARDS-TRACK]</t>
+    </abstract>
+  </front>
+  <seriesInfo name="RFC" value="3948"/>
+  <seriesInfo name="DOI" value="10.17487/RFC3948"/>
+</reference>
+<reference anchor="RFC4106" target="https://www.rfc-editor.org/info/rfc4106">
+  <front>
+    <title>The Use of Galois/Counter Mode (GCM) in IPsec Encapsulating Security Payload (ESP)</title>
+    <author fullname="J. Viega" initials="J." surname="Viega"/>
+    <author fullname="D. McGrew" initials="D." surname="McGrew"/>
+    <date month="June" year="2005"/>
+    <abstract>
+      <t>This memo describes the use of the Advanced Encryption Standard (AES) in Galois/Counter Mode (GCM) as an IPsec Encapsulating Security Payload (ESP) mechanism to provide confidentiality and data origin authentication. This method can be efficiently implemented in hardware for speeds of 10 gigabits per second and above, and is also well-suited to software implementations. [STANDARDS-TRACK]</t>
+    </abstract>
+  </front>
+  <seriesInfo name="RFC" value="4106"/>
+  <seriesInfo name="DOI" value="10.17487/RFC4106"/>
+</reference>
+<reference anchor="RFC8750" target="https://www.rfc-editor.org/info/rfc8750">
+  <front>
+    <title>Implicit Initialization Vector (IV) for Counter-Based Ciphers in Encapsulating Security Payload (ESP)</title>
+    <author fullname="D. Migault" initials="D." surname="Migault"/>
+    <author fullname="T. Guggemos" initials="T." surname="Guggemos"/>
+    <author fullname="Y. Nir" initials="Y." surname="Nir"/>
+    <date month="March" year="2020"/>
+    <abstract>
+      <t>Encapsulating Security Payload (ESP) sends an initialization vector (IV) in each packet. The size of the IV depends on the applied transform and is usually 8 or 16 octets for the transforms defined at the time this document was written. When used with IPsec, some algorithms, such as AES-GCM, AES-CCM, and ChaCha20-Poly1305, take the IV to generate a nonce that is used as an input parameter for encrypting and decrypting. This IV must be unique but can be predictable. As a result, the value provided in the ESP Sequence Number (SN) can be used instead to generate the nonce. This avoids sending the IV itself and saves 8 octets per packet in the case of AES-GCM, AES-CCM, and ChaCha20-Poly1305. This document describes how to do this.</t>
+    </abstract>
+  </front>
+  <seriesInfo name="RFC" value="8750"/>
+  <seriesInfo name="DOI" value="10.17487/RFC8750"/>
+</reference>
+<reference anchor="PSP" target='https://github.com/google/psp/blob/main/doc/PSP_Arch_Spec.pdf'>
+<front>
+<title>PSP Architecture Specification</title>
+<author><organization>Google</organization></author>
+<date/>
+</front>
+</reference>
+<reference anchor="Protocol" target='https://www.iana.org/assignments/protocol-numbers/protocol-numbers.xhtml'>
+<front>
+<title>Assigned Internet Protocol Numbers</title>
+<author><organization>IANA</organization></author>
+<date/>
+</front>
+</reference>
+
+<reference anchor="NIST01">
+<front>
+<title>Federal Information Processing Standards Publication 140-2 (FIPS PUB 140-2), "Security Requirements for Cryptographic Modules", Information Technology Laboratory, National Institute of Standards and Technology, May 25, 2001.</title>
+<author><organization>NIST</organization></author>
+<date/>
+</front>
+</reference>
+</references>
+
+
+<section title="Additional Stuff">
+<t>TBD</t>
+
+</section>
+  </back>
+</rfc>
