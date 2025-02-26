@@ -13,8 +13,8 @@
 (EESP) protocol, which builds on the existing IP Encapsulating
 Security Payload (ESP) protocol. It is designed to modernize and
 overcome limitations in the ESP protocol. 
-       EESP adds Session IDs (e.g., to support CPU pinning and stateless
-encryption), changes some previously mandatory fields to optional,
+       EESP adds Session IDs (e.g., to support CPU pinning), changes some
+previously mandatory fields to optional,
 and moves the ESP trailer into the EESP header. Additionally, EESP
 adds header options adapted from IPv6 to allow for future extension.
 New header options are defined which add Flow IDs (e.g., for CPU
@@ -1227,7 +1227,7 @@ li > p:last-of-type:only-child {
 </tr></thead>
 <tfoot><tr>
 <td class="left">Klassert, et al.</td>
-<td class="center">Expires 29 August 2025</td>
+<td class="center">Expires 30 August 2025</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1238,12 +1238,12 @@ li > p:last-of-type:only-child {
 <dd class="workgroup">IPSECME Working Group</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2025-02-25" class="published">25 February 2025</time>
+<time datetime="2025-02-26" class="published">26 February 2025</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Standards Track</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2025-08-29">29 August 2025</time></dd>
+<dd class="expires"><time datetime="2025-08-30">30 August 2025</time></dd>
 <dt class="label-authors">Authors:</dt>
 <dd class="authors">
 <div class="author">
@@ -1268,8 +1268,8 @@ li > p:last-of-type:only-child {
 (EESP) protocol, which builds on the existing IP Encapsulating
 Security Payload (ESP) protocol. It is designed to modernize and
 overcome limitations in the ESP protocol.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
-<p id="section-abstract-2">EESP adds Session IDs (e.g., to support CPU pinning and stateless
-encryption), changes some previously mandatory fields to optional,
+<p id="section-abstract-2">EESP adds Session IDs (e.g., to support CPU pinning), changes some
+previously mandatory fields to optional,
 and moves the ESP trailer into the EESP header. Additionally, EESP
 adds header options adapted from IPv6 to allow for future extension.
 New header options are defined which add Flow IDs (e.g., for CPU
@@ -1295,7 +1295,7 @@ inner flow information for middlebox use.<a href="#section-abstract-2" class="pi
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 29 August 2025.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 30 August 2025.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -1402,10 +1402,10 @@ inner flow information for middlebox use.<a href="#section-abstract-2" class="pi
                 <p id="section-toc.1-1.2.2.9.1"><a href="#section-2.9" class="auto internal xref">2.9</a>.  <a href="#name-session-id-as-sub-sa-id" class="internal xref">Session ID as Sub SA ID</a></p>
 <ul class="compact toc ulBare ulEmpty">
 <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.9.2.1">
-                    <p id="section-toc.1-1.2.2.9.2.1.1"><a href="#section-2.9.1" class="auto internal xref">2.9.1</a>.  <a href="#name-sender-behaviour" class="internal xref">Sender Behaviour</a></p>
+                    <p id="section-toc.1-1.2.2.9.2.1.1"><a href="#section-2.9.1" class="auto internal xref">2.9.1</a>.  <a href="#name-sender-behavior" class="internal xref">Sender Behavior</a></p>
 </li>
                   <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.9.2.2">
-                    <p id="section-toc.1-1.2.2.9.2.2.1"><a href="#section-2.9.2" class="auto internal xref">2.9.2</a>.  <a href="#name-receiver-behaviour" class="internal xref">Receiver behaviour</a></p>
+                    <p id="section-toc.1-1.2.2.9.2.2.1"><a href="#section-2.9.2" class="auto internal xref">2.9.2</a>.  <a href="#name-receiver-behavior" class="internal xref">Receiver Behavior</a></p>
 </li>
                 </ul>
 </li>
@@ -1559,7 +1559,7 @@ inner flow information for middlebox use.<a href="#section-abstract-2" class="pi
       </h2>
 <p id="section-1-1">Due to the absence of a version number in the packet header of the ESP
 protocol, ESP can't be updated in a transparent way. Any updates
-to ESP must be negotiated by IKEv2 and are therefore indiscernible to,
+to ESP must be negotiated by IKEv2 and are therefore indiscernible to
 intermediate devices such as routers and firewalls. In the recent
 past, several attempts were taken to introduce a Flow Identifier for
 certain use cases. Examples are
@@ -1578,7 +1578,7 @@ for their particular use-case. With this, all existing and potential new
 use cases can be covered. For instance, it can be
 used for the case of <span>[<a href="#I-D.ponchon-ipsecme-anti-replay-subspaces" class="cite xref">I-D.ponchon-ipsecme-anti-replay-subspaces</a>]</span> or
 <span>[<a href="#I-D.he-ipsecme-vpn-shared-ipsecsa" class="cite xref">I-D.he-ipsecme-vpn-shared-ipsecsa</a>]</span> etc., or combinations thereof. EESP
-does not have a trailer as ESP had, instead the Next Header an Pad
+does not have a trailer as ESP had, instead the Next Header and Pad
 Length values are moved to the EESP header. Additionally, an optimized
 EESP header is defined which eliminates these 2 values when using simple
 IPv4 or IPv6 tunnel mode. EESP also does not define TFC padding, IP-TFS
@@ -1587,9 +1587,9 @@ about the problems of the ESP protocol can be found in
 <span>[<a href="#I-D.mrossberg-ipsecme-multiple-sequence-counters" class="cite xref">I-D.mrossberg-ipsecme-multiple-sequence-counters</a>]</span>.<a href="#section-1-2" class="pilcrow">¶</a></p>
 <p id="section-1-3">EESP follows the Security Architecture for the Internet Protocol
 <span>[<a href="#RFC4301" class="cite xref">RFC4301</a>]</span> and uses ESP as of <span>[<a href="#RFC4303" class="cite xref">RFC4303</a>]</span> as reference. That means
-this document is seen as an modern version of ESP (with new protocol
+this document is seen as a modern version of ESP (with new protocol
 number), but it follows the design principles of ESP. Protocol parts that
-are not mentioned here, MUST be handled exactly the way as specified
+are not mentioned here MUST be handled exactly the way as specified
 in <span>[<a href="#RFC4303" class="cite xref">RFC4303</a>]</span>. EESP neither updates nor obsoletes <span>[<a href="#RFC4303" class="cite xref">RFC4303</a>]</span>.<a href="#section-1-3" class="pilcrow">¶</a></p>
 <p id="section-1-4">EESP focuses on modern algorithms, hence it defines the use of
 combined mode algorithms only. This means that the integrity
@@ -1677,7 +1677,7 @@ an EESP packet. The EESP header is split into multiple parts.<a href="#section-2
 <p id="section-2.1-3">The packet starts with a '<code>Base Header</code>' that can be used by protocol
 parsing engines of middleboxes such as routers or firewalls in
 addition to the IPsec peer that use it to route the packet to the
-correct Crypto context.<a href="#section-2.1-3" class="pilcrow">¶</a></p>
+correct cryptographic context.<a href="#section-2.1-3" class="pilcrow">¶</a></p>
 <p id="section-2.1-4">The '<code>Peer Header</code>' follows the '<code>Base Header</code>'. The '<code>Peer Header</code>' is
 used to support replay protection and to store cryptographic
 synchronization data, e.g., an Initialization Vector (IV)
@@ -1685,27 +1685,27 @@ for the IPsec peer. The '<code>Peer Header</code>' is private to the
 IPsec peers.<a href="#section-2.1-4" class="pilcrow">¶</a></p>
 <p id="section-2.1-5">Unlike ESP, EESP does not have a trailer. Instead, these values have
 moved to a '<code>Payload Info Header</code>' directly following the '<code>Peer Header</code>'.
-On classical transport and tunnel mode, the '<code>Payload Info Header</code>'
+With classic transport and tunnel mode, the '<code>Payload Info Header</code>'
 is encrypted, and therefore private to the IPsec peers. However,
-on '<code>Payload Encryption Mode</code>' as specified in
+with '<code>Payload Encryption Mode</code>' as specified in
 <a href="#sec-payload-encryption-mode-processing" class="auto internal xref">Section 4.1.1.2</a> or with a positive crypt offset
 (see <a href="#sec-eesp-crypt-offset-option" class="auto internal xref">Section 3.1.4</a>), the '<code>Payload Info Header</code>'
-might left unencrypted. In these modes protocol parsing engines of
-middleboxes can act upon it (i.e.for telemetry).<a href="#section-2.1-5" class="pilcrow">¶</a></p>
-<p id="section-2.1-6">The '<code>Payload Data</code>' follows these 3 header parts, and has structure
+might be left unencrypted. In these modes, protocol parsing engines
+of middleboxes can act upon it (e.g., for telemetry).<a href="#section-2.1-5" class="pilcrow">¶</a></p>
+<p id="section-2.1-6">The '<code>Payload Data</code>' follows these 3 header parts, and has a structure
 that depends on the choice of encryption algorithm and mode.<a href="#section-2.1-6" class="pilcrow">¶</a></p>
 <p id="section-2.1-7">'<code>Padding</code>' is an optional field following the '<code>Payload Data</code>',
 primarily for alignment when using a block cipher.<a href="#section-2.1-7" class="pilcrow">¶</a></p>
-<p id="section-2.1-8">Finally, the packet ends with an optional '<code>Integrity Check Value</code>'
-(ICV) (see <a href="#sec-packet-encryption-and-integrity-check-value-icv-calculation" class="auto internal xref">Section 4.3.2</a>).
-The length of this ICV depends on the Crypto suite.<a href="#section-2.1-8" class="pilcrow">¶</a></p>
+<p id="section-2.1-8">Finally, the packet ends with an '<code>Integrity Check Value</code>' (ICV)
+(see <a href="#sec-packet-encryption-and-integrity-check-value-icv-calculation" class="auto internal xref">Section 4.3.2</a>).
+The length of this ICV depends on the cryptographic suite.<a href="#section-2.1-8" class="pilcrow">¶</a></p>
 </section>
 <section id="section-2.2">
         <h3 id="name-base-header">
 <a href="#section-2.2" class="section-number selfRef">2.2. </a><a href="#name-base-header" class="section-name selfRef">Base Header</a>
         </h3>
 <p id="section-2.2-1">The '<code>Base Header</code>' is comprised of a fixed base header followed by an
-optional '<code>Options</code>' field. IPsec Peers and Middleboxes MAY act upon
+optional '<code>Options</code>' field. IPsec Peers and middleboxes MAY act upon
 the Base Header and any possible Options.<a href="#section-2.2-1" class="pilcrow">¶</a></p>
 <section id="section-2.2.1">
           <h4 id="name-fixed-base-header">
@@ -1733,8 +1733,8 @@ the Base Header and any possible Options.<a href="#section-2.2-1" class="pilcrow
             <dt id="section-2.2.1-3.1">ESP compatibility</dt>
             <dd style="margin-left: 1.5em" id="section-2.2.1-3.2">
               <p id="section-2.2.1-3.2.1">1 bit : set to 1 for compatibility with
-ESP-in-UDP. ESP-in-UDP SA MAY have this bit 0, the most significant
-bit of SPI is 0.<a href="#section-2.2.1-3.2.1" class="pilcrow">¶</a></p>
+ESP-in-UDP. ESP-in-UDP SAs MAY set this bit, the most significant
+bit of the SPI, to 0.<a href="#section-2.2.1-3.2.1" class="pilcrow">¶</a></p>
 </dd>
             <dd class="break"></dd>
 <dt id="section-2.2.1-3.3">Version</dt>
@@ -1747,7 +1747,7 @@ header require a new version number. In particular, the version of
 EESP defined in this document does not allow for any extensions.
 Intermediate nodes dealing with unknown versions are not
 necessarily able to parse the packet correctly. Intermediate
-treatment of such packets is policy dependent (e.g., it may dictate
+treatment of such packets is policy-dependent (e.g., it may dictate
 dropping such packets).<a href="#section-2.2.1-3.4.1" class="pilcrow">¶</a></p>
 </dd>
             <dd class="break"></dd>
@@ -1764,14 +1764,11 @@ dropping such packets).<a href="#section-2.2.1-3.4.1" class="pilcrow">¶</a></p>
 <dt id="section-2.2.1-3.9">Session ID</dt>
             <dd style="margin-left: 1.5em" id="section-2.2.1-3.10">
               <p id="section-2.2.1-3.10.1">16 bits: The Session ID covers additional information
-that might be used to identify the SA and to route the packet to the
-correct stateless crypto context.
-For instance, it can be used to encode a Sub SA ID or,
-if a Key Derivation Function (KDF) is
-used to do stateless key derivation, the crypto algorithm ID could be
-encoded there. The meaning of that field is opaque and MAY be
+that might be used to identify the SA.
+For instance, it can be used to encode a Sub SA ID. The meaning of
+that field is opaque and MAY be
 negotiated by IKEv2. This document defines the use of the Session ID
-as a Subs SA ID. Other usecases are not covered in this document.<a href="#section-2.2.1-3.10.1" class="pilcrow">¶</a></p>
+as a Subs SA ID. Other use cases are not covered in this document.<a href="#section-2.2.1-3.10.1" class="pilcrow">¶</a></p>
 </dd>
             <dd class="break"></dd>
 <dt id="section-2.2.1-3.11">Security Parameter Index (SPI)</dt>
@@ -1850,7 +1847,7 @@ range is reserved for private options.<a href="#section-2.2.2-3" class="pilcrow"
 These options are defined in section <a href="#sec-eesp-option-types" class="auto internal xref">Section 3.1</a>.<a href="#section-2.2.2-4" class="pilcrow">¶</a></p>
 <p id="section-2.2.2-5">Private options use '<code>Option Type</code>' values from the private option
 reserved range and can be used for any purposes that are out of scope
-for standardization. For example they can be used to encode hardware
+for standardization. For example, they can be used to encode hardware
 specific information, such as used encryption/authentication
 algorithms as done in <span>[<a href="#PSP" class="cite xref">PSP</a>]</span>.<a href="#section-2.2.2-5" class="pilcrow">¶</a></p>
 <section id="section-2.2.2.1">
@@ -1874,7 +1871,7 @@ alignment for IPv6 packet.<a href="#section-2.2.2.1-1" class="pilcrow">¶</a></p
 <p id="section-2.3-1">The '<code>Peer Header</code>' follows the '<code>Base Header</code>' and '<code>Options</code>' field.
 The '<code>Peer Header</code>' containing an optional '<code>Sequence Number</code>' and an
 optional '<code>Initialization Vector</code>', and the format is shown below.
-The Peer Header is private to the IPsec peers, Middleboxes MUST
+The Peer Header is private to the IPsec peers, middleboxes MUST
 NOT act upon the Peer Header fields.<a href="#section-2.3-1" class="pilcrow">¶</a></p>
 <span id="name-peer-header-2"></span><div id="peer-header">
 <figure id="figure-4">
@@ -1910,7 +1907,7 @@ in the following sections.<a href="#section-2.3-4" class="pilcrow">¶</a></p>
 for each packet sent, i.e., a per-SA packet sequence number. For a
 unicast SA or a single-sender multicast SA, the sender MUST increment
 this field for every transmitted packet. The sequence number MUST
-strictly monotonic increase, sequence numbers MUST NOT repeat and
+increase strictly monotonically, sequence numbers MUST NOT repeat and
 MUST NOT cycle for any given SA. Thus, the sender's counter and the
 receiver's counter MUST be reset (by establishing a new SA and thus a
 new key) prior to the transmission of the 2^64nd packet on an SA.
@@ -1960,12 +1957,12 @@ establishment.<a href="#section-2.3.2-2" class="pilcrow">¶</a></p>
         </h3>
 <p id="section-2.4-1">The Payload Info Header is needed if the contained payload is
 not a single IPv4 or IPv6 packet (e.g., when using Transport Mode or
-IP-TFS). It is optional on tunnel mode because these information
+IP-TFS). It is optional on tunnel mode because this information
 can be derived from the inner IPv4 or IPv6 header. This document
 specifies a full and an optimized packet format. The Payload Info
 Header is present in the Full EESP packet format, but not in the
 optimized format see <a href="#sec-full-and-optimized-packet-formats" class="auto internal xref">Section 2.8</a>.
-IPsec Peers and Middleboxes MAY act upon the Payload Info
+IPsec peers and middleboxes MAY act upon the Payload Info
 Header.<a href="#section-2.4-1" class="pilcrow">¶</a></p>
 <span id="name-payload-info-header-2"></span><div id="payload-info-header">
 <figure id="figure-5">
@@ -2077,7 +2074,7 @@ the ICV and the comparison rules and processing steps for validation.<a href="#s
 <p id="section-2.8-1">The resulting two packet formats are described in this section.
 The default packet format for EESP is the full packet format.
 When IPv4 or IPv6 tunnel mode is used, the '<code>Payload Info Header</code>' MAY
-be omitted. Whether this option is choosen MUST be negotiated
+be omitted. Whether this option is chosen MUST be negotiated
 by IKEv2, or any other suitable protocol.
 In this optimized mode the payload will always start with
 an IPv4 or IPv6 header. IPv4 or IPv6 packets always start with a
@@ -2091,7 +2088,7 @@ pad length field is also not needed as it can be derived.<a href="#section-2.8-1
 '<code>Payload Info Header</code>' is the called the "Optimized EESP packet format".
 Which of these two formats are is encoded in the '<code>Packet Format</code>' bit in
 the '<code>Base Header</code>'.<a href="#section-2.8-2" class="pilcrow">¶</a></p>
-<p id="section-2.8-3">The 2 packet formats are shown below. <a href="#eesp-full-packet-format" class="auto internal xref">Figure 6</a>
+<p id="section-2.8-3">The two packet formats are shown below. <a href="#eesp-full-packet-format" class="auto internal xref">Figure 6</a>
 shows the full packet format used as the default for modes of operation.
 <a href="#eesp-optimized-packet-format" class="auto internal xref">Figure 7</a> illustrates the resulting optimized
 packet format for use with IPv4 or IPv6 Tunnel Mode when the
@@ -2306,7 +2303,7 @@ are always present in the EESP packet format for all SAs.<a href="#section-2.8-1
 The use of the Session ID as a Sub SA ID MUST be negotiated by IKEv2,
 or any other suitable protocol. In this case, Session ID is used as a
 16 bits Replay Subspace ID.
-Replay Subspaces were intially defined in <span>[<a href="#I-D.ponchon-ipsecme-anti-replay-subspaces" class="cite xref">I-D.ponchon-ipsecme-anti-replay-subspaces</a>]</span>.<a href="#section-2.9-1" class="pilcrow">¶</a></p>
+Replay Subspaces were initially defined in <span>[<a href="#I-D.ponchon-ipsecme-anti-replay-subspaces" class="cite xref">I-D.ponchon-ipsecme-anti-replay-subspaces</a>]</span>.<a href="#section-2.9-1" class="pilcrow">¶</a></p>
 <p id="section-2.9-2">Each number of the 16 bits Replay Subspace ID encodes a single
 64 bit anti-replay sequence number space.
 This means that each core, path, or QoS class, or any combination of
@@ -2325,7 +2322,7 @@ provides a more flexible approach to carrying  asymmetric traffic
 patterns, particularly in high-speed environments.
 Sub SAs reduces overhead, improves resource utilization, and enhances
 scalability for large-scale deployments. In many use cases, several
-uni directinal SAs used, while others are unused which can result
+unidirectional SAs used, while others are unused which can result
 in unnecessary overhead for SA management, rekeying, and resource
 consumption. Furthermore, using multiple bidirectional Child SAs for
 granular traffic flows often leads to additional setup delays and
@@ -2335,11 +2332,10 @@ teardown of SAs is essential to maintain performance.<a href="#section-2.9-5" cl
 <p id="section-2.9-6">Each Sub SA is identified by a Sub SA ID, which MUST be carried in
 each EESP packet in the Session ID field—consistent with the
 negotiation of the EESP Child SA. This Sub SA ID is used to derive a
- unique key.<a href="#section-2.9-6" class="pilcrow">¶</a></p>
-<p id="section-2.9-7">Implementations using hierarchical key derivation, particularly with
-hardware offload, MAY derive Sub SA keys dynamically on a per-packet
-basis.This mitigates the risk of data-plane performance degradation
-caused by a large number of keys
+unique key.<a href="#section-2.9-6" class="pilcrow">¶</a></p>
+<p id="section-2.9-7">Particularly implementations with hardware offload, MAY derive Sub SA
+keys dynamically on a per-packet basis. This mitigates the risk of
+data-plane performance degradation caused by a large number of keys
 <span>[<a href="#I-D.ponchon-ipsecme-anti-replay-subspaces" class="cite xref">I-D.ponchon-ipsecme-anti-replay-subspaces</a>]</span>.<a href="#section-2.9-7" class="pilcrow">¶</a></p>
 <p id="section-2.9-8">AEAD transforms such as AES-GCM <span>[<a href="#RFC4106" class="cite xref">RFC4106</a>]</span>, <span>[<a href="#RFC8750" class="cite xref">RFC8750</a>]</span> requires
 that the IV never repeat within a single Sub SA. Because each
@@ -2351,8 +2347,8 @@ numbers are in use. For a given Sub SA key, sequence numbers MUST
 remain unique and monotonically increasing to meet cryptographic
 requirements.<a href="#section-2.9-8" class="pilcrow">¶</a></p>
 <section id="section-2.9.1">
-          <h4 id="name-sender-behaviour">
-<a href="#section-2.9.1" class="section-number selfRef">2.9.1. </a><a href="#name-sender-behaviour" class="section-name selfRef">Sender Behaviour</a>
+          <h4 id="name-sender-behavior">
+<a href="#section-2.9.1" class="section-number selfRef">2.9.1. </a><a href="#name-sender-behavior" class="section-name selfRef">Sender Behavior</a>
           </h4>
 <p id="section-2.9.1-1">This section defines the IPsec sender's behavior when transmitting
 packets using an IPsec Child SA that has been previously configured or
@@ -2377,8 +2373,8 @@ counter associated with the sequence number subspace in use for that
 packet.<a href="#section-2.9.1-5" class="pilcrow">¶</a></p>
 </section>
 <section id="section-2.9.2">
-          <h4 id="name-receiver-behaviour">
-<a href="#section-2.9.2" class="section-number selfRef">2.9.2. </a><a href="#name-receiver-behaviour" class="section-name selfRef">Receiver behaviour</a>
+          <h4 id="name-receiver-behavior">
+<a href="#section-2.9.2" class="section-number selfRef">2.9.2. </a><a href="#name-receiver-behavior" class="section-name selfRef">Receiver Behavior</a>
           </h4>
 <p id="section-2.9.2-1">This section defines the IPsec receiver's behavior when receiving
 packets using an IPsec SA that has been previously configured or
@@ -2701,7 +2697,7 @@ in this document, as we don't define PSP here.<a href="#section-3.1.4-4.12.2" cl
         </h3>
 <p id="section-4.1-1">EESP may be employed in multiple ways. To secure end-to-end
 network traffic, transport mode and payload encryption mode
-may be used. For the VPN usecse, tunnel and beet mode may
+may be used. For the VPN use case, tunnel and beet mode may
 be employed.<a href="#section-4.1-1" class="pilcrow">¶</a></p>
 <div id="sec-layer-4-encapsulation-modes">
 <section id="section-4.1.1">
@@ -2716,7 +2712,7 @@ EESP header is inserted between the original IPv4/IPv6
 header and the following Layer 4 header. In contrast to this,
 in tunnel mode the full ipv4/IPv6 datagram is encapsulated.
 This means the the EESP header is placed in front of the
-original IPv4/IPv6 dataggram and a new 'outer IPv4/IPv6 header'
+original IPv4/IPv6 datagram and a new 'outer IPv4/IPv6 header'
 is added in front of the EESP header. The following sections
 illustrate the positioning of the EESP header<a href="#section-4.1.1-1" class="pilcrow">¶</a></p>
 <p id="section-4.1.1-2">Note that in Layer 4 Encapsulation Modes, for "bump-in-the-stack" or "bump-in-
@@ -2870,7 +2866,7 @@ IPv6  | orig |hop-by-hop,dest*,|EESP|dest|   |     Layer 4    |EESP|
             </h5>
 <p id="section-4.1.1.3-1">In BEET mode, EESP is inserted exactly at the same position
 as it is done for transport mode. The original IP or IPv6 header
-is relaced by a new one. The new header SHOULD be negotiated by IKEv2
+is replaced by a new one. The new header SHOULD be negotiated by IKEv2
 or any other suitable protocol.<a href="#section-4.1.1.3-1" class="pilcrow">¶</a></p>
 <span id="name-ipv6-beet-mode"></span><div id="ipv4-beet-mode">
 <figure id="figure-18">
@@ -3002,7 +2998,7 @@ confidentiality and integrity algorithms MUST NOT be used with
 version 0 of EESP. This means that both, confidentiality and
 integrity services are provided always.
 Although not specified here, EESP can support
-separate confidentiality and integrity algorithms. In case 
+separate confidentiality and integrity algorithms. In case
 using separate confidentiality and integrity algorithms becomes
 necessary, a new version of EESP MUST be defined.<a href="#section-4.2-1" class="pilcrow">¶</a></p>
 <p id="section-4.2-2">The mandatory-to-implement algorithms for use with EESP described
@@ -3142,7 +3138,7 @@ with EESP.<a href="#section-4.3.3-2.3.2.4.1" class="pilcrow">¶</a></p>
 <a href="#section-4.3.4" class="section-number selfRef">4.3.4. </a><a href="#name-sequence-number-generation" class="section-name selfRef">Sequence Number Generation</a>
           </h4>
 <p id="section-4.3.4-1">Replay protection is negotiated by the IPsec peers. If
-a SA chooses to do replay ptotection, the sequence numbers
+a SA chooses to do replay protection, the sequence numbers
 are generated in the following way.<a href="#section-4.3.4-1" class="pilcrow">¶</a></p>
 <p id="section-4.3.4-2">The sender's counter SHOULD be initialized to 0 when an SA is established.
 The sender increments the sequence number counter for this
@@ -3151,11 +3147,11 @@ Note that 0 is not a valid sequence number. Thus, the minimal sequence
 number to use for the first packet sent using given SA 1. This means that
 the first packet sent using given SA will contain a sequence number of 1,
 or bigger. The most natural method to increase the sequence number
-is to increase ony by one for each sent packet. This method SHOULD
+is to increase only by one for each sent packet. This method SHOULD
 be implemented when possible. However, peers MAY choose different
 replay protection algorithms, i.e. not by using sequence numbers
 that are incremented by one for each packet. In case the peers choose
-such an agloritthm, the sender MUST ensure that the sequence
+such an algorithm, the sender MUST ensure that the sequence
 number is strictly monotonic increasing.<a href="#section-4.3.4-2" class="pilcrow">¶</a></p>
 <p id="section-4.3.4-3">The sender checks to ensure
 that the counter has not cycled before inserting the new value in the
@@ -3611,7 +3607,7 @@ Type Registry" under a new category named "EESP_VERSIONS Parameters".<a href="#s
 <figure id="figure-22">
           <div class="sourcecode" id="section-10.2-4.1">
 <pre>
-Value     EESP Vesion                        Reference
+Value     EESP Version                      Reference
 -------   ------------------------------    ---------------
     0      V0                              [this document]
   1-13     Unassigned                      [this document]
