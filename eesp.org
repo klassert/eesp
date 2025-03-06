@@ -933,9 +933,6 @@ here.
 
 Flow Identifiers characterize the inner i.e. the protected flows.
 Packets of these flows should not be reordered while EESP protected.
-Therefore, if a Flow Identifier is used in combination with replay
-protection, it MUST replicate the 16 bit Replay Subspace ID
-from the Session ID to the Flow Identifier.
 
 # NOTE STK: Is the above text clear?
 
