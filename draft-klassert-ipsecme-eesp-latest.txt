@@ -5,13 +5,13 @@
 IPSECME Working Group                                        S. Klassert
 Internet-Draft                                                 A. Antony
 Intended status: Standards Track                                 secunet
-Expires: 30 August 2025                                         C. Hopps
+Expires: 7 September 2025                                       C. Hopps
                                                  LabN Consulting, L.L.C.
-                                                        26 February 2025
+                                                            6 March 2025
 
 
              Enhanced Encapsulating Security Payload (EESP)
-                     draft-klassert-ipsecme-eesp-03
+                     draft-klassert-ipsecme-eesp-04
 
 Abstract
 
@@ -43,7 +43,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 30 August 2025.
+   This Internet-Draft will expire on 7 September 2025.
 
 Copyright Notice
 
@@ -53,9 +53,9 @@ Copyright Notice
 
 
 
-Klassert, et al.         Expires 30 August 2025                 [Page 1]
+Klassert, et al.        Expires 7 September 2025                [Page 1]
 
-Internet-Draft                    EESP                     February 2025
+Internet-Draft                    EESP                        March 2025
 
 
    This document is subject to BCP 78 and the IETF Trust's Legal
@@ -109,9 +109,9 @@ Table of Contents
 
 
 
-Klassert, et al.         Expires 30 August 2025                 [Page 2]
+Klassert, et al.        Expires 7 September 2025                [Page 2]
 
-Internet-Draft                    EESP                     February 2025
+Internet-Draft                    EESP                        March 2025
 
 
        3.1.3.  EESP Flow Identifiers combined with replay
@@ -165,9 +165,9 @@ Internet-Draft                    EESP                     February 2025
 
 
 
-Klassert, et al.         Expires 30 August 2025                 [Page 3]
+Klassert, et al.        Expires 7 September 2025                [Page 3]
 
-Internet-Draft                    EESP                     February 2025
+Internet-Draft                    EESP                        March 2025
 
 
    [I-D.ponchon-ipsecme-anti-replay-subspaces] and
@@ -221,9 +221,9 @@ Internet-Draft                    EESP                     February 2025
 
 
 
-Klassert, et al.         Expires 30 August 2025                 [Page 4]
+Klassert, et al.        Expires 7 September 2025                [Page 4]
 
-Internet-Draft                    EESP                     February 2025
+Internet-Draft                    EESP                        March 2025
 
 
 1.2.  Terminology
@@ -277,9 +277,9 @@ Internet-Draft                    EESP                     February 2025
 
 
 
-Klassert, et al.         Expires 30 August 2025                 [Page 5]
+Klassert, et al.        Expires 7 September 2025                [Page 5]
 
-Internet-Draft                    EESP                     February 2025
+Internet-Draft                    EESP                        March 2025
 
 
     0                   1                   2                   3
@@ -333,9 +333,9 @@ Internet-Draft                    EESP                     February 2025
 
 
 
-Klassert, et al.         Expires 30 August 2025                 [Page 6]
+Klassert, et al.        Expires 7 September 2025                [Page 6]
 
-Internet-Draft                    EESP                     February 2025
+Internet-Draft                    EESP                        March 2025
 
 
    'Padding' is an optional field following the 'Payload Data',
@@ -389,9 +389,9 @@ Internet-Draft                    EESP                     February 2025
 
 
 
-Klassert, et al.         Expires 30 August 2025                 [Page 7]
+Klassert, et al.        Expires 7 September 2025                [Page 7]
 
-Internet-Draft                    EESP                     February 2025
+Internet-Draft                    EESP                        March 2025
 
 
       that might be used to identify the SA.  For instance, it can be
@@ -445,9 +445,9 @@ Internet-Draft                    EESP                     February 2025
 
 
 
-Klassert, et al.         Expires 30 August 2025                 [Page 8]
+Klassert, et al.        Expires 7 September 2025                [Page 8]
 
-Internet-Draft                    EESP                     February 2025
+Internet-Draft                    EESP                        March 2025
 
 
    When present, the 'Options' field carries a variable number of type-
@@ -501,9 +501,9 @@ Internet-Draft                    EESP                     February 2025
 
 
 
-Klassert, et al.         Expires 30 August 2025                 [Page 9]
+Klassert, et al.        Expires 7 September 2025                [Page 9]
 
-Internet-Draft                    EESP                     February 2025
+Internet-Draft                    EESP                        March 2025
 
 
                            Figure 4: Peer Header
@@ -557,9 +557,9 @@ Internet-Draft                    EESP                     February 2025
 
 
 
-Klassert, et al.         Expires 30 August 2025                [Page 10]
+Klassert, et al.        Expires 7 September 2025               [Page 10]
 
-Internet-Draft                    EESP                     February 2025
+Internet-Draft                    EESP                        March 2025
 
 
    Vector (IV), usually is not encrypted per se (see Table 1), although
@@ -613,9 +613,9 @@ Internet-Draft                    EESP                     February 2025
 
 
 
-Klassert, et al.         Expires 30 August 2025                [Page 11]
+Klassert, et al.        Expires 7 September 2025               [Page 11]
 
-Internet-Draft                    EESP                     February 2025
+Internet-Draft                    EESP                        March 2025
 
 
    Note that the beginning of the next layer protocol header MUST be
@@ -669,9 +669,9 @@ Internet-Draft                    EESP                     February 2025
 
 
 
-Klassert, et al.         Expires 30 August 2025                [Page 12]
+Klassert, et al.        Expires 7 September 2025               [Page 12]
 
-Internet-Draft                    EESP                     February 2025
+Internet-Draft                    EESP                        March 2025
 
 
 2.7.  Integrity Check Value (ICV)
@@ -725,9 +725,9 @@ Internet-Draft                    EESP                     February 2025
 
 
 
-Klassert, et al.         Expires 30 August 2025                [Page 13]
+Klassert, et al.        Expires 7 September 2025               [Page 13]
 
-Internet-Draft                    EESP                     February 2025
+Internet-Draft                    EESP                        March 2025
 
 
     0                   1                   2                   3
@@ -781,9 +781,9 @@ Internet-Draft                    EESP                     February 2025
 
 
 
-Klassert, et al.         Expires 30 August 2025                [Page 14]
+Klassert, et al.        Expires 7 September 2025               [Page 14]
 
-Internet-Draft                    EESP                     February 2025
+Internet-Draft                    EESP                        March 2025
 
 
     0                   1                   2                   3
@@ -837,9 +837,9 @@ Internet-Draft                    EESP                     February 2025
 
 
 
-Klassert, et al.         Expires 30 August 2025                [Page 15]
+Klassert, et al.        Expires 7 September 2025               [Page 15]
 
-Internet-Draft                    EESP                     February 2025
+Internet-Draft                    EESP                        March 2025
 
 
    The table below refers to the fields in the preceding figures and
@@ -893,9 +893,9 @@ Internet-Draft                    EESP                     February 2025
 
 
 
-Klassert, et al.         Expires 30 August 2025                [Page 16]
+Klassert, et al.        Expires 7 September 2025               [Page 16]
 
-Internet-Draft                    EESP                     February 2025
+Internet-Draft                    EESP                        March 2025
 
 
 2.9.  Session ID as Sub SA ID
@@ -949,9 +949,9 @@ Internet-Draft                    EESP                     February 2025
 
 
 
-Klassert, et al.         Expires 30 August 2025                [Page 17]
+Klassert, et al.        Expires 7 September 2025               [Page 17]
 
-Internet-Draft                    EESP                     February 2025
+Internet-Draft                    EESP                        March 2025
 
 
    AEAD transforms such as AES-GCM [RFC4106], [RFC8750] requires that
@@ -1005,9 +1005,9 @@ Internet-Draft                    EESP                     February 2025
 
 
 
-Klassert, et al.         Expires 30 August 2025                [Page 18]
+Klassert, et al.        Expires 7 September 2025               [Page 18]
 
-Internet-Draft                    EESP                     February 2025
+Internet-Draft                    EESP                        March 2025
 
 
    When receiving a packet, the receiver MUST use the anti-replay window
@@ -1061,9 +1061,9 @@ Internet-Draft                    EESP                     February 2025
 
 
 
-Klassert, et al.         Expires 30 August 2025                [Page 19]
+Klassert, et al.        Expires 7 September 2025               [Page 19]
 
-Internet-Draft                    EESP                     February 2025
+Internet-Draft                    EESP                        March 2025
 
 
 3.1.1.  Padding Options
@@ -1117,9 +1117,9 @@ Internet-Draft                    EESP                     February 2025
 
 
 
-Klassert, et al.         Expires 30 August 2025                [Page 20]
+Klassert, et al.        Expires 7 September 2025               [Page 20]
 
-Internet-Draft                    EESP                     February 2025
+Internet-Draft                    EESP                        March 2025
 
 
    The 'PadN' option is used to insert two or more octets of padding
@@ -1163,9 +1163,6 @@ Internet-Draft                    EESP                     February 2025
 
    Flow Identifiers characterize the inner i.e. the protected flows.
    Packets of these flows should not be reordered while EESP protected.
-   Therefore, if a Flow Identifier is used in combination with replay
-   protection, it MUST replicate the 16 bit Replay Subspace ID from the
-   Session ID to the Flow Identifier.
 
 
 
@@ -1173,9 +1170,12 @@ Internet-Draft                    EESP                     February 2025
 
 
 
-Klassert, et al.         Expires 30 August 2025                [Page 21]
+
+
+
+Klassert, et al.        Expires 7 September 2025               [Page 21]
 
-Internet-Draft                    EESP                     February 2025
+Internet-Draft                    EESP                        March 2025
 
 
     0                   1                   2                   3
@@ -1229,9 +1229,9 @@ Internet-Draft                    EESP                     February 2025
 
 
 
-Klassert, et al.         Expires 30 August 2025                [Page 22]
+Klassert, et al.        Expires 7 September 2025               [Page 22]
 
-Internet-Draft                    EESP                     February 2025
+Internet-Draft                    EESP                        March 2025
 
 
       (or the payload for optimized packet format) to the start of the
@@ -1285,9 +1285,9 @@ Internet-Draft                    EESP                     February 2025
 
 
 
-Klassert, et al.         Expires 30 August 2025                [Page 23]
+Klassert, et al.        Expires 7 September 2025               [Page 23]
 
-Internet-Draft                    EESP                     February 2025
+Internet-Draft                    EESP                        March 2025
 
 
 4.1.1.1.  Transport Mode Processing
@@ -1341,9 +1341,9 @@ Internet-Draft                    EESP                     February 2025
 
 
 
-Klassert, et al.         Expires 30 August 2025                [Page 24]
+Klassert, et al.        Expires 7 September 2025               [Page 24]
 
-Internet-Draft                    EESP                     February 2025
+Internet-Draft                    EESP                        March 2025
 
 
                   BEFORE APPLYING EESP
@@ -1397,9 +1397,9 @@ Internet-Draft                    EESP                     February 2025
 
 
 
-Klassert, et al.         Expires 30 August 2025                [Page 25]
+Klassert, et al.        Expires 7 September 2025               [Page 25]
 
-Internet-Draft                    EESP                     February 2025
+Internet-Draft                    EESP                        March 2025
 
 
                   BEFORE APPLYING EESP
@@ -1453,9 +1453,9 @@ Internet-Draft                    EESP                     February 2025
 
 
 
-Klassert, et al.         Expires 30 August 2025                [Page 26]
+Klassert, et al.        Expires 7 September 2025               [Page 26]
 
-Internet-Draft                    EESP                     February 2025
+Internet-Draft                    EESP                        March 2025
 
 
                   BEFORE APPLYING EESP
@@ -1509,9 +1509,9 @@ Internet-Draft                    EESP                     February 2025
 
 
 
-Klassert, et al.         Expires 30 August 2025                [Page 27]
+Klassert, et al.        Expires 7 September 2025               [Page 27]
 
-Internet-Draft                    EESP                     February 2025
+Internet-Draft                    EESP                        March 2025
 
 
                    BEFORE APPLYING ESP
@@ -1565,9 +1565,9 @@ Internet-Draft                    EESP                     February 2025
 
 
 
-Klassert, et al.         Expires 30 August 2025                [Page 28]
+Klassert, et al.        Expires 7 September 2025               [Page 28]
 
-Internet-Draft                    EESP                     February 2025
+Internet-Draft                    EESP                        March 2025
 
 
    boundary associated with the encryption process may grow.
@@ -1621,9 +1621,9 @@ Internet-Draft                    EESP                     February 2025
 
 
 
-Klassert, et al.         Expires 30 August 2025                [Page 29]
+Klassert, et al.        Expires 7 September 2025               [Page 29]
 
-Internet-Draft                    EESP                     February 2025
+Internet-Draft                    EESP                        March 2025
 
 
 4.3.3.  Combined Confidentiality and Integrity Algorithms
@@ -1677,9 +1677,9 @@ Internet-Draft                    EESP                     February 2025
 
 
 
-Klassert, et al.         Expires 30 August 2025                [Page 30]
+Klassert, et al.        Expires 7 September 2025               [Page 30]
 
-Internet-Draft                    EESP                     February 2025
+Internet-Draft                    EESP                        March 2025
 
 
    The sender's counter SHOULD be initialized to 0 when an SA is
@@ -1733,9 +1733,9 @@ Internet-Draft                    EESP                     February 2025
 
 
 
-Klassert, et al.         Expires 30 August 2025                [Page 31]
+Klassert, et al.        Expires 7 September 2025               [Page 31]
 
-Internet-Draft                    EESP                     February 2025
+Internet-Draft                    EESP                        March 2025
 
 
    fragments.
@@ -1789,9 +1789,9 @@ Internet-Draft                    EESP                     February 2025
 
 
 
-Klassert, et al.         Expires 30 August 2025                [Page 32]
+Klassert, et al.        Expires 7 September 2025               [Page 32]
 
-Internet-Draft                    EESP                     February 2025
+Internet-Draft                    EESP                        March 2025
 
 
 4.4.2.  Security Association Lookup
@@ -1845,9 +1845,9 @@ Internet-Draft                    EESP                     February 2025
 
 
 
-Klassert, et al.         Expires 30 August 2025                [Page 33]
+Klassert, et al.        Expires 7 September 2025               [Page 33]
 
-Internet-Draft                    EESP                     February 2025
+Internet-Draft                    EESP                        March 2025
 
 
    EESP permits two-stage verification of packet sequence numbers.  This
@@ -1901,9 +1901,9 @@ Internet-Draft                    EESP                     February 2025
 
 
 
-Klassert, et al.         Expires 30 August 2025                [Page 34]
+Klassert, et al.        Expires 7 September 2025               [Page 34]
 
-Internet-Draft                    EESP                     February 2025
+Internet-Draft                    EESP                        March 2025
 
 
    A minimum window size of 64 packets MUST be supported.  Another
@@ -1957,9 +1957,9 @@ Internet-Draft                    EESP                     February 2025
 
 
 
-Klassert, et al.         Expires 30 August 2025                [Page 35]
+Klassert, et al.        Expires 7 September 2025               [Page 35]
 
-Internet-Draft                    EESP                     February 2025
+Internet-Draft                    EESP                        March 2025
 
 
    The exact steps for reconstructing the original datagram depend on
@@ -2013,9 +2013,9 @@ Internet-Draft                    EESP                     February 2025
 
 
 
-Klassert, et al.         Expires 30 August 2025                [Page 36]
+Klassert, et al.        Expires 7 September 2025               [Page 36]
 
-Internet-Draft                    EESP                     February 2025
+Internet-Draft                    EESP                        March 2025
 
 
 6.  UDP Encapsulation
@@ -2069,9 +2069,9 @@ Internet-Draft                    EESP                     February 2025
 
 
 
-Klassert, et al.         Expires 30 August 2025                [Page 37]
+Klassert, et al.        Expires 7 September 2025               [Page 37]
 
-Internet-Draft                    EESP                     February 2025
+Internet-Draft                    EESP                        March 2025
 
 
 7.  Auditing
@@ -2125,9 +2125,9 @@ Internet-Draft                    EESP                     February 2025
 
 
 
-Klassert, et al.         Expires 30 August 2025                [Page 38]
+Klassert, et al.        Expires 7 September 2025               [Page 38]
 
-Internet-Draft                    EESP                     February 2025
+Internet-Draft                    EESP                        March 2025
 
 
 8.  Conformance Requirements
@@ -2181,9 +2181,9 @@ Internet-Draft                    EESP                     February 2025
 
 
 
-Klassert, et al.         Expires 30 August 2025                [Page 39]
+Klassert, et al.        Expires 7 September 2025               [Page 39]
 
-Internet-Draft                    EESP                     February 2025
+Internet-Draft                    EESP                        March 2025
 
 
    *  Keyword: EESP
@@ -2237,9 +2237,9 @@ Internet-Draft                    EESP                     February 2025
 
 
 
-Klassert, et al.         Expires 30 August 2025                [Page 40]
+Klassert, et al.        Expires 7 September 2025               [Page 40]
 
-Internet-Draft                    EESP                     February 2025
+Internet-Draft                    EESP                        March 2025
 
 
    Value     EESP Header Options Types         Reference
@@ -2293,9 +2293,9 @@ Internet-Draft                    EESP                     February 2025
 
 
 
-Klassert, et al.         Expires 30 August 2025                [Page 41]
+Klassert, et al.        Expires 7 September 2025               [Page 41]
 
-Internet-Draft                    EESP                     February 2025
+Internet-Draft                    EESP                        March 2025
 
 
 14.  Normative References
@@ -2349,9 +2349,9 @@ Internet-Draft                    EESP                     February 2025
 
 
 
-Klassert, et al.         Expires 30 August 2025                [Page 42]
+Klassert, et al.        Expires 7 September 2025               [Page 42]
 
-Internet-Draft                    EESP                     February 2025
+Internet-Draft                    EESP                        March 2025
 
 
               ipsecsa-01, 8 July 2024,
@@ -2405,9 +2405,9 @@ Internet-Draft                    EESP                     February 2025
 
 
 
-Klassert, et al.         Expires 30 August 2025                [Page 43]
+Klassert, et al.        Expires 7 September 2025               [Page 43]
 
-Internet-Draft                    EESP                     February 2025
+Internet-Draft                    EESP                        March 2025
 
 
    [RFC7942]  Sheffer, Y. and A. Farrel, "Improving Awareness of Running
@@ -2461,4 +2461,4 @@ Authors' Addresses
 
 
 
-Klassert, et al.         Expires 30 August 2025                [Page 44]
+Klassert, et al.        Expires 7 September 2025               [Page 44]

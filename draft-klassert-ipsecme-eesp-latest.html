@@ -24,7 +24,7 @@ inner flow information for middlebox use.
 <meta content="xml2rfc 3.23.0" name="generator">
 <meta content="EESP" name="keyword">
 <meta content="IKEv2" name="keyword">
-<meta content="draft-klassert-ipsecme-eesp-03" name="ietf.draft">
+<meta content="draft-klassert-ipsecme-eesp-04" name="ietf.draft">
 <!-- Generator version information:
   xml2rfc 3.23.0
     Python 3.10.12
@@ -40,7 +40,7 @@ inner flow information for middlebox use.
     setuptools 59.6.0
     wcwidth 0.2.13
 -->
-<link href="draft/draft-klassert-ipsecme-eesp-03.xml" rel="alternate" type="application/rfc+xml">
+<link href="draft/draft-klassert-ipsecme-eesp-04.xml" rel="alternate" type="application/rfc+xml">
 <link href="#copyright" rel="license">
 <style type="text/css">/*
 
@@ -1223,11 +1223,11 @@ li > p:last-of-type:only-child {
 <thead><tr>
 <td class="left">Internet-Draft</td>
 <td class="center">EESP</td>
-<td class="right">February 2025</td>
+<td class="right">March 2025</td>
 </tr></thead>
 <tfoot><tr>
 <td class="left">Klassert, et al.</td>
-<td class="center">Expires 30 August 2025</td>
+<td class="center">Expires 7 September 2025</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1238,12 +1238,12 @@ li > p:last-of-type:only-child {
 <dd class="workgroup">IPSECME Working Group</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2025-02-26" class="published">26 February 2025</time>
+<time datetime="2025-03-06" class="published">6 March 2025</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Standards Track</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2025-08-30">30 August 2025</time></dd>
+<dd class="expires"><time datetime="2025-09-07">7 September 2025</time></dd>
 <dt class="label-authors">Authors:</dt>
 <dd class="authors">
 <div class="author">
@@ -1295,7 +1295,7 @@ inner flow information for middlebox use.<a href="#section-abstract-2" class="pi
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 30 August 2025.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 7 September 2025.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -2569,10 +2569,7 @@ inner flow and MUST NOT change for a given inner flow within a SA.<a href="#sect
 <a href="#section-3.1.3" class="section-number selfRef">3.1.3. </a><a href="#name-eesp-flow-identifiers-combi" class="section-name selfRef">EESP Flow Identifiers combined with replay protection</a>
           </h4>
 <p id="section-3.1.3-1">Flow Identifiers characterize the inner i.e. the protected flows.
-Packets of these flows should not be reordered while EESP protected.
-Therefore, if a Flow Identifier is used in combination with replay
-protection, it MUST replicate the 16 bit Replay Subspace ID
-from the Session ID to the Flow Identifier.<a href="#section-3.1.3-1" class="pilcrow">¶</a></p>
+Packets of these flows should not be reordered while EESP protected.<a href="#section-3.1.3-1" class="pilcrow">¶</a></p>
 <span id="name-flow-identifier-with-replay"></span><div id="fid-replay">
 <figure id="figure-12">
             <div class="sourcecode" id="section-3.1.3-2.1">
