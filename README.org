@@ -14,8 +14,10 @@ The latest version of the draft in HTML format is at:
 # above URL, hostnmae, is replaced by .github/workflows/generate.yaml
 # sed -i "s|klassert.github.io/eesp|$USERNAME.github.io/$REPO_NAME|g"
 
-* IETF Datatracker Copy of EESP I.D.
+* IETF Datatracker Page of EESP I.D.
 - [[https://datatracker.ietf.org/doc/draft-klassert-ipsecme-eesp/][IETF Datatracker: draft-klassert-ipsecme-eesp]]
+
+* [[https://author-tools.ietf.org/api/iddiff?doc_1=draft-klassert-ipsecme-eesp&url_2=https://raw.githubusercontent.com/klassert/eesp/refs/heads/gh-pages/draft-klassert-ipsecme-eesp-latest.txt][diff with last submission]]
 
 * References
 For more detailed information, refer to the following resources:
