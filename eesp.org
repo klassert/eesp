@@ -306,7 +306,7 @@ alignment for IPv6 packet.
 ** Peer Header
 
 The ~Peer Header~ follows the ~Base Header~ and ~Options~ field.
-The ~Peer Header~ containing an optional ~Sequence Number~ and an
+The ~Peer Header~ containing a ~Sequence Number~ and an
 optional ~Initialization Vector~, and the format is shown below.
 The Peer Header is private to the IPsec peers, middleboxes MUST
 NOT act upon the Peer Header fields.
@@ -559,7 +559,7 @@ packet format for use with IPv4 or IPv6 Tunnel Mode when the
    ~                   Options (variable, optional)                ~
    |                                                               |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |                    Sequence Number (optional)                 |
+   |                         Sequence Number                       |
    |                                                               |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    |                          IV* (optional)                       |
@@ -593,7 +593,7 @@ packet format for use with IPv4 or IPv6 Tunnel Mode when the
    ~                   Options (variable, optional)                ~
    |                                                               |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |                    Sequence Number (optional)                 |
+   |                       Sequence Number                         |
    |                                                               |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    |                          IV* (optional)                       |
@@ -640,7 +640,7 @@ processing details are described in later sections.
 |---------------------+------------+-----------+----------------+--------------+------------|
 | Base Header         |     8      |     M     |                |      Y       |   plain    |
 | Options             |  variable  |     O     |                |      Y       |   plain    |
-| Sequence Number     |     8      |     O     |                |      Y       |   plain    |
+| Sequence Number     |     8      |     M     |                |      Y       |   plain    |
 | IV                  |  variable  |     O     |                |      Y       |   plain    |
 | Payload Info Hdr[4] |     4      |     O     |       Y        |      Y       | cipher [3] |
 | Payload [2]         |  variable  |     M     |       Y        |      Y       | cipher [3] |
