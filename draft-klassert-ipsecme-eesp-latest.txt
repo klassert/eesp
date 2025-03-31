@@ -469,10 +469,10 @@ Internet-Draft                    EESP                        March 2025
 2.3.  Peer Header
 
    The 'Peer Header' follows the 'Base Header' and 'Options' field.  The
-   'Peer Header' containing an optional 'Sequence Number' and an
-   optional 'Initialization Vector', and the format is shown below.  The
-   Peer Header is private to the IPsec peers, middleboxes MUST NOT act
-   upon the Peer Header fields.
+   'Peer Header' containing a 'Sequence Number' and an optional
+   'Initialization Vector', and the format is shown below.  The Peer
+   Header is private to the IPsec peers, middleboxes MUST NOT act upon
+   the Peer Header fields.
 
     0                   1                   2                   3
     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
@@ -741,7 +741,7 @@ Internet-Draft                    EESP                        March 2025
    ~                   Options (variable, optional)                ~
    |                                                               |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |                    Sequence Number (optional)                 |
+   |                         Sequence Number                       |
    |                                                               |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    |                          IV* (optional)                       |
@@ -797,7 +797,7 @@ Internet-Draft                    EESP                        March 2025
    ~                   Options (variable, optional)                ~
    |                                                               |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |                    Sequence Number (optional)                 |
+   |                       Sequence Number                         |
    |                                                               |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    |                          IV* (optional)                       |
@@ -855,7 +855,7 @@ Internet-Draft                    EESP                        March 2025
    +-------------+------------+-----------+---------+--------+--------+
    | Options     |  variable  |     O     |         |   Y    | plain  |
    +-------------+------------+-----------+---------+--------+--------+
-   | Sequence    |     8      |     O     |         |   Y    | plain  |
+   | Sequence    |     8      |     M     |         |   Y    | plain  |
    | Number      |            |           |         |        |        |
    +-------------+------------+-----------+---------+--------+--------+
    | IV          |  variable  |     O     |         |   Y    | plain  |

@@ -1856,7 +1856,7 @@ alignment for IPv6 packet.<a href="#section-2.2.2.1-1" class="pilcrow">¶</a></p
 <a href="#section-2.3" class="section-number selfRef">2.3. </a><a href="#name-peer-header" class="section-name selfRef">Peer Header</a>
         </h3>
 <p id="section-2.3-1">The '<code>Peer Header</code>' follows the '<code>Base Header</code>' and '<code>Options</code>' field.
-The '<code>Peer Header</code>' containing an optional '<code>Sequence Number</code>' and an
+The '<code>Peer Header</code>' containing a '<code>Sequence Number</code>' and an
 optional '<code>Initialization Vector</code>', and the format is shown below.
 The Peer Header is private to the IPsec peers, middleboxes MUST
 NOT act upon the Peer Header fields.<a href="#section-2.3-1" class="pilcrow">¶</a></p>
@@ -2095,7 +2095,7 @@ packet format for use with IPv4 or IPv6 Tunnel Mode when the
 ~                   Options (variable, optional)                ~
 |                                                               |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|                    Sequence Number (optional)                 |
+|                         Sequence Number                       |
 |                                                               |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                          IV* (optional)                       |
@@ -2134,7 +2134,7 @@ packet format for use with IPv4 or IPv6 Tunnel Mode when the
 ~                   Options (variable, optional)                ~
 |                                                               |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|                    Sequence Number (optional)                 |
+|                       Sequence Number                         |
 |                                                               |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                          IV* (optional)                       |
@@ -2208,7 +2208,7 @@ processing details are described in later sections.<a href="#section-2.8-8" clas
             <tr>
               <td class="text-left" rowspan="1" colspan="1">Sequence Number</td>
               <td class="text-center" rowspan="1" colspan="1">8</td>
-              <td class="text-center" rowspan="1" colspan="1">O</td>
+              <td class="text-center" rowspan="1" colspan="1">M</td>
               <td class="text-center" rowspan="1" colspan="1"> </td>
               <td class="text-center" rowspan="1" colspan="1">Y</td>
               <td class="text-center" rowspan="1" colspan="1">plain</td>
