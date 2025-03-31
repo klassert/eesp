@@ -5,9 +5,9 @@
 IPSECME Working Group                                        S. Klassert
 Internet-Draft                                                 A. Antony
 Intended status: Standards Track                                 secunet
-Expires: 20 September 2025                                      C. Hopps
+Expires: 2 October 2025                                         C. Hopps
                                                  LabN Consulting, L.L.C.
-                                                           19 March 2025
+                                                           31 March 2025
 
 
              Enhanced Encapsulating Security Payload (EESP)
@@ -24,9 +24,9 @@ Abstract
    previously mandatory fields to optional, and moves the ESP trailer
    into the EESP header.  Additionally, EESP adds header options adapted
    from IPv6 to allow for future extension.  New header options are
-   defined which add Flow IDs (e.g., for CPU pinning and QoS support),
-   and a crypt-offset to allow for exposing inner flow information for
-   middlebox use.
+   defined which add Flow IDs (e.g., for CPU pinning and QoS support
+   based on the inner traffic flow), and a crypt-offset to allow for
+   exposing inner flow information for middlebox use.
 
 Status of This Memo
 
@@ -43,7 +43,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 20 September 2025.
+   This Internet-Draft will expire on 2 October 2025.
 
 Copyright Notice
 
@@ -53,7 +53,7 @@ Copyright Notice
 
 
 
-Klassert, et al.        Expires 20 September 2025               [Page 1]
+Klassert, et al.         Expires 2 October 2025                 [Page 1]
 
 Internet-Draft                    EESP                        March 2025
 
@@ -97,7 +97,7 @@ Table of Contents
        2.4.2.  Pad Length  . . . . . . . . . . . . . . . . . . . . .  11
      2.5.  Payload Data  . . . . . . . . . . . . . . . . . . . . . .  11
      2.6.  Padding (for Encryption)  . . . . . . . . . . . . . . . .  12
-     2.7.  Integrity Check Value (ICV) . . . . . . . . . . . . . . .  13
+     2.7.  Integrity Check Value (ICV) . . . . . . . . . . . . . . .  12
      2.8.  Full and Optimized Packet Formats . . . . . . . . . . . .  13
      2.9.  Session ID as Sub SA ID . . . . . . . . . . . . . . . . .  17
        2.9.1.  Sender Behavior . . . . . . . . . . . . . . . . . . .  18
@@ -109,7 +109,7 @@ Table of Contents
 
 
 
-Klassert, et al.        Expires 20 September 2025               [Page 2]
+Klassert, et al.         Expires 2 October 2025                 [Page 2]
 
 Internet-Draft                    EESP                        March 2025
 
@@ -120,39 +120,39 @@ Internet-Draft                    EESP                        March 2025
    4.  Enhanced Encapsulating Security Protocol Processing . . . . .  23
      4.1.  EESP Header Location  . . . . . . . . . . . . . . . . . .  23
        4.1.1.  Layer 4 Encapsulation Modes . . . . . . . . . . . . .  23
-       4.1.2.  Tunnel Mode Processing  . . . . . . . . . . . . . . .  27
-     4.2.  Algorithms  . . . . . . . . . . . . . . . . . . . . . . .  28
-       4.2.1.  Combined Mode Algorithms  . . . . . . . . . . . . . .  28
-     4.3.  Outbound Packet Processing  . . . . . . . . . . . . . . .  29
-       4.3.1.  Security Association Lookup . . . . . . . . . . . . .  29
+       4.1.2.  Tunnel Mode Processing  . . . . . . . . . . . . . . .  26
+     4.2.  Algorithms  . . . . . . . . . . . . . . . . . . . . . . .  27
+       4.2.1.  Combined Mode Algorithms  . . . . . . . . . . . . . .  27
+     4.3.  Outbound Packet Processing  . . . . . . . . . . . . . . .  28
+       4.3.1.  Security Association Lookup . . . . . . . . . . . . .  28
        4.3.2.  Packet Encryption and Integrity Check Value (ICV)
-               Calculation . . . . . . . . . . . . . . . . . . . . .  29
-       4.3.3.  Combined Confidentiality and Integrity Algorithms . .  30
-       4.3.4.  Sequence Number Generation  . . . . . . . . . . . . .  30
-       4.3.5.  Fragmentation . . . . . . . . . . . . . . . . . . . .  31
-     4.4.  Inbound Packet Processing . . . . . . . . . . . . . . . .  32
-       4.4.1.  Reassembly  . . . . . . . . . . . . . . . . . . . . .  32
-       4.4.2.  Security Association Lookup . . . . . . . . . . . . .  33
-       4.4.3.  Sequence Number Verification  . . . . . . . . . . . .  33
+               Calculation . . . . . . . . . . . . . . . . . . . . .  28
+       4.3.3.  Combined Confidentiality and Integrity Algorithms . .  29
+       4.3.4.  Sequence Number Generation  . . . . . . . . . . . . .  29
+       4.3.5.  Fragmentation . . . . . . . . . . . . . . . . . . . .  30
+     4.4.  Inbound Packet Processing . . . . . . . . . . . . . . . .  31
+       4.4.1.  Reassembly  . . . . . . . . . . . . . . . . . . . . .  31
+       4.4.2.  Security Association Lookup . . . . . . . . . . . . .  32
+       4.4.3.  Sequence Number Verification  . . . . . . . . . . . .  32
        4.4.4.  Packet Decryption and Integrity Check Value
-               Verification  . . . . . . . . . . . . . . . . . . . .  35
-   5.  Key Derivation for Sub SAs  . . . . . . . . . . . . . . . . .  36
-   6.  UDP Encapsulation . . . . . . . . . . . . . . . . . . . . . .  37
-     6.1.  UDP Encapsulation of Sub SAs  . . . . . . . . . . . . . .  37
-   7.  Auditing  . . . . . . . . . . . . . . . . . . . . . . . . . .  38
-   8.  Conformance Requirements  . . . . . . . . . . . . . . . . . .  39
-   9.  Security Considerations . . . . . . . . . . . . . . . . . . .  39
-   10. IANA Considerations . . . . . . . . . . . . . . . . . . . . .  39
-     10.1.  EESP IP Protocol Number  . . . . . . . . . . . . . . . .  39
-     10.2.  EESP Versions Registry . . . . . . . . . . . . . . . . .  40
-     10.3.  EESP Options Registry  . . . . . . . . . . . . . . . . .  40
-   11. Implementation Status . . . . . . . . . . . . . . . . . . . .  41
-   12. Security Considerations . . . . . . . . . . . . . . . . . . .  41
-   13. Acknowledgments . . . . . . . . . . . . . . . . . . . . . . .  41
-   14. Normative References  . . . . . . . . . . . . . . . . . . . .  42
-   15. Informative References  . . . . . . . . . . . . . . . . . . .  42
-   Appendix A.  Additional Stuff . . . . . . . . . . . . . . . . . .  44
-   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  44
+               Verification  . . . . . . . . . . . . . . . . . . . .  34
+   5.  Key Derivation for Sub SAs  . . . . . . . . . . . . . . . . .  35
+   6.  UDP Encapsulation . . . . . . . . . . . . . . . . . . . . . .  36
+     6.1.  UDP Encapsulation of Sub SAs  . . . . . . . . . . . . . .  36
+   7.  Auditing  . . . . . . . . . . . . . . . . . . . . . . . . . .  37
+   8.  Conformance Requirements  . . . . . . . . . . . . . . . . . .  38
+   9.  Security Considerations . . . . . . . . . . . . . . . . . . .  38
+   10. IANA Considerations . . . . . . . . . . . . . . . . . . . . .  38
+     10.1.  EESP IP Protocol Number  . . . . . . . . . . . . . . . .  38
+     10.2.  EESP Versions Registry . . . . . . . . . . . . . . . . .  39
+     10.3.  EESP Options Registry  . . . . . . . . . . . . . . . . .  39
+   11. Implementation Status . . . . . . . . . . . . . . . . . . . .  40
+   12. Security Considerations . . . . . . . . . . . . . . . . . . .  40
+   13. Acknowledgments . . . . . . . . . . . . . . . . . . . . . . .  40
+   14. Normative References  . . . . . . . . . . . . . . . . . . . .  41
+   15. Informative References  . . . . . . . . . . . . . . . . . . .  41
+   Appendix A.  Additional Stuff . . . . . . . . . . . . . . . . . .  43
+   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  43
 
 1.  Introduction
 
@@ -165,7 +165,7 @@ Internet-Draft                    EESP                        March 2025
 
 
 
-Klassert, et al.        Expires 20 September 2025               [Page 3]
+Klassert, et al.         Expires 2 October 2025                 [Page 3]
 
 Internet-Draft                    EESP                        March 2025
 
@@ -221,7 +221,7 @@ Internet-Draft                    EESP                        March 2025
 
 
 
-Klassert, et al.        Expires 20 September 2025               [Page 4]
+Klassert, et al.         Expires 2 October 2025                 [Page 4]
 
 Internet-Draft                    EESP                        March 2025
 
@@ -277,7 +277,7 @@ Internet-Draft                    EESP                        March 2025
 
 
 
-Klassert, et al.        Expires 20 September 2025               [Page 5]
+Klassert, et al.         Expires 2 October 2025                 [Page 5]
 
 Internet-Draft                    EESP                        March 2025
 
@@ -321,9 +321,8 @@ Internet-Draft                    EESP                        March 2025
    moved to a 'Payload Info Header' directly following the 'Peer
    Header'.  With classic transport and tunnel mode, the 'Payload Info
    Header' is encrypted, and therefore private to the IPsec peers.
-   However, with 'Payload Encryption Mode' as specified in
-   Section 4.1.1.2 or with a positive crypt offset (see Section 3.1.4),
-   the 'Payload Info Header' might be left unencrypted.  In these modes,
+   However, with a positive crypt offset (see Section 3.1.4), the
+   'Payload Info Header' might be left unencrypted.  In these mode,
    protocol parsing engines of middleboxes can act upon it (e.g., for
    telemetry).
 
@@ -333,7 +332,8 @@ Internet-Draft                    EESP                        March 2025
 
 
 
-Klassert, et al.        Expires 20 September 2025               [Page 6]
+
+Klassert, et al.         Expires 2 October 2025                 [Page 6]
 
 Internet-Draft                    EESP                        March 2025
 
@@ -389,7 +389,7 @@ Internet-Draft                    EESP                        March 2025
 
 
 
-Klassert, et al.        Expires 20 September 2025               [Page 7]
+Klassert, et al.         Expires 2 October 2025                 [Page 7]
 
 Internet-Draft                    EESP                        March 2025
 
@@ -409,26 +409,17 @@ Internet-Draft                    EESP                        March 2025
 
     0 1 2 3 4 5
    +-+-+-+-+-+-+
-   |F|P|S|  R  |
+   |F|    R    |
    +-+-+-+-+-+-+
 
                         Figure 3: Base Header Flags
 
    Packet Format (F)  1 bit: Set to zero for full EESP packet Format
       (i.e., the EESP header includes the 'Payload Info Header'), set to
-      1 for Optimized EESP Packet format.
+      1 for Optimized EESP Packet format.  This bit MAY be only set to 1
+      if the Crypt Offset is positive.  It MUST be set to 0 otherwise.
 
-   Payload Encryption Mode (P)  1 bit: If set, the following Layer 4
-      Header is authenticated, but not encrypted.  This bit MUST be set
-      to 0 on any mode other than payload encryption mode . The receiver
-      MUST drop packets with this bit set, if the mode is different to
-      payload encryption mode.  See Section 4.1.1.2
-
-   Sequence Number absent (S)  1 bit: If set, the peer header does not
-      carry the sequence number field in the packet.  This bit MUST be
-      set to the same value for all packets on a given SA.
-
-   Reserved (R)  3 bits: Reserved for future versions, MUST be set to 0,
+   Reserved (R)  5 bits: Reserved for future versions, MUST be set to 0,
       and ignored by the receiver.
 
 2.2.2.  Base Header Options
@@ -436,19 +427,6 @@ Internet-Draft                    EESP                        March 2025
    The base header 'Options' field is optional, its size is given in the
    fixed header field 'Opt Len' and may be zero if no options are
    present.
-
-
-
-
-
-
-
-
-
-Klassert, et al.        Expires 20 September 2025               [Page 8]
-
-Internet-Draft                    EESP                        March 2025
-
 
    When present, the 'Options' field carries a variable number of type-
    length-value (TLV) encoded options.  The format of these options has
@@ -464,6 +442,13 @@ Internet-Draft                    EESP                        March 2025
    This document defines 4 initial standard option types, 'Pad1 Option',
    'PadN Option', 'Flow Identifier Option', and 'Crypt Offset Option'.
    These options are defined in section Section 3.1.
+
+
+
+Klassert, et al.         Expires 2 October 2025                 [Page 8]
+
+Internet-Draft                    EESP                        March 2025
+
 
    Private options use 'Option Type' values from the private option
    reserved range and can be used for any purposes that are out of scope
@@ -492,29 +477,34 @@ Internet-Draft                    EESP                        March 2025
     0                   1                   2                   3
     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |                    Sequence Number (optional)                 |
+   |                          Sequence Number                      |
    |                                                               |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    |                          IV (optional)                        |
    |                                                               |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
-
-
-Klassert, et al.        Expires 20 September 2025               [Page 9]
-
-Internet-Draft                    EESP                        March 2025
-
-
                            Figure 4: Peer Header
 
-   When present, the 'Sequence Number' is a full 64bit sequence number.
-   EESP only support 64bit sequence numbers, a.k.a ESN and transmits the
-   entire sequence number on each packet.  The actual size of the
+   The 'Sequence Number' is a full 64bit sequence number.  EESP only
+   support 64bit sequence numbers, a.k.a ESN and transmits the entire
+   sequence number on each packet.  The actual size of the
    'Initialization Vector' depends on the choice of the cipher suite.
 
    The 'Sequence Number' and 'Initialization Vector' fields are defined
    in the following sections.
+
+
+
+
+
+
+
+
+Klassert, et al.         Expires 2 October 2025                 [Page 9]
+
+Internet-Draft                    EESP                        March 2025
+
 
 2.3.1.  Sequence Number
 
@@ -554,14 +544,6 @@ Internet-Draft                    EESP                        March 2025
    Table 1) If such synchronization data is implicit, the algorithm for
    deriving the data MUST be part of the algorithm definition RFC.  (If
    included, cryptographic synchronization data, e.g., an Initialization
-
-
-
-Klassert, et al.        Expires 20 September 2025              [Page 10]
-
-Internet-Draft                    EESP                        March 2025
-
-
    Vector (IV), usually is not encrypted per se (see Table 1), although
    it sometimes is referred to as being part of the ciphertext.)
 
@@ -570,6 +552,15 @@ Internet-Draft                    EESP                        March 2025
    saves 8 header bytes on each packet.  Whether or not this option is
    selected is determined as part of Security Association (SA)
    establishment.
+
+
+
+
+
+Klassert, et al.         Expires 2 October 2025                [Page 10]
+
+Internet-Draft                    EESP                        March 2025
+
 
 2.4.  Payload Info Header
 
@@ -611,17 +602,21 @@ Internet-Draft                    EESP                        March 2025
    original IP packet.  The Payload Data field is mandatory and is an
    integral number of bytes in length.
 
-
-
-Klassert, et al.        Expires 20 September 2025              [Page 11]
-
-Internet-Draft                    EESP                        March 2025
-
-
    Note that the beginning of the next layer protocol header MUST be
    aligned relative to the beginning of the EESP header as follows.  For
    IPv4, this alignment is a multiple of 4 bytes.  For IPv6, the
    alignment is a multiple of 8 bytes.
+
+
+
+
+
+
+
+Klassert, et al.         Expires 2 October 2025                [Page 11]
+
+Internet-Draft                    EESP                        March 2025
+
 
 2.6.  Padding (for Encryption)
 
@@ -662,18 +657,6 @@ Internet-Draft                    EESP                        March 2025
    of the values of the bytes used for padding, this too MUST be
    specified in that RFC.
 
-
-
-
-
-
-
-
-Klassert, et al.        Expires 20 September 2025              [Page 12]
-
-Internet-Draft                    EESP                        March 2025
-
-
 2.7.  Integrity Check Value (ICV)
 
    The Integrity Check Value is a variable-length field computed over
@@ -681,6 +664,15 @@ Internet-Draft                    EESP                        March 2025
    by the algorithm selected and associated with the SA.  The algorithm
    specification MUST specify the length of the ICV and the comparison
    rules and processing steps for validation.
+
+
+
+
+
+Klassert, et al.         Expires 2 October 2025                [Page 12]
+
+Internet-Draft                    EESP                        March 2025
+
 
 2.8.  Full and Optimized Packet Formats
 
@@ -725,7 +717,15 @@ Internet-Draft                    EESP                        March 2025
 
 
 
-Klassert, et al.        Expires 20 September 2025              [Page 13]
+
+
+
+
+
+
+
+
+Klassert, et al.         Expires 2 October 2025                [Page 13]
 
 Internet-Draft                    EESP                        March 2025
 
@@ -781,7 +781,7 @@ Internet-Draft                    EESP                        March 2025
 
 
 
-Klassert, et al.        Expires 20 September 2025              [Page 14]
+Klassert, et al.         Expires 2 October 2025                [Page 14]
 
 Internet-Draft                    EESP                        March 2025
 
@@ -837,7 +837,7 @@ Internet-Draft                    EESP                        March 2025
 
 
 
-Klassert, et al.        Expires 20 September 2025              [Page 15]
+Klassert, et al.         Expires 2 October 2025                [Page 15]
 
 Internet-Draft                    EESP                        March 2025
 
@@ -893,7 +893,7 @@ Internet-Draft                    EESP                        March 2025
 
 
 
-Klassert, et al.        Expires 20 September 2025              [Page 16]
+Klassert, et al.         Expires 2 October 2025                [Page 16]
 
 Internet-Draft                    EESP                        March 2025
 
@@ -949,7 +949,7 @@ Internet-Draft                    EESP                        March 2025
 
 
 
-Klassert, et al.        Expires 20 September 2025              [Page 17]
+Klassert, et al.         Expires 2 October 2025                [Page 17]
 
 Internet-Draft                    EESP                        March 2025
 
@@ -1005,7 +1005,7 @@ Internet-Draft                    EESP                        March 2025
 
 
 
-Klassert, et al.        Expires 20 September 2025              [Page 18]
+Klassert, et al.         Expires 2 October 2025                [Page 18]
 
 Internet-Draft                    EESP                        March 2025
 
@@ -1061,7 +1061,7 @@ Internet-Draft                    EESP                        March 2025
 
 
 
-Klassert, et al.        Expires 20 September 2025              [Page 19]
+Klassert, et al.         Expires 2 October 2025                [Page 19]
 
 Internet-Draft                    EESP                        March 2025
 
@@ -1117,7 +1117,7 @@ Internet-Draft                    EESP                        March 2025
 
 
 
-Klassert, et al.        Expires 20 September 2025              [Page 20]
+Klassert, et al.         Expires 2 October 2025                [Page 20]
 
 Internet-Draft                    EESP                        March 2025
 
@@ -1173,7 +1173,7 @@ Internet-Draft                    EESP                        March 2025
 
 
 
-Klassert, et al.        Expires 20 September 2025              [Page 21]
+Klassert, et al.         Expires 2 October 2025                [Page 21]
 
 Internet-Draft                    EESP                        March 2025
 
@@ -1229,7 +1229,7 @@ Internet-Draft                    EESP                        March 2025
 
 
 
-Klassert, et al.        Expires 20 September 2025              [Page 22]
+Klassert, et al.         Expires 2 October 2025                [Page 22]
 
 Internet-Draft                    EESP                        March 2025
 
@@ -1257,16 +1257,15 @@ Internet-Draft                    EESP                        March 2025
 
 4.1.1.  Layer 4 Encapsulation Modes
 
-   Layer 4 Encapsulation Modes are transport mode, BEET mode and payload
-   encryption mode.  Layer 4 Encapsulation Modes distinguish from tunnel
-   mode on the position of the EESP header in the packet.  On Layer 4
-   Encapsulation Modes the EESP header is inserted between the original
-   IPv4/IPv6 header and the following Layer 4 header.  In contrast to
-   this, in tunnel mode the full ipv4/IPv6 datagram is encapsulated.
-   This means the the EESP header is placed in front of the original
-   IPv4/IPv6 datagram and a new 'outer IPv4/IPv6 header' is added in
-   front of the EESP header.  The following sections illustrate the
-   positioning of the EESP header
+   Layer 4 Encapsulation Modes are transport mode and BEET mode.  Layer
+   4 Encapsulation Modes distinguish from tunnel mode on the position of
+   the EESP header in the packet.  On Layer 4 Encapsulation Modes the
+   EESP header is inserted between the original IPv4/IPv6 header and the
+   following Layer 4 header.  In contrast to this, in tunnel mode the
+   full ipv4/IPv6 datagram is encapsulated.  This means the the EESP
+   header is placed in front of the original IPv4/IPv6 datagram and a
+   new 'outer IPv4/IPv6 header' is added in front of the EESP header.
+   The following sections illustrate the positioning of the EESP header
 
    Note that in Layer 4 Encapsulation Modes, for "bump-in-the-stack" or
    "bump-in- the-wire" implementations, as defined in the Security
@@ -1285,7 +1284,8 @@ Internet-Draft                    EESP                        March 2025
 
 
 
-Klassert, et al.        Expires 20 September 2025              [Page 23]
+
+Klassert, et al.         Expires 2 October 2025                [Page 23]
 
 Internet-Draft                    EESP                        March 2025
 
@@ -1341,7 +1341,7 @@ Internet-Draft                    EESP                        March 2025
 
 
 
-Klassert, et al.        Expires 20 September 2025              [Page 24]
+Klassert, et al.         Expires 2 October 2025                [Page 24]
 
 Internet-Draft                    EESP                        March 2025
 
@@ -1364,63 +1364,7 @@ Internet-Draft                    EESP                        March 2025
 
                        Figure 15: IPv6 Transport Mode
 
-4.1.1.2.  Payload Encryption Mode Processing
-
-   In payload encryption mode, EESP is inserted exactly at the same
-   position as it is done for transport mode.  The only difference to
-   transport mode is that the next layer protocol header following the
-   original IP or IPv6 header is left in cleartext.  Additionally to
-   that, the 'C' bit in the EESP header flags is set.
-
-   The following diagrams illustrate EESP payload encryption mode
-   positioning for a typical IPv4 and IPv6 packet, on a "before and
-   after" basis.
-
-              BEFORE APPLYING EESP
-         ----------------------------
-   IPv4  |orig IP hdr  |     |      |
-         |(any options)| TCP | Data |
-         ----------------------------
-
-              AFTER APPLYING EESP
-         ----------------------------------------------------
-   IPv4  |orig IP hdr  | EESP |     |                | EESP |
-         |(any options)| Hdr  | TCP |  L4 pyld Data  | ICV  |
-         ----------------------------------------------------
-                                    |<- encryption ->|
-                       |<-------- integrity -------->|
-
-                  Figure 16: IPv4 Payload Encryption Mode
-
-
-
-
-
-
-Klassert, et al.        Expires 20 September 2025              [Page 25]
-
-Internet-Draft                    EESP                        March 2025
-
-
-                  BEFORE APPLYING EESP
-         ---------------------------------------
-   IPv6  |             | ext hdrs |     |      |
-         | orig IP hdr |if present| TCP | Data |
-         ---------------------------------------
-
-                  AFTER APPLYING EESP
-         --------------------------------------------------------------
-   IPv6  | orig |hop-by-hop,dest*,|EESP|dest|   |     Layer 4    |EESP|
-         |IP hdr|routing,fragment.|Hdr |opt*|TCP|  Payload Data  |ICV |
-         --------------------------------------------------------------
-                                                |<- encryption ->|
-                                  |<-------- integrity --------->|
-
-             * = if present, could be before EESP, after EESP, or both
-
-                  Figure 17: IPv6 Payload Encryption Mode
-
-4.1.1.3.  BEET Mode Processing
+4.1.1.2.  BEET Mode Processing
 
    In BEET mode, EESP is inserted exactly at the same position as it is
    done for transport mode.  The original IP or IPv6 header is replaced
@@ -1441,7 +1385,7 @@ Internet-Draft                    EESP                        March 2025
                               |<---- encryption --->|
                        |<-------- integrity ------->|
 
-                         Figure 18: IPv6 BEET Mode
+                         Figure 16: IPv6 BEET Mode
 
 
 
@@ -1453,7 +1397,7 @@ Internet-Draft                    EESP                        March 2025
 
 
 
-Klassert, et al.        Expires 20 September 2025              [Page 26]
+Klassert, et al.         Expires 2 October 2025                [Page 25]
 
 Internet-Draft                    EESP                        March 2025
 
@@ -1474,7 +1418,7 @@ Internet-Draft                    EESP                        March 2025
 
              * = if present, could be before EESP, after EESP, or both
 
-                         Figure 19: IPv6 BEET Mode
+                         Figure 17: IPv6 BEET Mode
 
 4.1.2.  Tunnel Mode Processing
 
@@ -1504,12 +1448,12 @@ Internet-Draft                    EESP                        March 2025
                               |<------- encryption ------->|
                        |<------------ integrity ---------->|
 
-                        Figure 20: IPv4 Tunnel Mode
+                        Figure 18: IPv4 Tunnel Mode
 
 
 
 
-Klassert, et al.        Expires 20 September 2025              [Page 27]
+Klassert, et al.         Expires 2 October 2025                [Page 26]
 
 Internet-Draft                    EESP                        March 2025
 
@@ -1533,7 +1477,7 @@ Internet-Draft                    EESP                        March 2025
              modification of inner IP hdr/extensions is discussed in
              the Security Architecture document.
 
-                        Figure 21: IPv6 Tunnel Mode
+                        Figure 19: IPv6 Tunnel Mode
 
 4.2.  Algorithms
 
@@ -1565,7 +1509,7 @@ Internet-Draft                    EESP                        March 2025
 
 
 
-Klassert, et al.        Expires 20 September 2025              [Page 28]
+Klassert, et al.         Expires 2 October 2025                [Page 27]
 
 Internet-Draft                    EESP                        March 2025
 
@@ -1621,7 +1565,7 @@ Internet-Draft                    EESP                        March 2025
 
 
 
-Klassert, et al.        Expires 20 September 2025              [Page 29]
+Klassert, et al.         Expires 2 October 2025                [Page 28]
 
 Internet-Draft                    EESP                        March 2025
 
@@ -1677,7 +1621,7 @@ Internet-Draft                    EESP                        March 2025
 
 
 
-Klassert, et al.        Expires 20 September 2025              [Page 30]
+Klassert, et al.         Expires 2 October 2025                [Page 29]
 
 Internet-Draft                    EESP                        March 2025
 
@@ -1733,7 +1677,7 @@ Internet-Draft                    EESP                        March 2025
 
 
 
-Klassert, et al.        Expires 20 September 2025              [Page 31]
+Klassert, et al.         Expires 2 October 2025                [Page 30]
 
 Internet-Draft                    EESP                        March 2025
 
@@ -1789,7 +1733,7 @@ Internet-Draft                    EESP                        March 2025
 
 
 
-Klassert, et al.        Expires 20 September 2025              [Page 32]
+Klassert, et al.         Expires 2 October 2025                [Page 31]
 
 Internet-Draft                    EESP                        March 2025
 
@@ -1845,7 +1789,7 @@ Internet-Draft                    EESP                        March 2025
 
 
 
-Klassert, et al.        Expires 20 September 2025              [Page 33]
+Klassert, et al.         Expires 2 October 2025                [Page 32]
 
 Internet-Draft                    EESP                        March 2025
 
@@ -1901,7 +1845,7 @@ Internet-Draft                    EESP                        March 2025
 
 
 
-Klassert, et al.        Expires 20 September 2025              [Page 34]
+Klassert, et al.         Expires 2 October 2025                [Page 33]
 
 Internet-Draft                    EESP                        March 2025
 
@@ -1957,7 +1901,7 @@ Internet-Draft                    EESP                        March 2025
 
 
 
-Klassert, et al.        Expires 20 September 2025              [Page 35]
+Klassert, et al.         Expires 2 October 2025                [Page 34]
 
 Internet-Draft                    EESP                        March 2025
 
@@ -2013,7 +1957,7 @@ Internet-Draft                    EESP                        March 2025
 
 
 
-Klassert, et al.        Expires 20 September 2025              [Page 36]
+Klassert, et al.         Expires 2 October 2025                [Page 35]
 
 Internet-Draft                    EESP                        March 2025
 
@@ -2069,7 +2013,7 @@ Internet-Draft                    EESP                        March 2025
 
 
 
-Klassert, et al.        Expires 20 September 2025              [Page 37]
+Klassert, et al.         Expires 2 October 2025                [Page 36]
 
 Internet-Draft                    EESP                        March 2025
 
@@ -2125,7 +2069,7 @@ Internet-Draft                    EESP                        March 2025
 
 
 
-Klassert, et al.        Expires 20 September 2025              [Page 38]
+Klassert, et al.         Expires 2 October 2025                [Page 37]
 
 Internet-Draft                    EESP                        March 2025
 
@@ -2181,7 +2125,7 @@ Internet-Draft                    EESP                        March 2025
 
 
 
-Klassert, et al.        Expires 20 September 2025              [Page 39]
+Klassert, et al.         Expires 2 October 2025                [Page 38]
 
 Internet-Draft                    EESP                        March 2025
 
@@ -2212,7 +2156,7 @@ Internet-Draft                    EESP                        March 2025
      1-13     Unassigned                      [this document]
     13-15     Private Use                     [this document]
 
-              Figure 22: EESP Version Initial Registry Values
+              Figure 20: EESP Version Initial Registry Values
 
 10.3.  EESP Options Registry
 
@@ -2237,7 +2181,7 @@ Internet-Draft                    EESP                        March 2025
 
 
 
-Klassert, et al.        Expires 20 September 2025              [Page 40]
+Klassert, et al.         Expires 2 October 2025                [Page 39]
 
 Internet-Draft                    EESP                        March 2025
 
@@ -2251,7 +2195,7 @@ Internet-Draft                    EESP                        March 2025
      4-223   Unassigned                        [this document]
    224-255   Private                           [this document]
 
-                     Figure 23: Initial Registry Values
+                     Figure 21: Initial Registry Values
 
 11.  Implementation Status
 
@@ -2293,7 +2237,7 @@ Internet-Draft                    EESP                        March 2025
 
 
 
-Klassert, et al.        Expires 20 September 2025              [Page 41]
+Klassert, et al.         Expires 2 October 2025                [Page 40]
 
 Internet-Draft                    EESP                        March 2025
 
@@ -2349,7 +2293,7 @@ Internet-Draft                    EESP                        March 2025
 
 
 
-Klassert, et al.        Expires 20 September 2025              [Page 42]
+Klassert, et al.         Expires 2 October 2025                [Page 41]
 
 Internet-Draft                    EESP                        March 2025
 
@@ -2405,7 +2349,7 @@ Internet-Draft                    EESP                        March 2025
 
 
 
-Klassert, et al.        Expires 20 September 2025              [Page 43]
+Klassert, et al.         Expires 2 October 2025                [Page 42]
 
 Internet-Draft                    EESP                        March 2025
 
@@ -2461,4 +2405,4 @@ Authors' Addresses
 
 
 
-Klassert, et al.        Expires 20 September 2025              [Page 44]
+Klassert, et al.         Expires 2 October 2025                [Page 43]

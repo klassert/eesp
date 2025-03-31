@@ -18,8 +18,9 @@ previously mandatory fields to optional,
 and moves the ESP trailer into the EESP header. Additionally, EESP
 adds header options adapted from IPv6 to allow for future extension.
 New header options are defined which add Flow IDs (e.g., for CPU
-pinning and QoS support), and a crypt-offset to allow for exposing
-inner flow information for middlebox use. 
+pinning and QoS support based on the inner traffic flow), and a
+crypt-offset to allow for exposing inner flow information for
+middlebox use. 
     " name="description">
 <meta content="xml2rfc 3.23.0" name="generator">
 <meta content="EESP" name="keyword">
@@ -1227,7 +1228,7 @@ li > p:last-of-type:only-child {
 </tr></thead>
 <tfoot><tr>
 <td class="left">Klassert, et al.</td>
-<td class="center">Expires 20 September 2025</td>
+<td class="center">Expires 2 October 2025</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1238,12 +1239,12 @@ li > p:last-of-type:only-child {
 <dd class="workgroup">IPSECME Working Group</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2025-03-19" class="published">19 March 2025</time>
+<time datetime="2025-03-31" class="published">31 March 2025</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Standards Track</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2025-09-20">20 September 2025</time></dd>
+<dd class="expires"><time datetime="2025-10-02">2 October 2025</time></dd>
 <dt class="label-authors">Authors:</dt>
 <dd class="authors">
 <div class="author">
@@ -1273,8 +1274,9 @@ previously mandatory fields to optional,
 and moves the ESP trailer into the EESP header. Additionally, EESP
 adds header options adapted from IPv6 to allow for future extension.
 New header options are defined which add Flow IDs (e.g., for CPU
-pinning and QoS support), and a crypt-offset to allow for exposing
-inner flow information for middlebox use.<a href="#section-abstract-2" class="pilcrow">¶</a></p>
+pinning and QoS support based on the inner traffic flow), and a
+crypt-offset to allow for exposing inner flow information for
+middlebox use.<a href="#section-abstract-2" class="pilcrow">¶</a></p>
 </section>
 <div id="status-of-memo">
 <section id="section-boilerplate.1">
@@ -1295,7 +1297,7 @@ inner flow information for middlebox use.<a href="#section-abstract-2" class="pi
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 20 September 2025.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 2 October 2025.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -1687,10 +1689,9 @@ IPsec peers.<a href="#section-2.1-4" class="pilcrow">¶</a></p>
 moved to a '<code>Payload Info Header</code>' directly following the '<code>Peer Header</code>'.
 With classic transport and tunnel mode, the '<code>Payload Info Header</code>'
 is encrypted, and therefore private to the IPsec peers. However,
-with '<code>Payload Encryption Mode</code>' as specified in
-<a href="#sec-payload-encryption-mode-processing" class="auto internal xref">Section 4.1.1.2</a> or with a positive crypt offset
+with a positive crypt offset
 (see <a href="#sec-eesp-crypt-offset-option" class="auto internal xref">Section 3.1.4</a>), the '<code>Payload Info Header</code>'
-might be left unencrypted. In these modes, protocol parsing engines
+might be left unencrypted. In these mode, protocol parsing engines
 of middleboxes can act upon it (e.g., for telemetry).<a href="#section-2.1-5" class="pilcrow">¶</a></p>
 <p id="section-2.1-6">The '<code>Payload Data</code>' follows these 3 header parts, and has a structure
 that depends on the choice of encryption algorithm and mode.<a href="#section-2.1-6" class="pilcrow">¶</a></p>
@@ -1787,7 +1788,7 @@ ID is the Enhanced SPI.<a href="#section-2.2.1-3.12.1" class="pilcrow">¶</a></p
 <pre>
  0 1 2 3 4 5
 +-+-+-+-+-+-+
-|F|P|S|  R  |
+|F|    R    |
 +-+-+-+-+-+-+
 </pre>
 </div>
@@ -1799,29 +1800,15 @@ ID is the Enhanced SPI.<a href="#section-2.2.1-3.12.1" class="pilcrow">¶</a></p
             <dt id="section-2.2.1-6.1">Packet Format (F)</dt>
             <dd style="margin-left: 1.5em" id="section-2.2.1-6.2">
               <p id="section-2.2.1-6.2.1">1 bit: Set to zero for full EESP packet Format (i.e., the EESP header includes the
-'<code>Payload Info Header</code>'), set to 1 for Optimized EESP Packet format.<a href="#section-2.2.1-6.2.1" class="pilcrow">¶</a></p>
+'<code>Payload Info Header</code>'), set to 1 for Optimized EESP Packet format. This bit
+MAY be only set to 1 if the Crypt Offset is positive. It MUST be set to
+0 otherwise.<a href="#section-2.2.1-6.2.1" class="pilcrow">¶</a></p>
 </dd>
             <dd class="break"></dd>
-<dt id="section-2.2.1-6.3">Payload Encryption Mode (P)</dt>
+<dt id="section-2.2.1-6.3">Reserved (R)</dt>
             <dd style="margin-left: 1.5em" id="section-2.2.1-6.4">
-              <p id="section-2.2.1-6.4.1">1 bit: If set, the
-following Layer 4 Header is authenticated, but not encrypted.
-This bit MUST be set to 0 on any mode other than payload encryption mode .
-The receiver MUST drop packets with this bit set, if the mode is
-different to payload encryption mode. See <a href="#sec-payload-encryption-mode-processing" class="auto internal xref">Section 4.1.1.2</a><a href="#section-2.2.1-6.4.1" class="pilcrow">¶</a></p>
-</dd>
-            <dd class="break"></dd>
-<dt id="section-2.2.1-6.5">Sequence Number absent (S)</dt>
-            <dd style="margin-left: 1.5em" id="section-2.2.1-6.6">
-              <p id="section-2.2.1-6.6.1">1 bit: If set, the peer header does not
-carry the sequence number field in the packet. This bit MUST be set
-to the same value for all packets on a given SA.<a href="#section-2.2.1-6.6.1" class="pilcrow">¶</a></p>
-</dd>
-            <dd class="break"></dd>
-<dt id="section-2.2.1-6.7">Reserved (R)</dt>
-            <dd style="margin-left: 1.5em" id="section-2.2.1-6.8">
-              <p id="section-2.2.1-6.8.1">3 bits: Reserved for future versions, MUST be set to 0,
-and ignored by the receiver.<a href="#section-2.2.1-6.8.1" class="pilcrow">¶</a></p>
+              <p id="section-2.2.1-6.4.1">5 bits: Reserved for future versions, MUST be set to 0,
+and ignored by the receiver.<a href="#section-2.2.1-6.4.1" class="pilcrow">¶</a></p>
 </dd>
           <dd class="break"></dd>
 </dl>
@@ -1880,7 +1867,7 @@ NOT act upon the Peer Header fields.<a href="#section-2.3-1" class="pilcrow">¶<
  0                   1                   2                   3
  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|                    Sequence Number (optional)                 |
+|                          Sequence Number                      |
 |                                                               |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                          IV (optional)                        |
@@ -1892,7 +1879,7 @@ NOT act upon the Peer Header fields.<a href="#section-2.3-1" class="pilcrow">¶<
 <a href="#name-peer-header-2" class="selfRef">Peer Header</a>
           </figcaption></figure>
 </div>
-<p id="section-2.3-3">When present, the '<code>Sequence Number</code>' is a full 64bit sequence number.
+<p id="section-2.3-3">The '<code>Sequence Number</code>' is a full 64bit sequence number.
 EESP only support 64bit sequence numbers, a.k.a ESN and transmits the
 entire sequence number on each packet. The actual size of the
 '<code>Initialization Vector</code>' depends on the choice of the cipher suite.<a href="#section-2.3-3" class="pilcrow">¶</a></p>
@@ -2701,8 +2688,8 @@ be employed.<a href="#section-4.1-1" class="pilcrow">¶</a></p>
           <h4 id="name-layer-4-encapsulation-modes">
 <a href="#section-4.1.1" class="section-number selfRef">4.1.1. </a><a href="#name-layer-4-encapsulation-modes" class="section-name selfRef">Layer 4 Encapsulation Modes</a>
           </h4>
-<p id="section-4.1.1-1">Layer 4 Encapsulation Modes are  transport mode, BEET mode
-and payload encryption mode. Layer 4 Encapsulation Modes
+<p id="section-4.1.1-1">Layer 4 Encapsulation Modes are  transport mode and BEET mode.
+Layer 4 Encapsulation Modes
 distinguish from tunnel mode on the position of the EESP
 header in the packet. On Layer 4 Encapsulation Modes the
 EESP header is inserted between the original IPv4/IPv6
@@ -2794,80 +2781,17 @@ IPv6  | orig |hop-by-hop,dest*,|EESP|dest|   |   Layer 4  |EESP|
               </figcaption></figure>
 </div>
 </section>
-<div id="sec-payload-encryption-mode-processing">
 <section id="section-4.1.1.2">
-            <h5 id="name-payload-encryption-mode-pro">
-<a href="#section-4.1.1.2" class="section-number selfRef">4.1.1.2. </a><a href="#name-payload-encryption-mode-pro" class="section-name selfRef">Payload Encryption Mode Processing</a>
-            </h5>
-<p id="section-4.1.1.2-1">In payload encryption mode, EESP is inserted exactly at the same position
-as it is done for transport mode. The only difference to transport mode
-is that the next layer protocol header following the original IP or IPv6
-header is left in cleartext. Additionally to that, the 'C' bit in the EESP
-header flags is set.<a href="#section-4.1.1.2-1" class="pilcrow">¶</a></p>
-<p id="section-4.1.1.2-2">The following diagrams illustrate EESP payload encryption mode
-positioning for a typical IPv4 and IPv6 packet, on a "before and after" basis.<a href="#section-4.1.1.2-2" class="pilcrow">¶</a></p>
-<span id="name-ipv4-payload-encryption-mod"></span><div id="ipv4-pe-mode">
-<figure id="figure-16">
-              <div class="sourcecode" id="section-4.1.1.2-3.1">
-<pre>
-           BEFORE APPLYING EESP
-      ----------------------------
-IPv4  |orig IP hdr  |     |      |
-      |(any options)| TCP | Data |
-      ----------------------------
-
-           AFTER APPLYING EESP
-      ----------------------------------------------------
-IPv4  |orig IP hdr  | EESP |     |                | EESP |
-      |(any options)| Hdr  | TCP |  L4 pyld Data  | ICV  |
-      ----------------------------------------------------
-                                 |&lt;- encryption -&gt;|
-                    |&lt;-------- integrity --------&gt;|
-</pre>
-</div>
-<figcaption><a href="#figure-16" class="selfRef">Figure 16</a>:
-<a href="#name-ipv4-payload-encryption-mod" class="selfRef">IPv4 Payload Encryption Mode</a>
-              </figcaption></figure>
-</div>
-<span id="name-ipv6-payload-encryption-mod"></span><div id="ipv6-pe-mode">
-<figure id="figure-17">
-              <div class="sourcecode" id="section-4.1.1.2-4.1">
-<pre>
-
-               BEFORE APPLYING EESP
-      ---------------------------------------
-IPv6  |             | ext hdrs |     |      |
-      | orig IP hdr |if present| TCP | Data |
-      ---------------------------------------
-
-               AFTER APPLYING EESP
-      --------------------------------------------------------------
-IPv6  | orig |hop-by-hop,dest*,|EESP|dest|   |     Layer 4    |EESP|
-      |IP hdr|routing,fragment.|Hdr |opt*|TCP|  Payload Data  |ICV |
-      --------------------------------------------------------------
-                                             |&lt;- encryption -&gt;|
-                               |&lt;-------- integrity ---------&gt;|
-
-          * = if present, could be before EESP, after EESP, or both
-</pre>
-</div>
-<figcaption><a href="#figure-17" class="selfRef">Figure 17</a>:
-<a href="#name-ipv6-payload-encryption-mod" class="selfRef">IPv6 Payload Encryption Mode</a>
-              </figcaption></figure>
-</div>
-</section>
-</div>
-<section id="section-4.1.1.3">
             <h5 id="name-beet-mode-processing">
-<a href="#section-4.1.1.3" class="section-number selfRef">4.1.1.3. </a><a href="#name-beet-mode-processing" class="section-name selfRef">BEET Mode Processing</a>
+<a href="#section-4.1.1.2" class="section-number selfRef">4.1.1.2. </a><a href="#name-beet-mode-processing" class="section-name selfRef">BEET Mode Processing</a>
             </h5>
-<p id="section-4.1.1.3-1">In BEET mode, EESP is inserted exactly at the same position
+<p id="section-4.1.1.2-1">In BEET mode, EESP is inserted exactly at the same position
 as it is done for transport mode. The original IP or IPv6 header
 is replaced by a new one. The new header SHOULD be negotiated by IKEv2
-or any other suitable protocol.<a href="#section-4.1.1.3-1" class="pilcrow">¶</a></p>
+or any other suitable protocol.<a href="#section-4.1.1.2-1" class="pilcrow">¶</a></p>
 <span id="name-ipv6-beet-mode"></span><div id="ipv4-beet-mode">
-<figure id="figure-18">
-              <div class="sourcecode" id="section-4.1.1.3-2.1">
+<figure id="figure-16">
+              <div class="sourcecode" id="section-4.1.1.2-2.1">
 <pre>
            BEFORE APPLYING EESP
       ----------------------------
@@ -2884,13 +2808,13 @@ IPv4  | new IP hdr  | EESP |     |               | EESP |
                     |&lt;-------- integrity -------&gt;|
 </pre>
 </div>
-<figcaption><a href="#figure-18" class="selfRef">Figure 18</a>:
+<figcaption><a href="#figure-16" class="selfRef">Figure 16</a>:
 <a href="#name-ipv6-beet-mode" class="selfRef">IPv6 BEET Mode</a>
               </figcaption></figure>
 </div>
 <span id="name-ipv6-beet-mode-2"></span><div id="ipv6-beet-mode">
-<figure id="figure-19">
-              <div class="sourcecode" id="section-4.1.1.3-3.1">
+<figure id="figure-17">
+              <div class="sourcecode" id="section-4.1.1.2-3.1">
 <pre>
 
                BEFORE APPLYING EESP
@@ -2910,7 +2834,7 @@ IPv6  | new  |hop-by-hop,dest*,|EESP|dest|   |   Layer 4  |EESP|
           * = if present, could be before EESP, after EESP, or both
 </pre>
 </div>
-<figcaption><a href="#figure-19" class="selfRef">Figure 19</a>:
+<figcaption><a href="#figure-17" class="selfRef">Figure 17</a>:
 <a href="#name-ipv6-beet-mode-2" class="selfRef">IPv6 BEET Mode</a>
               </figcaption></figure>
 </div>
@@ -2932,7 +2856,7 @@ the same as for EESP in transport mode.  The following diagram
 illustrates EESP tunnel mode positioning for typical IPv4 and IPv6
 packets.<a href="#section-4.1.2-1" class="pilcrow">¶</a></p>
 <span id="name-ipv4-tunnel-mode"></span><div id="ipv4-tunnel-mode">
-<figure id="figure-20">
+<figure id="figure-18">
             <div class="sourcecode" id="section-4.1.2-2.1">
 <pre>
            BEFORE APPLYING ESP
@@ -2952,12 +2876,12 @@ IPv4  | new IP hdr* | EESP | orig IP hdr*  |     |      | EESP |
 
 </pre>
 </div>
-<figcaption><a href="#figure-20" class="selfRef">Figure 20</a>:
+<figcaption><a href="#figure-18" class="selfRef">Figure 18</a>:
 <a href="#name-ipv4-tunnel-mode" class="selfRef">IPv4 Tunnel Mode</a>
             </figcaption></figure>
 </div>
 <span id="name-ipv6-tunnel-mode"></span><div id="ipv6-tunnel-mode">
-<figure id="figure-21">
+<figure id="figure-19">
             <div class="sourcecode" id="section-4.1.2-3.1">
 <pre>
                 BEFORE APPLYING ESP
@@ -2980,7 +2904,7 @@ IPv6  | new* |new ext | EESP | orig*| orig ext |     |      | EESP |
           the Security Architecture document.
 </pre>
 </div>
-<figcaption><a href="#figure-21" class="selfRef">Figure 21</a>:
+<figcaption><a href="#figure-19" class="selfRef">Figure 19</a>:
 <a href="#name-ipv6-tunnel-mode" class="selfRef">IPv6 Tunnel Mode</a>
             </figcaption></figure>
 </div>
@@ -3601,7 +3525,7 @@ Type Registry" under a new category named "EESP_VERSIONS Parameters".<a href="#s
         </ul>
 <p id="section-10.2-3">The initial content for this registry is as follows:<a href="#section-10.2-3" class="pilcrow">¶</a></p>
 <span id="name-eesp-version-initial-regist"></span><div id="iana_requests_versions_reg">
-<figure id="figure-22">
+<figure id="figure-20">
           <div class="sourcecode" id="section-10.2-4.1">
 <pre>
 Value     EESP Version                      Reference
@@ -3611,7 +3535,7 @@ Value     EESP Version                      Reference
  13-15     Private Use                     [this document]
 </pre>
 </div>
-<figcaption><a href="#figure-22" class="selfRef">Figure 22</a>:
+<figcaption><a href="#figure-20" class="selfRef">Figure 20</a>:
 <a href="#name-eesp-version-initial-regist" class="selfRef">EESP Version Initial Registry Values</a>
           </figcaption></figure>
 </div>
@@ -3635,7 +3559,7 @@ Type Registry" under a new category named "EESP_OPTIONS Parameters".<a href="#se
         </ul>
 <p id="section-10.3-3">The initial content for this registry is as follows:<a href="#section-10.3-3" class="pilcrow">¶</a></p>
 <span id="name-initial-registry-values"></span><div id="iana_requests_options_reg">
-<figure id="figure-23">
+<figure id="figure-21">
           <div class="sourcecode" id="section-10.3-4.1">
 <pre>
 Value     EESP Header Options Types         Reference
@@ -3648,7 +3572,7 @@ Value     EESP Header Options Types         Reference
 224-255   Private                           [this document]
 </pre>
 </div>
-<figcaption><a href="#figure-23" class="selfRef">Figure 23</a>:
+<figcaption><a href="#figure-21" class="selfRef">Figure 21</a>:
 <a href="#name-initial-registry-values" class="selfRef">Initial Registry Values</a>
           </figcaption></figure>
 </div>
