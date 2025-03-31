@@ -35,8 +35,9 @@ previously mandatory fields to optional,
 and moves the ESP trailer into the EESP header. Additionally, EESP
 adds header options adapted from IPv6 to allow for future extension.
 New header options are defined which add Flow IDs (e.g., for CPU
-pinning and QoS support), and a crypt-offset to allow for exposing
-inner flow information for middlebox use.
+pinning and QoS support based on the inner traffic flow), and a
+crypt-offset to allow for exposing inner flow information for
+middlebox use.
 
 #+end_abstract
 #+RFC_KEYWORDS: ("EESP" "IKEv2")
@@ -179,10 +180,9 @@ Unlike ESP, EESP does not have a trailer. Instead, these values have
 moved to a ~Payload Info Header~ directly following the ~Peer Header~.
 With classic transport and tunnel mode, the ~Payload Info Header~
 is encrypted, and therefore private to the IPsec peers. However,
-with ~Payload Encryption Mode~ as specified in
-[[Payload Encryption Mode Processing]] or with a positive crypt offset
+with a positive crypt offset
 (see [[EESP Crypt Offset Option]]), the ~Payload Info Header~
-might be left unencrypted. In these modes, protocol parsing engines
+might be left unencrypted. In these mode, protocol parsing engines
 of middleboxes can act upon it (e.g., for telemetry).
 
 # :NOTE: doesn't the Payload Data structure depend on the mode of
@@ -251,21 +251,15 @@ The Flags field in the fixed Base Header is defined as follows:
 #+begin_src
     0 1 2 3 4 5
    +-+-+-+-+-+-+
-   |F|P|S|  R  |
+   |F|    R    |
    +-+-+-+-+-+-+
 #+end_src
 
 - Packet Format (F) :: 1 bit: Set to zero for full EESP packet Format (i.e., the EESP header includes the
-  ~Payload Info Header~), set to 1 for Optimized EESP Packet format.
-- Payload Encryption Mode (P) :: 1 bit: If set, the
-  following Layer 4 Header is authenticated, but not encrypted.
-  This bit MUST be set to 0 on any mode other than payload encryption mode .
-  The receiver MUST drop packets with this bit set, if the mode is
-  different to payload encryption mode. See [[Payload Encryption Mode Processing]]
-- Sequence Number absent (S) :: 1 bit: If set, the peer header does not
-  carry the sequence number field in the packet. This bit MUST be set
-  to the same value for all packets on a given SA.
-- Reserved (R) :: 3 bits: Reserved for future versions, MUST be set to 0,
+  ~Payload Info Header~), set to 1 for Optimized EESP Packet format. This bit
+  MAY be only set to 1 if the Crypt Offset is positive. It MUST be set to
+  0 otherwise.
+- Reserved (R) :: 5 bits: Reserved for future versions, MUST be set to 0,
   and ignored by the receiver.
 
 
@@ -324,7 +318,7 @@ NOT act upon the Peer Header fields.
     0                   1                   2                   3
     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |                    Sequence Number (optional)                 |
+   |                          Sequence Number                      |
    |                                                               |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    |                          IV (optional)                        |
@@ -332,7 +326,7 @@ NOT act upon the Peer Header fields.
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #+end_src
 
-When present, the ~Sequence Number~ is a full 64bit sequence number.
+The ~Sequence Number~ is a full 64bit sequence number.
 EESP only support 64bit sequence numbers, a.k.a ESN and transmits the
 entire sequence number on each packet. The actual size of the
 ~Initialization Vector~ depends on the choice of the cipher suite.
@@ -1007,8 +1001,8 @@ be employed.
 
 *** Layer 4 Encapsulation Modes
 
-Layer 4 Encapsulation Modes are  transport mode, BEET mode
-and payload encryption mode. Layer 4 Encapsulation Modes
+Layer 4 Encapsulation Modes are  transport mode and BEET mode.
+Layer 4 Encapsulation Modes
 distinguish from tunnel mode on the position of the EESP
 header in the packet. On Layer 4 Encapsulation Modes the
 EESP header is inserted between the original IPv4/IPv6
@@ -1088,58 +1082,6 @@ packet.
              ----------------------------------------------------------
                                            |<--- encryption ---->|
                                       |<------ integrity ------->|
-
-                 * = if present, could be before EESP, after EESP, or both
-#+end_src
-
-**** Payload Encryption Mode Processing
-
-In payload encryption mode, EESP is inserted exactly at the same position
-as it is done for transport mode. The only difference to transport mode
-is that the next layer protocol header following the original IP or IPv6
-header is left in cleartext. Additionally to that, the 'C' bit in the EESP
-header flags is set.
-
-
-The following diagrams illustrate EESP payload encryption mode
-positioning for a typical IPv4 and IPv6 packet, on a "before and after" basis.
-
-
-#+caption: IPv4 Payload Encryption Mode
-#+name: ipv4-pe-mode
-#+begin_src
-                  BEFORE APPLYING EESP
-             ----------------------------
-       IPv4  |orig IP hdr  |     |      |
-             |(any options)| TCP | Data |
-             ----------------------------
-
-                  AFTER APPLYING EESP
-             ----------------------------------------------------
-       IPv4  |orig IP hdr  | EESP |     |                | EESP |
-             |(any options)| Hdr  | TCP |  L4 pyld Data  | ICV  |
-             ----------------------------------------------------
-                                        |<- encryption ->|
-                           |<-------- integrity -------->|
-#+end_src
-
-#+caption: IPv6 Payload Encryption Mode
-#+name: ipv6-pe-mode
-#+begin_src
-
-                      BEFORE APPLYING EESP
-             ---------------------------------------
-       IPv6  |             | ext hdrs |     |      |
-             | orig IP hdr |if present| TCP | Data |
-             ---------------------------------------
-
-                      AFTER APPLYING EESP
-             --------------------------------------------------------------
-       IPv6  | orig |hop-by-hop,dest*,|EESP|dest|   |     Layer 4    |EESP|
-             |IP hdr|routing,fragment.|Hdr |opt*|TCP|  Payload Data  |ICV |
-             --------------------------------------------------------------
-                                                    |<- encryption ->|
-                                      |<-------- integrity --------->|
 
                  * = if present, could be before EESP, after EESP, or both
 #+end_src
