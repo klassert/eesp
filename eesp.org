@@ -182,7 +182,7 @@ With classic transport and tunnel mode, the ~Payload Info Header~
 is encrypted, and therefore private to the IPsec peers. However,
 with a positive crypt offset
 (see [[EESP Crypt Offset Option]]), the ~Payload Info Header~
-might be left unencrypted. In these mode, protocol parsing engines
+might be left unencrypted. In this case, protocol parsing engines
 of middleboxes can act upon it (e.g., for telemetry).
 
 # :NOTE: doesn't the Payload Data structure depend on the mode of
@@ -297,11 +297,7 @@ algorithms as done in [[PSP]].
 
 When options are present, padding options (i.e., ~Pad1~ and ~PadN~)
 MUST be used to align the fields following the ~Options~ field. This
-alignment is dictated by the packet format. For the Full EESP
-packet format the ~Payload Info Header~ must be 4 byte aligned. For
-the optimized packet format the alignment is given by the contained
-packet type, namely, 4 byte alignment for an IPv4 packet, and 8 byte
-alignment for IPv6 packet.
+alignment is dictated by the packet format, see [[Payload Data]].
 
 ** Peer Header
 
@@ -670,13 +666,14 @@ are always present in the EESP packet format for all SAs.
 This section specifies the use of the Session ID as a Sub SA ID.
 The use of the Session ID as a Sub SA ID MUST be negotiated by IKEv2,
 or any other suitable protocol. In this case, Session ID is used as a
-16 bits Replay Subspace ID.
-Replay Subspaces were initially defined in [[I-D.ponchon-ipsecme-anti-replay-subspaces]].
+16 bits Sub SA ID.
+Sub SA IDs were initially defined in [[I-D.ponchon-ipsecme-anti-replay-subspaces]]
+and called ~Replay Subspaces~ there.
 
 # :NOTE: Why are Replay Subspaces and IDs mentioned here? Why define
 # that identifier in addition to Sub SA ID?
 
-Each number of the 16 bits Replay Subspace ID encodes a single
+Each number of the 16 bits Sub SA ID encodes a single
 64 bit anti-replay sequence number space.
 This means that each core, path, or QoS class, or any combination of
 those, can then use their own unique anti-replay sequence number subspace.
@@ -896,10 +893,7 @@ basis inside any inner flow to avoid packet reordering.
 The Flow Identifier SHOULD be negotiated by IKEv2 or another
 suitable protocol. The detailed specification of FIDs MAY be provided
 in subsequent documents. The precise meaning of a FID is opaque to
-intermediate devices; however, intermediate devices MAY use it for
-identifying flows for ECMP or similar purposes. e.g. Sub-Child SAs,
-in [[I-D.mrossberg-ipsecme-multiple-sequence-counters]] could be encoded
-here.
+intermediate devices.
 
 #+caption: Flow Identifier Option
 #+name: fid-option
@@ -917,36 +911,6 @@ here.
 
 - Option Type :: 8 bits: See [[EESP Header Options]]
 - Option Length :: 8 bits: See [[EESP Header Options]]
-- FID :: Variable length, carries characteristic information of a
-  inner flow and MUST NOT change for a given inner flow within a SA.
-
-#  XXX I don't think this is right, I think we want to allow multiple
-#  FIDs (e.g., multiple tcp connections) per SA.
-
-*** EESP Flow Identifiers combined with replay protection
-
-Flow Identifiers characterize the inner i.e. the protected flows.
-Packets of these flows should not be reordered while EESP protected.
-
-# NOTE STK: Is the above text clear?
-
-#+caption: Flow Identifier with replay protection
-#+name: fid-replay
-#+begin_src
-    0                   1                   2                   3
-    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
-   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |  Option Type  | Option Length |     Replay Subspace ID        |
-   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-|
-   |                                                               |
-   ~                    Flow Identifier (FID)                      ~
-   |                                                               |
-   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#+end_src
-
-- Option Type :: 8 bits: See [[EESP Header Options]]
-- Option Length :: 8 bits: See [[EESP Header Options]]
-- Replay Subspace ID :: 16 bits:
 - FID :: Variable length, carries characteristic information of a
   inner flow and MUST NOT change for a given inner flow within a SA.
 
