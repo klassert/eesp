@@ -30,13 +30,12 @@ This document describes the Enhanced Encapsulating Security Payload
 Security Payload (ESP) protocol. It is designed to modernize and
 overcome limitations in the ESP protocol.
 
-EESP adds Session IDs (e.g., to support CPU pinning), changes some
-previously mandatory fields to optional,
-and moves the ESP trailer into the EESP header. Additionally, EESP
-adds header options adapted from IPv6 to allow for future extension.
-New header options are defined which add Flow IDs (e.g., for CPU
-pinning and QoS support based on the inner traffic flow), and a
-crypt-offset to allow for exposing inner flow information for
+EESP adds Session IDs (e.g., to support CPU pinning and QoS support
+based on the inner traffic flow), changes some previously mandatory
+fields to optional, and moves the ESP trailer into the EESP header.
+Additionally, EESP adds header options adapted from IPv6 to allow
+for future extension. New header options are defined which add Flow IDs
+and a crypt-offset to allow for exposing inner flow information for
 middlebox use.
 
 #+end_abstract
@@ -59,8 +58,8 @@ Identifier, called Network Identifier (VNI) there. PSP also defines a
 Crypt Offset to expose parts of the headers of the inner packet.
 EESP provides a solution for all the aforementioned use cases.
 
-This document defines Flow Identifier Options and a Crypt Offset Option
-along with a Session ID.
+This document defines a Session ID and a Crypt Offset Option
+along with a generic Flow Identifier Option.
 Future documents can define the meaning of additional Options
 for their particular use-case. With this, all existing and potential new
 use cases can be covered. For instance, it can be
@@ -965,7 +964,7 @@ be employed.
 
 *** Layer 4 Encapsulation Modes
 
-Layer 4 Encapsulation Modes are  transport mode and BEET mode.
+Layer 4 Encapsulation Modes are transport mode and BEET mode.
 Layer 4 Encapsulation Modes
 distinguish from tunnel mode on the position of the EESP
 header in the packet. On Layer 4 Encapsulation Modes the
