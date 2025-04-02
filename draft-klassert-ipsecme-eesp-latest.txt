@@ -679,8 +679,8 @@ Internet-Draft                    EESP                        April 2025
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+---+
    |                                                               | Int
    ~                          Base Header                          ~ ege
-   |                                                               | rit
-   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ y
+   |                                                               | rity
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    |                                                               | Pro
    ~                     Peer Header (variable)                    ~ tec
    |                                                               | ted
@@ -733,13 +733,13 @@ Internet-Draft                    EESP                        April 2025
     0                   1                   2                   3
     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+---+
-   |1|Version| Opt Len |   Flags   |         Session ID            | Int
-   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ ege
-   |                              SPI                              | rity
-   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ Pro
-   |        2      | Opt Len = 4   |  20           |     7     | F | tec
-   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ ted
-   |                       Sequence number 63-32                   |   |
+   |1|Version| Opt Len |   Flags   |         Session ID            |   |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ Int
+   |                              SPI                              | ege
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ rity
+   |  Crypt Offset(2)  |Opt Len (4)|POffset(20)|CryptOff(7)| F | R | Pro
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ tec
+   |                       Sequence number 63-32                   | ted
    |                       Sequence number 31-0                    |   |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+   |
    |                                                               |   |
@@ -881,7 +881,7 @@ Internet-Draft                    EESP                        April 2025
    Unlike ESP, the IV is not considered to be a part of the payload data
    in EESP.
 
-   The explicit IV shown in Table 1 depends on the used algorithm and
+   The explicit IV shown in Figure 10 depends on the used algorithm and
    may be omitted.  Because algorithms, modes and options are fixed when
    an SA is established, the detailed format of EESP packets for a given
    SA (including the 'Payload Data' substructure) is fixed for all
@@ -903,48 +903,48 @@ Internet-Draft                    EESP                        April 2025
    different processing model, affect the fields noted above.  The
    processing details are described in later sections.
 
-   +=============+============+===========+=========+========+========+
-   | Field       | # of bytes | Req'd [1] | Encrypt | Integ  |  Tx'd  |
-   |             |            |           |  Covers | Covers |        |
-   +=============+============+===========+=========+========+========+
-   | Base Header |     8      |     M     |         |   Y    | plain  |
-   |             |            |           |         |        |  [5]   |
-   +-------------+------------+-----------+---------+--------+--------+
-   | Options     |  variable  |     O     |         |   Y    | plain  |
-   |             |            |           |         |        |  [5]   |
-   +-------------+------------+-----------+---------+--------+--------+
-   | Sequence    |     8      |     M     |         |   Y    | plain  |
-   | Number      |            |           |         |        |  [5]   |
-   +-------------+------------+-----------+---------+--------+--------+
-   | IV          |  variable  |     O     |         |   Y    | plain  |
-   |             |            |           |         |        |  [5]   |
-   +-------------+------------+-----------+---------+--------+--------+
-   | Payload     |     4      |     O     |    Y    |   Y    | cipher |
-   | Info Hdr[4] |            |           |         |        |  [3]   |
-   +-------------+------------+-----------+---------+--------+--------+
-   | Payload [2] |  variable  |     M     |    Y    |   Y    | cipher |
-   |             |            |           |         |        |  [3]   |
-   +-------------+------------+-----------+---------+--------+--------+
-   | Padding     |   0-255    |     M     |    Y    |   Y    | cipher |
-   |             |            |           |         |        |  [3]   |
-   +-------------+------------+-----------+---------+--------+--------+
-   | ICV         |  variable  |     M     |         |        | plain  |
-   +-------------+------------+-----------+---------+--------+--------+
+<!-- This HTML table template is generated by emacs 29.3 -->
+<table border="1">
+  <tr>
+    <td align="left" valign="top">
+      &nbsp;Field&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br />
+      &nbsp;<l>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    </td>
+    <td align="left" valign="top">
+      &nbsp;#&nbsp;of&nbsp;bytes&nbsp;<br />
+      &nbsp;&nbsp;&nbsp;&nbsp;<c>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    </td>
+    <td align="left" valign="top">
+      &nbsp;Req'd&nbsp;[1]&nbsp;<br />
+      &nbsp;&nbsp;&nbsp;&nbsp;<c>&nbsp;&nbsp;&nbsp;&nbsp;
+    </td>
+    <td align="left" valign="top">
+      &nbsp;Encrypt&nbsp;Covers&nbsp;<br />
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<c>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    </td>
+    <td align="left" valign="top">
+      &nbsp;Integ&nbsp;Covers&nbsp;<br />
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<c>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    </td>
+    <td align="left" valign="top">
+      &nbsp;&nbsp;&nbsp;&nbsp;Tx'd&nbsp;&nbsp;&nbsp;&nbsp;<br />
+      &nbsp;&nbsp;&nbsp;&nbsp;<c>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br />
+      ------------<br />
+      &nbsp;&nbsp;&nbsp;plain&nbsp;&nbsp;&nbsp;&nbsp;<br />
+      &nbsp;&nbsp;&nbsp;plain&nbsp;&nbsp;&nbsp;&nbsp;<br />
+      &nbsp;&nbsp;&nbsp;plain&nbsp;&nbsp;&nbsp;&nbsp;<br />
+      &nbsp;&nbsp;&nbsp;plain&nbsp;&nbsp;&nbsp;&nbsp;<br />
+      &nbsp;cipher&nbsp;[3]&nbsp;<br />
+      &nbsp;cipher&nbsp;[3]&nbsp;<br />
+      &nbsp;cipher&nbsp;[3]&nbsp;<br />
+      &nbsp;&nbsp;&nbsp;plain&nbsp;&nbsp;&nbsp;&nbsp;
+    </td>
+  </tr>
+</table>
 
-         Table 1: High level layout for fields of an EESP packet
+      Figure 10: High level layout for fields of an EESP packet
 
    *  [1] M = mandatory; O = optional
-   *  [2] If tunnel mode -> IP datagram.  If beet mode -> IP datagram.
-      If transport mode -> next header and data.  If IP-TFS, IP-TFS
-      header and payload.
-   *  [3] Ciphertext if encryption has been selected
-   *  [4] Not present in Optimized Header otherwise mandatory
-   *  [5] AAD : integerity protected
-
-
-
-
-
 
 
 
@@ -953,6 +953,13 @@ Klassert, et al.         Expires 4 October 2025                [Page 17]
 
 Internet-Draft                    EESP                        April 2025
 
+
+   *  [2] If tunnel mode -> IP datagram.  If beet mode -> IP datagram.
+      If transport mode -> next header and data.  If IP-TFS, IP-TFS
+      header and payload.
+   *  [3] Ciphertext if encryption has been selected
+   *  [4] Not present in Optimized Header otherwise mandatory
+   *  [5] AAD : integerity protected
 
    In the table "optional" means that the field is omitted if the option
    is not selected, i.e., it is not present in the packet as transmitted
@@ -995,13 +1002,6 @@ Internet-Draft                    EESP                        April 2025
    large-scale deployments.  In many use cases, several unidirectional
    SAs used, while others are unused which can result in unnecessary
    overhead for SA management, rekeying, and resource consumption.
-   Furthermore, using multiple bidirectional Child SAs for granular
-   traffic flows often leads to additional setup delays and complex
-   lifetime management.  This inefficiency is particularly acute in
-   high-throughput or low-latency environments, where rapid setup and
-   teardown of SAs is essential to maintain performance.
-
-
 
 
 
@@ -1009,6 +1009,12 @@ Klassert, et al.         Expires 4 October 2025                [Page 18]
 
 Internet-Draft                    EESP                        April 2025
 
+
+   Furthermore, using multiple bidirectional Child SAs for granular
+   traffic flows often leads to additional setup delays and complex
+   lifetime management.  This inefficiency is particularly acute in
+   high-throughput or low-latency environments, where rapid setup and
+   teardown of SAs is essential to maintain performance.
 
    Each Sub SA is identified by a Sub SA ID, which MUST be carried in
    each EESP packet in the Session ID field—consistent with the
@@ -1053,18 +1059,16 @@ Internet-Draft                    EESP                        April 2025
    some (and as few as a single one) of the available N subspace ID
    values between 0 and N-1.
 
-   When transmitting a packet, the sender MUST use the sequence number
-   counter associated with the sequence number subspace in use for that
-   packet.
-
-
-
 
 
 Klassert, et al.         Expires 4 October 2025                [Page 19]
 
 Internet-Draft                    EESP                        April 2025
 
+
+   When transmitting a packet, the sender MUST use the sequence number
+   counter associated with the sequence number subspace in use for that
+   packet.
 
 2.10.2.  Receiver Behavior
 
@@ -1098,7 +1102,7 @@ Internet-Draft                    EESP                        April 2025
    |  Option Type  |  Opt Data Len |  Option Data
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+- - - - - - - - -
 
-                    Figure 10: EESP Header Option Format
+                    Figure 11: EESP Header Option Format
 
    Option Type  8-bit identifier of the type of option.
 
@@ -1109,10 +1113,6 @@ Internet-Draft                    EESP                        April 2025
 
    The overall length of all Options is limited to 128 bytes by the
    OptLen field in the 'Base Header'.
-
-
-
-
 
 
 
@@ -1156,7 +1156,7 @@ Internet-Draft                    EESP                        April 2025
    |       0       |
    +-+-+-+-+-+-+-+-+
 
-                           Figure 11: Pad1 Option
+                           Figure 12: Pad1 Option
 
    *Note:* the format of the Pad1 option is a special case -- it does
    not have length and value fields.
@@ -1182,7 +1182,7 @@ Internet-Draft                    EESP                        April 2025
    |       1       |  Opt Data Len |  Option Data
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+- - - - - - - - -
 
-                           Figure 12: PadN Option
+                           Figure 13: PadN Option
 
    The 'PadN' option is used to insert two or more octets of padding
    into the 'Options' field.  For N octets of padding, the Opt Data Len
@@ -1209,7 +1209,7 @@ Internet-Draft                    EESP                        April 2025
    |                                                               |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
-                     Figure 13: Flow Identifier Option
+                     Figure 14: Flow Identifier Option
 
    Option Type  8 bits: See Section 3
 
@@ -1240,7 +1240,7 @@ Internet-Draft                    EESP                        April 2025
    |  Option Type  | Option Length |Payl.Offset|CryptOffset| R | F |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
-                       Figure 14: Crypt Offset Option
+                       Figure 15: Crypt Offset Option
 
    Option Type  8 bits: See Section 3
 
@@ -1330,7 +1330,7 @@ Internet-Draft                    EESP                        April 2025
                               |<---- encryption --->|
                        |<-------- integrity ------->|
 
-                       Figure 15: IPv4 Transport Mode
+                       Figure 16: IPv4 Transport Mode
 
    In the IPv6 context, EESP is viewed as an end-to-end payload, and
    thus should appear after hop-by-hop, routing, and fragmentation
@@ -1366,7 +1366,7 @@ Internet-Draft                    EESP                        April 2025
 
              * = if present, could be before EESP, after EESP, or both
 
-                       Figure 16: IPv6 Transport Mode
+                       Figure 17: IPv6 Transport Mode
 
 4.1.1.2.  BEET Mode Processing
 
@@ -1389,7 +1389,7 @@ Internet-Draft                    EESP                        April 2025
                               |<---- encryption --->|
                        |<-------- integrity ------->|
 
-                         Figure 17: IPv6 BEET Mode
+                         Figure 18: IPv6 BEET Mode
 
 
 
@@ -1418,7 +1418,7 @@ Internet-Draft                    EESP                        April 2025
 
              * = if present, could be before EESP, after EESP, or both
 
-                         Figure 18: IPv6 BEET Mode
+                         Figure 19: IPv6 BEET Mode
 
 4.1.2.  Tunnel Mode Processing
 
@@ -1448,7 +1448,7 @@ Internet-Draft                    EESP                        April 2025
                               |<------- encryption ------->|
                        |<------------ integrity ---------->|
 
-                        Figure 19: IPv4 Tunnel Mode
+                        Figure 20: IPv4 Tunnel Mode
 
 
 
@@ -1477,7 +1477,7 @@ Internet-Draft                    EESP                        April 2025
              modification of inner IP hdr/extensions is discussed in
              the Security Architecture document.
 
-                        Figure 20: IPv6 Tunnel Mode
+                        Figure 21: IPv6 Tunnel Mode
 
 4.2.  Algorithms
 
@@ -2156,7 +2156,7 @@ Internet-Draft                    EESP                        April 2025
      1-13     Unassigned                      [this document]
     13-15     Private Use                     [this document]
 
-              Figure 21: EESP Version Initial Registry Values
+              Figure 22: EESP Version Initial Registry Values
 
 10.3.  EESP Options Registry
 
@@ -2195,7 +2195,7 @@ Internet-Draft                    EESP                        April 2025
      4-223   Unassigned                        [this document]
    224-255   Private                           [this document]
 
-                     Figure 22: Initial Registry Values
+                     Figure 23: Initial Registry Values
 
 11.  Implementation Status
 
