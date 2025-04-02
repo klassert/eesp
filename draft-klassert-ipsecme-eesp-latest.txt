@@ -756,7 +756,7 @@ Internet-Draft                    EESP                        April 2025
    |                                                               |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
-                    Figure 7: EESP AAD with Crypt Offset
+              Figure 7: EESP Tunnel Mode AAD with Crypt Offset
 
    The AAD specifications apply to all EESP cipher suites used with
    EESP.  This document updates [RFC4106] and [RFC4543] for EESP-
