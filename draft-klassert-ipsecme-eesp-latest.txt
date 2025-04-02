@@ -657,10 +657,10 @@ Internet-Draft                    EESP                        April 2025
 
 2.8.  AAD Construction
 
-   The authentication of data integrity and data origin covers the Base
-   Header, any Optional Headers present, SPI, Sequence Number and
-   Initialization Vector when present, Payload Info Header when present,
-   Payload Data, and Padding when present.
+   Authentication of data integrity and origin covers the Base Header,
+   any Optional Headers (if present), the SPI, Sequence Number, and
+   Initialization Vector (if present), the Payload Info Header (if
+   present), Payload Data, and any Padding (if present).
 
 
 
@@ -699,10 +699,10 @@ Internet-Draft                    EESP                        April 2025
 
                              Figure 6: EESP AAD
 
-   Additionally when Crypt Offset it present the AAD includes that
-   Payload Info Header when present and Payload Data transmitted in
-   plain aswell.
-
+   Additionally, if a Crypt Offset is used, the AAD includes the
+   associated data exposed due to the offset.  Payload Data covered by
+   the Crypt Offset is transmitted in the clear when encryption is used,
+   but is still included in the AAD.
 
 
 
@@ -759,10 +759,12 @@ Internet-Draft                    EESP                        April 2025
               Figure 7: EESP Tunnel Mode AAD with Crypt Offset
 
    The AAD specifications apply to all EESP cipher suites used with
-   EESP.  This document updates [RFC4106] and [RFC4543] for EESP-
-   specific Additional Authenticated Data (AAD) handling when using AES-
-   GCM.  It also updates AAD processing for ENCR_CHACHA20_POLY1305, as
-   specified in [RFC7634].
+   EESP.  This document updates [RFC4106] to define EESP-specific
+   handling of Additional Authenticated Data (AAD) when using AES-GCM.
+   For AES-GMAC [RFC4543], the AAD includes all headers, i.e. the entire
+   EESP payload except the Integrity Check Value (ICV).  This document
+   also updates AAD processing for the ENCR_CHACHA20_POLY1305 cipher
+   suite, as specified in [RFC7634].
 
 2.9.  Full and Optimized Packet Formats
 
@@ -776,8 +778,6 @@ Internet-Draft                    EESP                        April 2025
    possible to identify IPv4 and IPv6 by reading the first nibble of the
    inner packet, and there is no need for a next header field.
    Additionally, IPv4 and IPv6 also have a field describing the overall
-   size of the inner packet, so a pad length field is also not needed as
-   it can be derived.
 
 
 
@@ -785,6 +785,9 @@ Klassert, et al.         Expires 4 October 2025                [Page 14]
 
 Internet-Draft                    EESP                        April 2025
 
+
+   size of the inner packet, so a pad length field is also not needed as
+   it can be derived.
 
    The packet format containing the 'Payload Info Header' is called the
    "Full EESP packet format", while the packet format without the
@@ -827,9 +830,6 @@ Internet-Draft                    EESP                        April 2025
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
                      Figure 8: Full EESP packet format
-
-
-
 
 
 
