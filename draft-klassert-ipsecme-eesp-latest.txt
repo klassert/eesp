@@ -659,8 +659,8 @@ Internet-Draft                    EESP                        April 2025
 
    The authentication of data integrity and data origin covers the Base
    Header, any Optional Headers present, SPI, Sequence Number and
-   Initialization Vector when present.
-
+   Initialization Vector when present, Payload Info Header when present,
+   Payload Data, and Padding when present.
 
 
 
@@ -959,7 +959,6 @@ Internet-Draft                    EESP                        April 2025
       header and payload.
    *  [3] Ciphertext if encryption has been selected
    *  [4] Not present in Optimized Header otherwise mandatory
-   *  [5] AAD : integerity protected
 
    In the table "optional" means that the field is omitted if the option
    is not selected, i.e., it is not present in the packet as transmitted
@@ -1002,6 +1001,7 @@ Internet-Draft                    EESP                        April 2025
    large-scale deployments.  In many use cases, several unidirectional
    SAs used, while others are unused which can result in unnecessary
    overhead for SA management, rekeying, and resource consumption.
+   Furthermore, using multiple bidirectional Child SAs for granular
 
 
 
@@ -1010,7 +1010,6 @@ Klassert, et al.         Expires 4 October 2025                [Page 18]
 Internet-Draft                    EESP                        April 2025
 
 
-   Furthermore, using multiple bidirectional Child SAs for granular
    traffic flows often leads to additional setup delays and complex
    lifetime management.  This inefficiency is particularly acute in
    high-throughput or low-latency environments, where rapid setup and
@@ -1058,6 +1057,7 @@ Internet-Draft                    EESP                        April 2025
    number subspace that it makes use of.  But the sender MAY use only
    some (and as few as a single one) of the available N subspace ID
    values between 0 and N-1.
+
 
 
 
