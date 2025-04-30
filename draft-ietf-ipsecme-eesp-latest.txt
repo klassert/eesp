@@ -11,7 +11,7 @@ Expires: 1 November 2025                                        C. Hopps
 
 
              Enhanced Encapsulating Security Payload (EESP)
-                       draft-ietf-ipsecme-eesp-00
+                       draft-ietf-ipsecme-eesp-01
 
 Abstract
 
