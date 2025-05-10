@@ -512,6 +512,82 @@ specified by the algorithm selected and associated with the
 SA.  The algorithm specification MUST specify the length of
 the ICV and the comparison rules and processing steps for validation.
 
+** AAD Construction
+Authentication of data integrity and origin covers the Base
+Header, any Optional Headers (if present), the SPI, Sequence Number,
+and Initialization Vector (if present), the Payload Info Header
+(if present), Payload Data, and any Padding (if present).
+
+#+caption: EESP AAD
+#+name: eesp-aad
+#+begin_src
+   0                   1                   2                   3
+   0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+---+
+  |                                                               | Int
+  ~                          Base Header                          ~ ege
+  |                                                               | rity
+  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+  |                                                               | Pro
+  ~                     Peer Header (variable)                    ~ tec
+  |                                                               | ted
+  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+---+
+  |                 Payload Info Header (optional)                |
+  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+  |                      Payload Data (variable)                  |
+  ~                                                               ~
+  |               +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+  |               |          Padding (0-255 bytes)                |
+  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+  |                                                               |
+  ~              Integrity Check Value-ICV (variable)             ~
+  |                                                               |
+  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+#+end_src
+
+Additionally, if a Crypt Offset is used, the AAD includes the
+associated data exposed due to the offset. Payload Data covered
+by the Crypt Offset is transmitted in the clear when encryption
+is used, but is still included in the AAD.
+
+#+caption: EESP Tunnel Mode AAD with Crypt Offset
+#+name: eesp-aad-crypt-offset
+#+begin_src
+   0                   1                   2                   3
+   0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+---+
+  |1|Version| Opt Len |   Flags   |         Session ID            |   |
+  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ Int
+  |                              SPI                              | ege
+  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ rity
+  |  Crypt Offset(2)  |Opt Len (4)|POffset(20)|CryptOff(7)| F | R | Pro
+  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ tec
+  |                       Sequence number 63-32                   | ted
+  |                       Sequence number 31-0                    |   |
+  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+   |
+  |                                                               |   |
+  ~                                                               ~   |
+  |               7 x 4 (28 bytes IP + UDP Headers Plain text)    |   |
+  +---------------------------------------------------------------+---+
+  |                      Remaining Payload Data Encrypted         |
+  ~                                                               ~
+  |               +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+  |               |          Padding (0-255 bytes)                |
+  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+  |                                                               |
+  ~              Integrity Check Value-ICV (variable)             ~
+  |                                                               |
+  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+#+end_src
+
+The AAD specifications apply to all EESP cipher suites used with
+EESP. This document updates [[RFC4106]] to define EESP-specific
+handling of Additional Authenticated Data (AAD) when using
+AES-GCM. For AES-GMAC [[RFC4543]], the AAD includes all headers,
+i.e. the entire EESP payload except the Integrity Check Value (ICV).
+This document also updates AAD processing for the
+ENCR_CHACHA20_POLY1305 cipher suite, as specified in [[RFC7634]].
+
 ** Full and Optimized Packet Formats
 
 # :NOTE: What is "resulting" referring to?
@@ -629,7 +705,7 @@ processing details are described in later sections.
 
 #+caption: High level layout for fields of an EESP packet
 #+name: eesp-packet-separate-algos
-|---------------------+------------+-----------+----------------+--------------+------------|
++---------------------+------------+-----------+----------------+--------------+------------+
 | Field               | # of bytes | Req'd [1] | Encrypt Covers | Integ Covers |    Tx'd    |
 | <l>                 |    <c>     |    <c>    |      <c>       |     <c>      |    <c>     |
 |---------------------+------------+-----------+----------------+--------------+------------|
@@ -641,7 +717,7 @@ processing details are described in later sections.
 | Payload [2]         |  variable  |     M     |       Y        |      Y       | cipher [3] |
 | Padding             |   0-255    |     M     |       Y        |      Y       | cipher [3] |
 | ICV                 |  variable  |     M     |                |              |   plain    |
-|---------------------+------------+-----------+----------------+--------------+------------|
++---------------------+------------+-----------+----------------+--------------+------------+
 
 #+ATTR_RFC: :compact t
 - [1] M = mandatory; O = optional
@@ -1838,6 +1914,8 @@ TBD
 ** RFC3948
 ** RFC4106
 ** RFC8750
+** RFC4543
+** RFC7634
 ** PSP
 :PROPERTIES:
 :REF_TARGET: https://github.com/google/psp/blob/main/doc/PSP_Arch_Spec.pdf
