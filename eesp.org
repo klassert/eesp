@@ -6,8 +6,8 @@
 #+OPTIONS: prop:nil title:t toc:t \n:nil ::t |:t ^:{} -:t *:t ':nil
 
 #+RFC_CATEGORY: std
-#+RFC_NAME: draft-klassert-ipsecme-eesp
-#+RFC_VERSION: 03
+#+RFC_NAME: draft-ietf-ipsecme-eesp
+#+RFC_VERSION: 01
 #+RFC_IPR: pre5378Trust200902
 #+RFC_STREAM: IETF
 #+RFC_XML_VERSION: 3
