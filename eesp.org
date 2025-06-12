@@ -212,7 +212,7 @@ The fixed portion of the base header is defined as follows.
     0                   1                   2                   3
     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |1|Version| Opt Len |   Flags   |         Session ID            |
+   |1|Version|Flags|     OptLen    |         Session ID            |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    |                              SPI                              |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -230,8 +230,8 @@ The fixed portion of the base header is defined as follows.
   necessarily able to parse the packet correctly. Intermediate
   treatment of such packets is policy-dependent (e.g., it may dictate
   dropping such packets).
-- Opt Len :: 5 bits: Length in 4 bytes of the ~Options~ field.
-- Flags :: 6 bits: The Flags field is used as specified in [[flags]].
+- Flags :: 3 bits: The Flags field is used as specified in [[flags]].
+- Opt Len :: 8 bits: Length in bytes of the ~Options~ field.
 - Session ID :: 16 bits: The Session ID covers additional information
   that might be used to identify the SA.
   For instance, it can be used to encode a Sub SA ID. The meaning of
@@ -248,17 +248,17 @@ The Flags field in the fixed Base Header is defined as follows:
 #+caption: Base Header Flags
 #+name: flags
 #+begin_src
-    0 1 2 3 4 5
-   +-+-+-+-+-+-+
-   |F|    R    |
-   +-+-+-+-+-+-+
+    0 1 2 
+   +-+-+-+
+   |F| R |
+   +-+-+-+
 #+end_src
 
 - Packet Format (F) :: 1 bit: Set to zero for full EESP packet Format (i.e., the EESP header includes the
   ~Payload Info Header~), set to 1 for Optimized EESP Packet format. This bit
   MAY be only set to 1 if the Crypt Offset is positive. It MUST be set to
   0 otherwise.
-- Reserved (R) :: 5 bits: Reserved for future versions, MUST be set to 0,
+- Reserved (R) :: 2 bits: Reserved for future versions, MUST be set to 0,
   and ignored by the receiver.
 
 
@@ -301,11 +301,15 @@ alignment is dictated by the packet format, see [[Payload Data]].
 ** Peer Header
 
 The ~Peer Header~ follows the ~Base Header~ and ~Options~ field.
-The ~Peer Header~ containing a ~Sequence Number~ and an
-optional ~Initialization Vector~, and the format is shown below.
 The Peer Header is private to the IPsec peers, middleboxes MUST
-NOT act upon the Peer Header fields.
-
+NOT act upon the Peer Header fields. Peer Header fields are
+optional and MUST be
+negotiated by IKEv2 or any other appropriate protocol, therefore
+is is not parsable by middelboxes. This document defines two
+Peer Header fileds, a ~Sequence Number~ and an
+~Initialization Vector~, the format is shown below.
+Future documents can define additional Peer Header fields
+based on their needs.
 
 #+caption: Peer Header
 #+name: peer-header
@@ -313,7 +317,7 @@ NOT act upon the Peer Header fields.
     0                   1                   2                   3
     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |                          Sequence Number                      |
+   |                    Sequence Number (optional)                 |
    |                                                               |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    |                          IV (optional)                        |
@@ -321,7 +325,7 @@ NOT act upon the Peer Header fields.
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #+end_src
 
-The ~Sequence Number~ is a full 64bit sequence number.
+If present, the ~Sequence Number~ is a full 64bit sequence number.
 EESP only support 64bit sequence numbers, a.k.a ESN and transmits the
 entire sequence number on each packet. The actual size of the
 ~Initialization Vector~ depends on the choice of the cipher suite.
@@ -331,6 +335,7 @@ in the following sections.
 
 *** Sequence Number
 
+The sequence number field is used for relay protection.
 This unsigned 64-bit field contains a counter value that increases
 for each packet sent, i.e., a per-SA packet sequence number. For a
 unicast SA or a single-sender multicast SA, the sender MUST increment
@@ -353,6 +358,18 @@ defining a new Base Header Option that covers a ~Sender ID~.
 Similar to the Session ID, this Sender ID can be used as an
 additional Subs SA ID (see [[Session ID as Sub SA ID]]).
 Defining such an Option is left for future documents.
+
+Replay protection is optional, but enabled by default.
+Replay protection SHOULD be enabled whenever possible.
+However, on multicast or in datacenter environments where
+the upper layer protocols ensure replay protection,
+it can be disabled. Disabling replay protection MUST
+be negotiated by IKEv2. In this case the sequence number
+field is omitted.
+
+In contrast to ESP, where the receiver alone decides wether to
+disable replay protecton, it is negotiated in EESP so
+that sender and receiver can agree on it.
 
 # Note STK: The text below needs to be reworded. It does not
 # match with the optional Sequence Number mentioned above.
