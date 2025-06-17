@@ -335,7 +335,7 @@ in the following sections.
 
 *** Sequence Number
 
-The sequence number field is used for relay protection.
+The sequence number field is used for replay protection.
 This unsigned 64-bit field contains a counter value that increases
 for each packet sent, i.e., a per-SA packet sequence number. For a
 unicast SA or a single-sender multicast SA, the sender MUST increment
