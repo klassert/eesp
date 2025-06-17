@@ -248,9 +248,9 @@ The Flags field in the fixed Base Header is defined as follows:
 #+caption: Base Header Flags
 #+name: flags
 #+begin_src
-    0 1 2 
+    0 1 2
    +-+-+-+
-   |F| R |
+   |F|R R|
    +-+-+-+
 #+end_src
 
@@ -258,7 +258,7 @@ The Flags field in the fixed Base Header is defined as follows:
   ~Payload Info Header~), set to 1 for Optimized EESP Packet format. This bit
   MAY be only set to 1 if the Crypt Offset is positive. It MUST be set to
   0 otherwise.
-- Reserved (R) :: 2 bits: Reserved for future versions, MUST be set to 0,
+- Reserved (RR) :: 2 bits: Reserved for future versions, MUST be set to 00,
   and ignored by the receiver.
 
 
