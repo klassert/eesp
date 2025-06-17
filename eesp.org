@@ -412,9 +412,10 @@ cryptographic synchronization data, e.g., an Initialization Vector
 (IV), usually is not encrypted per se (see Table 1), although it
 sometimes is referred to as being part of the ciphertext.)
 
-Counter mode algorithms MAY encode the 64-bit counter of the
-Initialization Vector (IV) on the Sequence number Field.  This option
-saves 8 header bytes on each packet.  Whether or not this option is
+Counter mode algorithms MAY use the 64-bit counter as the
+Initialization Vector (IV) in the Sequence number Field, as specified
+[[RFC8750]]. This option, Implicit Initialization Vector (IIV)
+saves 8 header bytes on each packet. Whether or not this option is
 selected is determined as part of Security Association (SA)
 establishment.
 
