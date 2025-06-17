@@ -212,7 +212,7 @@ The fixed portion of the base header is defined as follows.
     0                   1                   2                   3
     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |1|Version|Flags|     OptLen    |         Session ID            |
+   |1|Version|Flags|    Opt Len    |         Session ID            |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    |                              SPI                              |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -563,7 +563,7 @@ packet format for use with IPv4 or IPv6 Tunnel Mode when the
     0                   1                   2                   3
     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |1|Version| Opt Len |   Flags   |        Session ID             |
+   |1|Version|Flags|    Opt Len    |        Session ID             |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    |                              SPI                              |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -571,7 +571,7 @@ packet format for use with IPv4 or IPv6 Tunnel Mode when the
    ~                   Options (variable, optional)                ~
    |                                                               |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |                         Sequence Number                       |
+   |                   Sequence Number (optional)                  |
    |                                                               |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    |                          IV* (optional)                       |
@@ -597,7 +597,7 @@ packet format for use with IPv4 or IPv6 Tunnel Mode when the
     0                   1                   2                   3
     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |1|Version| Opt Len |   Flags   |        Session ID             |
+   |1|Version|Flags|    Opt Len    |        Session ID             |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    |                              SPI                              |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -605,7 +605,7 @@ packet format for use with IPv4 or IPv6 Tunnel Mode when the
    ~                   Options (variable, optional)                ~
    |                                                               |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |                       Sequence Number                         |
+   |                   Sequence Number (optional)                  |
    |                                                               |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    |                          IV* (optional)                       |
@@ -652,7 +652,7 @@ processing details are described in later sections.
 |---------------------+------------+-----------+----------------+--------------+------------|
 | Base Header         |     8      |     M     |                |      Y       |   plain    |
 | Options             |  variable  |     O     |                |      Y       |   plain    |
-| Sequence Number     |     8      |     M     |                |      Y       |   plain    |
+| Sequence Number     |     8      |     O     |                |      Y       |   plain    |
 | IV                  |  variable  |     O     |                |      Y       |   plain    |
 | Payload Info Hdr[4] |     4      |     O     |       Y        |      Y       | cipher [3] |
 | Payload [2]         |  variable  |     M     |       Y        |      Y       | cipher [3] |
