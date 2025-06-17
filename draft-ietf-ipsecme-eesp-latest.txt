@@ -409,7 +409,7 @@ Internet-Draft                    EESP                         June 2025
 
     0 1 2
    +-+-+-+
-   |F| R |
+   |F|R R|
    +-+-+-+
 
                         Figure 3: Base Header Flags
@@ -419,8 +419,8 @@ Internet-Draft                    EESP                         June 2025
       1 for Optimized EESP Packet format.  This bit MAY be only set to 1
       if the Crypt Offset is positive.  It MUST be set to 0 otherwise.
 
-   Reserved (R)  2 bits: Reserved for future versions, MUST be set to 0,
-      and ignored by the receiver.
+   Reserved (RR)  2 bits: Reserved for future versions, MUST be set to
+      00, and ignored by the receiver.
 
 2.2.2.  Base Header Options
 
@@ -508,7 +508,7 @@ Internet-Draft                    EESP                         June 2025
 
 2.3.1.  Sequence Number
 
-   The sequence number field is used for relay protection.  This
+   The sequence number field is used for replay protection.  This
    unsigned 64-bit field contains a counter value that increases for
    each packet sent, i.e., a per-SA packet sequence number.  For a
    unicast SA or a single-sender multicast SA, the sender MUST increment
@@ -567,11 +567,11 @@ Internet-Draft                    EESP                         June 2025
    Vector (IV), usually is not encrypted per se (see Table 1), although
    it sometimes is referred to as being part of the ciphertext.)
 
-   Counter mode algorithms MAY encode the 64-bit counter of the
-   Initialization Vector (IV) on the Sequence number Field.  This option
-   saves 8 header bytes on each packet.  Whether or not this option is
-   selected is determined as part of Security Association (SA)
-   establishment.
+   Counter mode algorithms MAY use the 64-bit counter as the
+   Initialization Vector (IV) in the Sequence number Field, as specified
+   [RFC8750].  This option, Implicit Initialization Vector (IIV) saves 8
+   header bytes on each packet.  Whether or not this option is selected
+   is determined as part of Security Association (SA) establishment.
 
 2.4.  Payload Info Header
 
