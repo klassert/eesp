@@ -128,7 +128,7 @@ section is normative.
 ** Top-Level EESP format
 
 The (outer) protocol header (IPv4, IPv6, or Extension) that
-immediately precedes the ESP header SHALL contain the value TBD in
+immediately precedes the EESP header SHALL contain the value TBD in
 its [[Protocol]] (IPv4) or Next Header (IPv6, Extension) field.
 [[eesp-top-level-packet-format]] illustrates the top-level format of
 an EESP packet. The EESP header is split into multiple parts.
@@ -162,7 +162,7 @@ an EESP packet. The EESP header is split into multiple parts.
 
 The packet starts with a ~Base Header~ that can be used by protocol
 parsing engines of middleboxes such as routers or firewalls in
-addition to the IPsec peer that use it to route the packet to the
+addition to the IPsec peers that use it to route the packet to the
 correct cryptographic context.
 
 The ~Peer Header~ follows the ~Base Header~. The ~Peer Header~ is
@@ -240,8 +240,9 @@ The fixed portion of the base header is defined as follows.
   as a Subs SA ID. Other use cases are not covered in this document.
 - Security Parameter Index (SPI) :: 32 bits: The SPI is an arbitrary
   32-bit value that is used by a receiver to identify the SA to which
-  an incoming packet is bound. This combined with the 16-bit Session
-  ID is the Enhanced SPI.
+  an incoming packet is bound.
+  # XXX: Enhanced SPI is not explained!
+  #This combined with the 16-bit Session ID is the Enhanced SPI.
 
 The Flags field in the fixed Base Header is defined as follows:
 
@@ -428,8 +429,8 @@ can be derived from the inner IPv4 or IPv6 header. This document
 specifies a full and an optimized packet format. The Payload Info
 Header is present in the Full EESP packet format, but not in the
 optimized format see [[Full and Optimized Packet Formats]].
-IPsec peers and middleboxes MAY act upon the Payload Info
-Header.
+IPsec peers and middleboxes (if Crypt Offset is positive, see
+[[EESP Crypt Offset Option]]) MAY act upon the Payload Info Header.
 
 #+caption: Payload Info Header
 #+name: payload-info-header
@@ -702,7 +703,7 @@ a KDF MUST be used used to derive a separate key for each anti-replay sequence
 number subspace (see [[Key Derivation for Sub SAs]]). In this case, the full
 64 bits of each anti-replay sequence number subspace can be used.
 
-Sub SAs can be created "on the fly" within the kernel IPsec subsystem.
+Sub SAs can be created "on the fly" within the IPsec data-plane.
 Sub SAs streamline traffic flow management, reduce overhead, and
 enable more efficient lifecycle operations.
 
@@ -726,8 +727,7 @@ unique key.
 
 Particularly implementations with hardware offload, MAY derive Sub SA
 keys dynamically on a per-packet basis. This mitigates the risk of
-data-plane performance degradation caused by a large number of keys
-[[I-D.ponchon-ipsecme-anti-replay-subspaces]].
+data-plane performance degradation caused by a large number of keys.
 
 AEAD transforms such as AES-GCM [[RFC4106]], [[RFC8750]] requires
 that the IV never repeat within a single Sub SA. Because each
@@ -768,7 +768,7 @@ requirements.
 
 This section defines the IPsec sender's behavior when transmitting
 packets using an IPsec Child SA that has been previously configured or
-negotiated with IKE to use at most N different sequence number
+negotiated with IKEv2 to use at most N different sequence number
 subspace IDs.
 
 The sender MAY set the sequence number subspace ID to any value
@@ -811,7 +811,10 @@ and counter associated with the sequence number subspace identified
 with the subspace ID field.
 
 The receiver MUST drop any packet received with a subpace ID value
-greater or equal to N.  Such packets SHOULD be counted for reporting.
+greater or equal to N.  i Receiving such packets is an auditable
+event.  The audit log entry for this event SHOULD include the SPI value,
+subpace ID value, current date/time, Source Address, Destination Address,
+and (in IPv6) the cleartext Flow ID.
 
 Note: Since the sender may decide to only use a subset of the
 available N subspace values, the receiver MAY reactively allocate an
@@ -906,7 +909,7 @@ zero-valued octets.
 
 Flow Identifier (FID) Options are used to carry characteristic
 information of the inner flow and SHOULD NOT change on per packet
-basis inside any inner flow to avoid packet reordering.
+basis inside any inner flow. # to avoid packet reordering.
 The Flow Identifier SHOULD be negotiated by IKEv2 or another
 suitable protocol. The detailed specification of FIDs MAY be provided
 in subsequent documents. The precise meaning of a FID is opaque to
@@ -1230,7 +1233,7 @@ algorithms, no payload substructure is defined.
 To allow an EESP implementation to determine the MTU impact of a
 combined mode algorithm, the RFC for each algorithm used with EESP
 must specify a (simple) formula that yields encrypted payload size,
-as a function of the plaintext payload and sequence number sizes.
+as a function of the plaintext payload and EESP header sizes.
 
 ** Outbound Packet Processing
 
@@ -1263,7 +1266,7 @@ by using the AES-CMAC algorithm ([[RFC4494]]).
 The Sender proceeds for combined confidentiality/integrity algorithm as follows:
 
 1. Encapsulate into the EESP Payload Data field:
-    - for transport, beet and payload encryption mode -- just the original next layer
+    - for transport and beet mode -- just the original next layer
       protocol information.
     - for tunnel mode -- the entire original IP datagram.
 
@@ -1291,10 +1294,10 @@ The Sender proceeds for combined confidentiality/integrity algorithm as follows:
       employed.  If one is not used, an analogous field
       usually will be a part of the ciphertext payload.
       The location of any integrity fields, and the means
-      by which the Sequence Number and SPI are included in
+      by which the EESP header fields are included in
       the integrity computation, MUST be defined in an RFC
       that defines the use of the combined mode algorithm
-      with EESP.
+      with EESP. # XXX: We don't have this!!!
 
 # NOTE STK: Do we need to update RFC4106, RFC 4543, RFC 6054 etc.?
 
@@ -1321,11 +1324,11 @@ number is strictly monotonic increasing.
 The sender checks to ensure
 that the counter has not cycled before inserting the new value in the
 Sequence Number field.  In other words, the sender MUST NOT send a
-packet on an SA. If doing so would cause the sequence number to cycle.
+packet on such an SA. If doing so would cause the sequence number to cycle.
 An attempt to transmit a packet that would result in sequence number
 overflow is an auditable event.  The audit log entry for this event
-SHOULD include the SPI value, current date/time, Source Address,
-Destination Address, and (in IPv6) the cleartext Flow ID.
+SHOULD include the SPI value, Session ID value, current date/time,
+Source Address, Destination Address, and (in IPv6) the cleartext Flow ID.
 
 Typical behavior of an EESP implementation calls for the sender to
 establish a new SA when the Sequence Number of the SA cycles, or if
@@ -1342,8 +1345,7 @@ replaced.
 *** Fragmentation
 
 If necessary, fragmentation is performed after EESP processing within
-an IPsec implementation.  Thus, transport, beet and payload encryption
-mode, EESP is applied only to
+an IPsec implementation.  Thus, transport and beet mode, EESP is applied only to
 whole IP datagrams (not to IP fragments).  An IP packet to which EESP
 has been applied may itself be fragmented by routers en route, and
 such fragments must be reassembled prior to EESP processing at a
@@ -1385,8 +1387,8 @@ packet offered to EESP for processing appears to be an IP fragment,
 i.e., the OFFSET field is non-zero or the MORE FRAGMENTS flag is set,
 the receiver MUST discard the packet; this is an auditable event.
 The audit log entry for this event SHOULD include the SPI value,
-date/time received, Source Address, Destination Address, Sequence
-Number, and (in IPv6) the Flow ID.
+Session ID value, date/time received, Source Address, Destination
+Address, Sequence Number, and (in IPv6) the Flow ID.
 
 NOTE: For packet reassembly, the current IPv4 spec does NOT require
 either the zeroing of the OFFSET field or the clearing of the MORE
@@ -1412,9 +1414,9 @@ computation (if applicable).
 
 If no valid Security Association exists for this packet, the receiver
 MUST discard the packet; this is an auditable event.  The audit log
-entry for this event SHOULD include the SPI value, date/time
-received, Source Address, Destination Address, Sequence Number, and
-(in IPv6) the cleartext Flow ID.
+entry for this event SHOULD include the SPI value, Session ID value,
+date/time received, Source Address, Destination Address, Sequence Number,
+and (in IPv6) the cleartext Flow ID.
 
 *** Sequence Number Verification
 
@@ -1422,10 +1424,7 @@ received, Source Address, Destination Address, Sequence Number, and
 
 All EESP implementations MUST support the anti-replay service, though
 its use may be enabled or disabled by negotiation on a per-SA basis.
-This service MUST NOT be enabled unless the EESP integrity service
-also is enabled for the SA, because otherwise the Sequence Number
-field has not been integrity protected.  Anti-replay is applicable to
-unicast as well as multicast SAs.
+Anti-replay is applicable to unicast as well as multicast SAs.
 
 # Note STK: This might change when we introduce the Sender ID option.
 However, this standard specifies
@@ -1437,11 +1436,11 @@ for the SA be disabled (via negotiation or manual configuration), as
 noted below.
 
 If anti-replay service is enabled for this SA, the
-receive packet counter for the SA MUST be initialized to zero when
-the SA is established.  For each received packet, the receiver MUST
+receive packet counter for each used Sub SA MUST be initialized to zero when
+the SA is established.  For each received packet on a Sub SA, the receiver MUST
 verify that the packet contains a Sequence Number that does not
-duplicate the Sequence Number of any other packets received during
-the life of this SA.  This SHOULD be the first ESP check applied to a
+duplicate the Sequence Number of any other packets received on this Sub SA during
+the life of the SA.  This SHOULD be the first ESP check applied to a
 packet after it has been matched to an SA, to speed rejection of
 duplicate packets.
 
@@ -1468,19 +1467,18 @@ text describes the functionality that the implementation must
 exhibit.
 
 The "right" edge of the window represents the highest, validated
-Sequence Number value received on this SA.  Packets that contain
+Sequence Number value received on this Sub SA.  Packets that contain
 sequence numbers lower than the "left" edge of the window are
 rejected.  Packets falling within the window are checked against a
 list of received packets within the window.
 
 If the received packet falls within the window and is not a
-duplicate, or if the packet is to the right of the window, and if a
-separate integrity algorithm is employed, then the receiver proceeds
-to integrity verification.  If a combined mode algorithm is employed,
-the integrity check is performed along with decryption.  In either
-case, if the integrity check fails, the receiver MUST discard the
+duplicate, or if the packet is to the right of the window,
+receiver proceeds with cryptographic processing, i.e.
+integrity check along with decryption.
+If the integrity check fails, the receiver MUST discard the
 received IP datagram as invalid; this is an auditable event.  The
-audit log entry for this event SHOULD include the SPI value,
+audit log entry for this event SHOULD include the SPI value, Session ID value,
 date/time received, Source Address, Destination Address, the Sequence
 Number, and (in IPv6) the Flow ID.  The receive window is updated
 only if the integrity verification succeeds.  (If a combined mode
@@ -1530,7 +1528,7 @@ The receiver proceeds for combined mode algorithms as follows:
 -  If the integrity check performed by the combined mode
    algorithm fails, the receiver MUST discard the received IP
    datagram as invalid; this is an auditable event.  The log
-   data SHOULD include the SPI value, date/time received,
+   data SHOULD include the SPI value, Session ID value, date/time received,
    Source Address, Destination Address, the Sequence Number,
    and (in IPv6) the cleartext Flow ID.
 
@@ -1548,7 +1546,7 @@ The receiver proceeds for combined mode algorithms as follows:
 
 The exact steps for reconstructing the original datagram
 depend on the mode and are described in the Security
-Architecture document.
+Architecture document. # XXX: What about BEET mode?
 # FIXME: What to do here?
 At a minimum, in an
 IPv6 context, the receiver SHOULD ensure that the decrypted
@@ -1668,29 +1666,29 @@ included in an audit log is defined.
 
 - No valid Security Association exists for a session.  The
   audit log entry for this event SHOULD include the SPI value,
-  date/time received, Source Address, Destination Address,
+  Session ID value, date/time received, Source Address, Destination Address,
   Sequence Number, and (for IPv6) the cleartext Flow ID.
 
 - A packet offered to EESP for processing appears to be an IP
   fragment, i.e., the OFFSET field is non-zero or the MORE
   FRAGMENTS flag is set.  The audit log entry for this event
-  SHOULD include the SPI value, date/time received, Source
+  SHOULD include the SPI value, Session ID value, date/time received, Source
   Address, Destination Address, Sequence Number, and (in IPv6)
   the Flow ID.
 
 - Attempt to transmit a packet that would result in Sequence
   Number overflow.  The audit log entry for this event SHOULD
-  include the SPI value, current date/time, Source Address,
+  include the SPI value, Session ID value, current date/time, Source Address,
   Destination Address, Sequence Number, and (for IPv6) the
   cleartext Flow ID.
 
 - The received packet fails the anti-replay checks.  The audit
-  log entry for this event SHOULD include the SPI value,
+  log entry for this event SHOULD include the SPI value, Session ID value,
   date/time received, Source Address, Destination Address, the
   Sequence Number, and (in IPv6) the Flow ID.
 
 - The integrity check fails.  The audit log entry for this
-  event SHOULD include the SPI value, date/time received,
+  event SHOULD include the SPI value, Session ID value, date/time received,
   Source Address, Destination Address, the Sequence Number, and
   (for IPv6) the Flow ID.
 
@@ -1719,18 +1717,20 @@ provide anti-replay service in conjunction with SAs that are manually
 keyed.
 
 The mandatory-to-implement algorithms for use with EESP are described
-in a separate document [[RFC4305]], to facilitate updating the algorithm
+in a separate document RFC (TBD),
+# [[RFC4305]] is for ESP
+to facilitate updating the algorithm
 requirements independently from the protocol per se.  Additional
 algorithms, beyond those mandated for EESP, MAY be supported.
 
-Because use of encryption in EESP is optional, support for the "NULL"
-encryption algorithm also is required to maintain consistency with
-the way ESP services are negotiated.  Support for the
-confidentiality-only service version of EESP is optional.  If an
-implementation offers this service, it MUST also support the
-negotiation of the "NULL" integrity algorithm.  NOTE that although
-integrity and encryption may each be "NULL" under the circumstances
-noted above, they MUST NOT both be "NULL".
+#Because use of encryption in EESP is optional, support for the "NULL"
+#encryption algorithm also is required to maintain consistency with
+#the way ESP services are negotiated.  Support for the
+#confidentiality-only service version of EESP is optional.  If an
+#implementation offers this service, it MUST also support the
+#negotiation of the "NULL" integrity algorithm.  NOTE that although
+#integrity and encryption may each be "NULL" under the circumstances
+#noted above, they MUST NOT both be "NULL".
 
 * Security Considerations
 
@@ -1825,11 +1825,6 @@ information as they see fit".
 Authors are requested to add a note to the RFC Editor at the top of
 this section, advising the Editor to remove the entire section before
 publication, as well as the reference to [[RFC7942]].
-
-
-* Security Considerations
-
-In this section we discuss the security properties of EESP: TBD
 
 * Acknowledgments
 
