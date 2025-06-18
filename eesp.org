@@ -248,9 +248,9 @@ The Flags field in the fixed Base Header is defined as follows:
 #+caption: Base Header Flags
 #+name: flags
 #+begin_src
-    0 1 2 
+    0 1 2
    +-+-+-+
-   |F| R |
+   |F|R R|
    +-+-+-+
 #+end_src
 
@@ -258,7 +258,7 @@ The Flags field in the fixed Base Header is defined as follows:
   ~Payload Info Header~), set to 1 for Optimized EESP Packet format. This bit
   MAY be only set to 1 if the Crypt Offset is positive. It MUST be set to
   0 otherwise.
-- Reserved (R) :: 2 bits: Reserved for future versions, MUST be set to 0,
+- Reserved (RR) :: 2 bits: Reserved for future versions, MUST be set to 00,
   and ignored by the receiver.
 
 
@@ -335,7 +335,7 @@ in the following sections.
 
 *** Sequence Number
 
-The sequence number field is used for relay protection.
+The sequence number field is used for replay protection.
 This unsigned 64-bit field contains a counter value that increases
 for each packet sent, i.e., a per-SA packet sequence number. For a
 unicast SA or a single-sender multicast SA, the sender MUST increment
@@ -412,9 +412,10 @@ cryptographic synchronization data, e.g., an Initialization Vector
 (IV), usually is not encrypted per se (see Table 1), although it
 sometimes is referred to as being part of the ciphertext.)
 
-Counter mode algorithms MAY encode the 64-bit counter of the
-Initialization Vector (IV) on the Sequence number Field.  This option
-saves 8 header bytes on each packet.  Whether or not this option is
+Counter mode algorithms MAY use the 64-bit counter as the
+Initialization Vector (IV) in the Sequence number Field, as specified
+[[RFC8750]]. This option, Implicit Initialization Vector (IIV)
+saves 8 header bytes on each packet. Whether or not this option is
 selected is determined as part of Security Association (SA)
 establishment.
 
