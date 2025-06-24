@@ -1293,9 +1293,10 @@ using separate confidentiality and integrity algorithms becomes
 necessary, a new version of EESP MUST be defined.
 
 The mandatory-to-implement algorithms for use with EESP described
-in a separate RFC (TBD), to facilitate updating the algorithm requirements
-independently from the protocol per se.  Additional algorithms,
-beyond those mandated for EESP, MAY be supported.
+in a separate RFC, for e.g. RFC8221bis or another I.D., to facilitate
+updating the algorithm requirements independently from the protocol
+per se.  Additional algorithms, beyond those mandated for EESP, MAY
+be supported.
 
 *** Combined Mode Algorithms
 
@@ -1819,12 +1820,11 @@ overflow were imminent.  Thus, a compliant implementation SHOULD NOT
 provide anti-replay service in conjunction with SAs that are manually
 keyed.
 
-The mandatory-to-implement algorithms for use with EESP are described
-in a separate document RFC (TBD),
-# [[RFC4305]] is for ESP
-to facilitate updating the algorithm
-requirements independently from the protocol per se.  Additional
-algorithms, beyond those mandated for EESP, MAY be supported.
+The mandatory-to-implement algorithms for use with EESP described
+in a separate RFC, for e.g. RFC8221bis or another I.D., to facilitate
+updating the algorithm requirements independently from the protocol
+per se.  Additional algorithms, beyond those mandated for EESP, MAY
+be supported.
 
 #Because use of encryption in EESP is optional, support for the "NULL"
 #encryption algorithm also is required to maintain consistency with
