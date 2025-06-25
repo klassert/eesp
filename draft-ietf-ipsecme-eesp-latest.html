@@ -1227,7 +1227,7 @@ li > p:last-of-type:only-child {
 </tr></thead>
 <tfoot><tr>
 <td class="left">Klassert, et al.</td>
-<td class="center">Expires 26 December 2025</td>
+<td class="center">Expires 27 December 2025</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1238,12 +1238,12 @@ li > p:last-of-type:only-child {
 <dd class="workgroup">IPSECME Working Group</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2025-06-24" class="published">24 June 2025</time>
+<time datetime="2025-06-25" class="published">25 June 2025</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Standards Track</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2025-12-26">26 December 2025</time></dd>
+<dd class="expires"><time datetime="2025-12-27">27 December 2025</time></dd>
 <dt class="label-authors">Authors:</dt>
 <dd class="authors">
 <div class="author">
@@ -1295,7 +1295,7 @@ middlebox use.<a href="#section-abstract-2" class="pilcrow">¶</a></p>
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 26 December 2025.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 27 December 2025.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -2107,22 +2107,22 @@ included in the AAD.<a href="#section-2.8-3" class="pilcrow">¶</a></p>
 <pre>
  0                   1                   2                   3
  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
--+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+--+
-                                                               |  |
-                          Base Header                          ~  |
--+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+  |
-|                 Crypt Offset Optional Header                 |  |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-++ Int
-|                                                              | egr
-~                     Peer Header (variable)                   ~ ity
-|                                                              |  |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-++ Pro
-|                  Plaintext Payload Data (variable)           | tec
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-++ ted
-|                                                              |  |
-~                    Encrypted Payload Data (variable)         ~  |
-|                                                              |  |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-++--+
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+--+
+|                                                               |  |
+|                          Base Header                          ~  |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-++|
+|                 Crypt Offset Optional Header                  |  |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-++| Int
+|                                                               | egr
+~                     Peer Header (variable)                    ~ ity
+|                                                               |  |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-++| Pro
+|                  Plaintext Payload Data (variable)            | tec
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-++| ted
+|                                                               |  |
+~                    Encrypted Payload Data (variable)          ~  |
+|                                                               |  |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+++--+
 ~              Integrity Check Value-ICV (variable)            ~
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-++
 </pre>
@@ -2138,39 +2138,39 @@ crypto offset 8 (8x4 = 32 bytes). [eesp-aad-crypt-offset-example]<a href="#secti
 <pre>
 #+caption: EESP Tunnel Mode AAD with Crypt Offset example
 #+name: eesp-aad-crypt-offset-example
-   0                   1                   2                   3
-   0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
-  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+--+
-  |1|Version|Flags|   Opt Len (4) |         Session ID            |  |
-  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+  |
-  |                              SPI                              |  |
-  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+  |
-  |  Crypt Offset(2)  |Opt Len (4)|POffset (7)|CryptOff(8)| F | R |  |
-  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ Int
-  |                       Sequence number 63-32                   | ege
-  |                       Sequence number 31-0                    | rity
-  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+  |
-  |                       IV 63-32                                | Pro
-  |                       IV 31-0                                 | tec
-  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ ted
-  |           Payload Info Header (Next header 4) Plain text)     |  |
-  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+  |
-  |               IP + UDP Headers 28 bytes Plain text            |  |
-  +---------------------------------------------------------------+  |
-  |                      Remaining Encrypted Payload Data         |  |
-  ~                                                               ~  |
-  |                                                               |  |
-  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+--+
-  |                                                               |
-  ~              Integrity Check Value-ICV (variable)             ~
-  |                                                               |
-  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ 0                   1                   2                   3
+ 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+--+
+|1|Version|Flags|   Opt Len (4) |         Session ID            |  |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+  |
+|                              SPI                              |  |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+  |
+|  Crypt Offset(2)  |Opt Len (4)|POffset (7)|CryptOff(8)| F | R |  |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ Int
+|                       Sequence number 63-32                   | egr
+|                       Sequence number 31-0                    | ity
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+  |
+|                       IV 63-32                                | Pro
+|                       IV 31-0                                 | tec
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ ted
+|           Payload Info Header (Next header 4) Plain text)     |  |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+  |
+|               IP + UDP Headers 28 bytes Plain text            |  |
++---------------------------------------------------------------+  |
+|                      Remaining Encrypted Payload Data         |  |
+~                                                               ~  |
+|                                                               |  |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+--+
+|                                                               |
+~              Integrity Check Value-ICV (variable)             ~
+|                                                               |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 </pre><a href="#section-2.8-6" class="pilcrow">¶</a>
 </div>
 <p id="section-2.8-7">The AAD specifications apply to all EESP cipher suites used with
 EESP. This document updates <span>[<a href="#RFC4106" class="cite xref">RFC4106</a>]</span> to define EESP-specific
 handling of Additional Authenticated Data (AAD) when using
-AES-GCM. For AES-GMAC RFC 4543, the AAD includes all headers,
+AES-GCM. For AES-GMAC <span>[<a href="#RFC4543" class="cite xref">RFC4543</a>]</span>, the AAD includes all headers,
 i.e. the entire EESP payload except the Integrity Check Value (ICV).
 This document also updates AAD processing for the
 ENCR_CHACHA20_POLY1305 cipher suite, as specified in <span>[<a href="#RFC7634" class="cite xref">RFC7634</a>]</span>.<a href="#section-2.8-7" class="pilcrow">¶</a></p>
@@ -3492,19 +3492,19 @@ there likely would be no automated recovery provision if counter
 overflow were imminent.  Thus, a compliant implementation SHOULD NOT
 provide anti-replay service in conjunction with SAs that are manually
 keyed.<a href="#section-8-1" class="pilcrow">¶</a></p>
-<p id="section-8-2">The mandatory-to-implement algorithms for use with EESP are described
-in a separate document RFC (TBD),<a href="#section-8-2" class="pilcrow">¶</a></p>
-<p id="section-8-3">to facilitate updating the algorithm
-requirements independently from the protocol per se.  Additional
-algorithms, beyond those mandated for EESP, MAY be supported.<a href="#section-8-3" class="pilcrow">¶</a></p>
-<p id="section-8-4">#Because use of encryption in EESP is optional, support for the "NULL"
+<p id="section-8-2">The mandatory-to-implement algorithms for use with EESP described
+in a separate RFC, for e.g. RFC8221bis or another I.D., to facilitate
+updating the algorithm requirements independently from the protocol
+per se.  Additional algorithms, beyond those mandated for EESP, MAY
+be supported.<a href="#section-8-2" class="pilcrow">¶</a></p>
+<p id="section-8-3">#Because use of encryption in EESP is optional, support for the "NULL"
 #encryption algorithm also is required to maintain consistency with
 #the way ESP services are negotiated.  Support for the
 #confidentiality-only service version of EESP is optional.  If an
 #implementation offers this service, it MUST also support the
 #negotiation of the "NULL" integrity algorithm.  NOTE that although
 #integrity and encryption may each be "NULL" under the circumstances
-#noted above, they MUST NOT both be "NULL".<a href="#section-8-4" class="pilcrow">¶</a></p>
+#noted above, they MUST NOT both be "NULL".<a href="#section-8-3" class="pilcrow">¶</a></p>
 </section>
 <section id="section-9">
       <h2 id="name-security-considerations">
@@ -3662,10 +3662,6 @@ publication, as well as the reference to <span>[<a href="#RFC7942" class="cite x
 <dt id="RFC4303">[RFC4303]</dt>
       <dd>
 <span class="refAuthor">Kent, S.</span>, <span class="refTitle">"IP Encapsulating Security Payload (ESP)"</span>, <span class="seriesInfo">RFC 4303</span>, <span class="seriesInfo">DOI 10.17487/RFC4303</span>, <time datetime="2005-12" class="refDate">December 2005</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc4303">https://www.rfc-editor.org/info/rfc4303</a>&gt;</span>. </dd>
-<dd class="break"></dd>
-<dt id="RFC4305">[RFC4305]</dt>
-      <dd>
-<span class="refAuthor">Eastlake 3rd, D.</span>, <span class="refTitle">"Cryptographic Algorithm Implementation Requirements for Encapsulating Security Payload (ESP) and Authentication Header (AH)"</span>, <span class="seriesInfo">RFC 4305</span>, <span class="seriesInfo">DOI 10.17487/RFC4305</span>, <time datetime="2005-12" class="refDate">December 2005</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc4305">https://www.rfc-editor.org/info/rfc4305</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="RFC4494">[RFC4494]</dt>
       <dd>
