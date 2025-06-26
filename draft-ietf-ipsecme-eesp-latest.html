@@ -1951,14 +1951,15 @@ establishment.<a href="#section-2.3.2-2" class="pilcrow">¶</a></p>
 <a href="#section-2.4" class="section-number selfRef">2.4. </a><a href="#name-payload-info-header" class="section-name selfRef">Payload Info Header</a>
         </h3>
 <p id="section-2.4-1">The Payload Info Header is needed if the contained payload is
-not a single IPv4 or IPv6 packet (e.g., when using Transport Mode or
-IP-TFS). It is optional on tunnel mode because this information
-can be derived from the inner IPv4 or IPv6 header. This document
-specifies a full and an optimized packet format. The Payload Info
-Header is present in the Full EESP packet format, but not in the
-optimized format see <a href="#sec-full-and-optimized-packet-formats" class="auto internal xref">Section 2.8</a>.
-IPsec peers and middleboxes (if Crypt Offset is positive, see
-<a href="#sec-eesp-crypt-offset-option" class="auto internal xref">Section 3.1.3</a>) MAY act upon the Payload Info Header.<a href="#section-2.4-1" class="pilcrow">¶</a></p>
+not a single IPv4 or IPv6 packet (e.g., when using Transport Mode,
+BEET Mode <span>[<a href="#RFC7402" class="cite xref">RFC7402</a>]</span>, or IP-TFS <span>[<a href="#RFC9347" class="cite xref">RFC9347</a>]</span>). It is optional on
+tunnel mode because this information can be derived from the inner
+IPv4 or IPv6 header. This document specifies a full and an optimized
+packet format. The Payload Info Header is present in the Full EESP
+packet format, but not in the optimized format see
+<a href="#sec-full-and-optimized-packet-formats" class="auto internal xref">Section 2.8</a>. IPsec peers and middleboxes
+(if Crypt Offset is positive, see <a href="#sec-eesp-crypt-offset-option" class="auto internal xref">Section 3.1.3</a>) MAY
+act upon the Payload Info Header.<a href="#section-2.4-1" class="pilcrow">¶</a></p>
 <span id="name-payload-info-header-2"></span><div id="payload-info-header">
 <figure id="figure-5">
           <div class="sourcecode" id="section-2.4-2.1">
@@ -2272,7 +2273,7 @@ processing details are described in later sections.<a href="#section-2.8-8" clas
             <p id="section-2.8-10.1.1">[1] M = mandatory; O = optional<a href="#section-2.8-10.1.1" class="pilcrow">¶</a></p>
 </li>
           <li class="compact" id="section-2.8-10.2">
-            <p id="section-2.8-10.2.1">[2] If tunnel mode -&gt; IP datagram. If beet mode -&gt; IP datagram. If
+            <p id="section-2.8-10.2.1">[2] If tunnel mode -&gt; IP datagram. If BEET mode -&gt; IP datagram. If
 transport mode -&gt; next header and data. If IP-TFS, IP-TFS header
 and payload.<a href="#section-2.8-10.2.1" class="pilcrow">¶</a></p>
 </li>
@@ -2655,16 +2656,15 @@ in this document, as we don't define PSP here.<a href="#section-3.1.3-6.12.2" cl
 <a href="#section-4.1" class="section-number selfRef">4.1. </a><a href="#name-eesp-header-location" class="section-name selfRef">EESP Header Location</a>
         </h3>
 <p id="section-4.1-1">EESP may be employed in multiple ways. To secure end-to-end
-network traffic, transport mode and payload encryption mode
-may be used. For the VPN use case, tunnel and beet mode may
-be employed.<a href="#section-4.1-1" class="pilcrow">¶</a></p>
+network traffic, transport mode may be used. For the VPN use case,
+tunnel and BEET mode may be employed.<a href="#section-4.1-1" class="pilcrow">¶</a></p>
 <div id="sec-layer-4-encapsulation-modes">
 <section id="section-4.1.1">
           <h4 id="name-layer-4-encapsulation-modes">
 <a href="#section-4.1.1" class="section-number selfRef">4.1.1. </a><a href="#name-layer-4-encapsulation-modes" class="section-name selfRef">Layer 4 Encapsulation Modes</a>
           </h4>
-<p id="section-4.1.1-1">Layer 4 Encapsulation Modes are transport mode and BEET mode.
-Layer 4 Encapsulation Modes
+<p id="section-4.1.1-1">Layer 4 Encapsulation Modes are transport mode and BEET mode
+<span>[<a href="#RFC7402" class="cite xref">RFC7402</a>]</span> Layer 4 Encapsulation Modes
 distinguish from tunnel mode on the position of the EESP
 header in the packet. On Layer 4 Encapsulation Modes the
 EESP header is inserted between the original IPv4/IPv6
@@ -2885,6 +2885,7 @@ IPv6  | new* |new ext | EESP | orig*| orig ext |     |      | EESP |
 </div>
 </section>
 </section>
+<div id="sec-aad-construction">
 <section id="section-4.2">
         <h3 id="name-aad-construction">
 <a href="#section-4.2" class="section-number selfRef">4.2. </a><a href="#name-aad-construction" class="section-name selfRef">AAD Construction</a>
@@ -3005,6 +3006,7 @@ i.e. the entire EESP payload except the Integrity Check Value (ICV).
 This document also updates AAD processing for the
 ENCR_CHACHA20_POLY1305 cipher suite, as specified in <span>[<a href="#RFC7634" class="cite xref">RFC7634</a>]</span>.<a href="#section-4.2-7" class="pilcrow">¶</a></p>
 </section>
+</div>
 <section id="section-4.3">
         <h3 id="name-algorithms">
 <a href="#section-4.3" class="section-number selfRef">4.3. </a><a href="#name-algorithms" class="section-name selfRef">Algorithms</a>
@@ -3099,7 +3101,7 @@ by using the AES-CMAC algorithm (<span>[<a href="#RFC4494" class="cite xref">RFC
               <p id="section-4.4.3-2.1.1">Encapsulate into the EESP Payload Data field:<a href="#section-4.4.3-2.1.1" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-4.4.3-2.1.2.1">
-                  <p id="section-4.4.3-2.1.2.1.1">for transport and beet mode -- just the original next layer
+                  <p id="section-4.4.3-2.1.2.1.1">for transport and BEET mode -- just the original next layer
 protocol information.<a href="#section-4.4.3-2.1.2.1.1" class="pilcrow">¶</a></p>
 </li>
                 <li class="normal" id="section-4.4.3-2.1.2.2">
@@ -3132,19 +3134,15 @@ specification.<a href="#section-4.4.3-2.3.2.2.1" class="pilcrow">¶</a></p>
 algorithm, as they must be included in the integrity
 check computation.  The means by which these values
 are included in this computation are a function of
-the combined mode algorithm employed and thus not
-specified in this standard.<a href="#section-4.4.3-2.3.2.3.1" class="pilcrow">¶</a></p>
+the combined mode algorithm employed.<a href="#section-4.4.3-2.3.2.3.1" class="pilcrow">¶</a></p>
 </li>
                 <li class="normal" id="section-4.4.3-2.3.2.4">
                   <p id="section-4.4.3-2.3.2.4.1">The (explicit) ICV field MAY be a part of the EESP
-packet format when a combined mode algorithm is
-employed.  If one is not used, an analogous field
+packet format. If one is not used, an analogous field
 usually will be a part of the ciphertext payload.
 The location of any integrity fields, and the means
 by which the EESP header fields are included in
-the integrity computation, MUST be defined in an RFC
-that defines the use of the combined mode algorithm
-with EESP. # XXX: We don't have this!!!<a href="#section-4.4.3-2.3.2.4.1" class="pilcrow">¶</a></p>
+the integrity computation, are defined in <a href="#sec-aad-construction" class="auto internal xref">Section 4.2</a>.<a href="#section-4.4.3-2.3.2.4.1" class="pilcrow">¶</a></p>
 </li>
               </ul>
 </li>
@@ -3194,7 +3192,7 @@ replaced.<a href="#section-4.4.4-5" class="pilcrow">¶</a></p>
 <a href="#section-4.4.5" class="section-number selfRef">4.4.5. </a><a href="#name-fragmentation" class="section-name selfRef">Fragmentation</a>
           </h4>
 <p id="section-4.4.5-1">If necessary, fragmentation is performed after EESP processing within
-an IPsec implementation.  Thus, transport and beet mode, EESP is applied only to
+an IPsec implementation.  Thus, transport and BEET mode, EESP is applied only to
 whole IP datagrams (not to IP fragments).  An IP packet to which EESP
 has been applied may itself be fragmented by routers en route, and
 such fragments must be reassembled prior to EESP processing at a
@@ -3203,7 +3201,8 @@ be a fragment of an IP datagram.  For example, a security gateway or
 a "bump-in-the-stack" or "bump-in-the-wire" IPsec implementation (as
 defined in the Security Architecture document) may apply tunnel mode
 EESP to such fragments.<a href="#section-4.4.5-1" class="pilcrow">¶</a></p>
-<p id="section-4.4.5-2">NOTE: For Layer 4 Encapsulation Modes -- As mentioned at the end of <a href="#sec-layer-4-encapsulation-modes" class="auto internal xref">Section 4.1.1</a>,
+<p id="section-4.4.5-2">NOTE: For Layer 4 Encapsulation Modes -- As mentioned at the end of
+<a href="#sec-layer-4-encapsulation-modes" class="auto internal xref">Section 4.1.1</a>,
 bump-in-the-stack and bump-in-the-wire implementations may have to
 first reassemble a packet fragmented by the local IP layer, then
 apply IPsec, and then fragment the resulting packet.<a href="#section-4.4.5-2" class="pilcrow">¶</a></p>
@@ -3348,57 +3347,55 @@ not specified by this standard.<a href="#section-4.5.3-10" class="pilcrow">¶</a
                 <p id="section-4.5.4.1-2.1.1">Decrypts and integrity checks the EESP Payload Info Header (if present),
 Payload Data, Padding, using the key, algorithm,
 algorithm mode, and cryptographic synchronization data (if
-any), indicated by the SA.<a href="#section-4.5.4.1-2.1.1" class="pilcrow">¶</a></p>
-</li>
-            </ol>
-<p id="section-4.5.4.1-3">The Base Header and the Peer Header are are inputs
+any), indicated by the SA.
+The Base Header and the Peer Header are are inputs
 to this algorithm, as they are required for the integrity
-check.<a href="#section-4.5.4.1-3" class="pilcrow">¶</a></p>
+check.<a href="#section-4.5.4.1-2.1.1" class="pilcrow">¶</a></p>
 <ul class="normal">
-<li class="normal" id="section-4.5.4.1-4.1">
-                <p id="section-4.5.4.1-4.1.1">If explicit cryptographic synchronization data, e.g.,
+<li class="normal" id="section-4.5.4.1-2.1.2.1">
+                    <p id="section-4.5.4.1-2.1.2.1.1">If explicit cryptographic synchronization data, e.g.,
 an IV, is indicated, it is taken from the IV
 field and input to the decryption algorithm as per
-the algorithm specification.<a href="#section-4.5.4.1-4.1.1" class="pilcrow">¶</a></p>
+the algorithm specification.<a href="#section-4.5.4.1-2.1.2.1.1" class="pilcrow">¶</a></p>
 </li>
-              <li class="normal" id="section-4.5.4.1-4.2">
-                <p id="section-4.5.4.1-4.2.1">If implicit cryptographic synchronization data, e.g.,
+                  <li class="normal" id="section-4.5.4.1-2.1.2.2">
+                    <p id="section-4.5.4.1-2.1.2.2.1">If implicit cryptographic synchronization data, e.g.,
 an IV, is indicated, a local version of the IV is
 constructed and input to the decryption algorithm as
-per the algorithm specification.<a href="#section-4.5.4.1-4.2.1" class="pilcrow">¶</a></p>
+per the algorithm specification.<a href="#section-4.5.4.1-2.1.2.2.1" class="pilcrow">¶</a></p>
 </li>
-            </ul>
-<ul class="normal">
-<li class="normal" id="section-4.5.4.1-5.1">
-                <p id="section-4.5.4.1-5.1.1">If the integrity check performed by the combined mode
+                </ul>
+</li>
+              <li id="section-4.5.4.1-2.2">
+                <p id="section-4.5.4.1-2.2.1">If the integrity check performed by the combined mode
 algorithm fails, the receiver MUST discard the received IP
 datagram as invalid; this is an auditable event.  The log
 data SHOULD include the SPI value, Session ID value, date/time received,
 Source Address, Destination Address, the Sequence Number,
-and (in IPv6) the cleartext Flow ID.<a href="#section-4.5.4.1-5.1.1" class="pilcrow">¶</a></p>
+andF (in IPv6) the cleartext Flow ID.<a href="#section-4.5.4.1-2.2.1" class="pilcrow">¶</a></p>
 </li>
-              <li class="normal" id="section-4.5.4.1-5.2">
-                <p id="section-4.5.4.1-5.2.1">Process any Padding as specified in the encryption algorithm
-specification, if the algorithm has not already done so.<a href="#section-4.5.4.1-5.2.1" class="pilcrow">¶</a></p>
+              <li id="section-4.5.4.1-2.3">
+                <p id="section-4.5.4.1-2.3.1">Process any Padding as specified in the encryption algorithm
+specification, if the algorithm has not already done so.<a href="#section-4.5.4.1-2.3.1" class="pilcrow">¶</a></p>
 </li>
-              <li class="normal" id="section-4.5.4.1-5.3">
-                <p id="section-4.5.4.1-5.3.1">The receiver checks the Next Header field.  If the value is
+              <li id="section-4.5.4.1-2.4">
+                <p id="section-4.5.4.1-2.4.1">The receiver checks the Next Header field.  If the value is
 "59" (no next header), the (dummy) packet is discarded
-without further processing.<a href="#section-4.5.4.1-5.3.1" class="pilcrow">¶</a></p>
+without further processing.<a href="#section-4.5.4.1-2.4.1" class="pilcrow">¶</a></p>
 </li>
-              <li class="normal" id="section-4.5.4.1-5.4">
-                <p id="section-4.5.4.1-5.4.1">Extract the original IP datagram (tunnel mode) or
+              <li id="section-4.5.4.1-2.5">
+                <p id="section-4.5.4.1-2.5.1">Extract the original IP datagram (tunnel mode) or
 transport-layer frame (layer 4 payload encapsulation modes) from the ESP Payload
-Data field.<a href="#section-4.5.4.1-5.4.1" class="pilcrow">¶</a></p>
+Data field.<a href="#section-4.5.4.1-2.5.1" class="pilcrow">¶</a></p>
 </li>
-            </ul>
-<p id="section-4.5.4.1-6">The exact steps for reconstructing the original datagram
-depend on the mode and are described in the Security
-Architecture document. # XXX: What about BEET mode?<a href="#section-4.5.4.1-6" class="pilcrow">¶</a></p>
-<p id="section-4.5.4.1-7">At a minimum, in an
-IPv6 context, the receiver SHOULD ensure that the decrypted
-data is 8-byte aligned, to facilitate processing by the
-protocol identified in the Next Header field.<a href="#section-4.5.4.1-7" class="pilcrow">¶</a></p>
+            </ol>
+<p id="section-4.5.4.1-3">The exact steps for reconstructing the original datagram
+depend on the mode. Transport and Tunnel mode are described in the
+Security Architecture document <span>[<a href="#RFC4301" class="cite xref">RFC4301</a>]</span>. BEET Mode is described
+in <span>[<a href="#RFC7402" class="cite xref">RFC7402</a>]</span> and IP-TFS in <span>[<a href="#RFC9347" class="cite xref">RFC9347</a>]</span>.
+At a minimum, in an IPv6 context, the receiver SHOULD ensure that the
+decrypted data is 8-byte aligned, to facilitate processing by the
+protocol identified in the Next Header field.<a href="#section-4.5.4.1-3" class="pilcrow">¶</a></p>
 </section>
 </section>
 </section>
@@ -3728,6 +3725,10 @@ publication, as well as the reference to <span>[<a href="#RFC7942" class="cite x
 <dt id="RFC7296">[RFC7296]</dt>
       <dd>
 <span class="refAuthor">Kaufman, C.</span>, <span class="refAuthor">Hoffman, P.</span>, <span class="refAuthor">Nir, Y.</span>, <span class="refAuthor">Eronen, P.</span>, and <span class="refAuthor">T. Kivinen</span>, <span class="refTitle">"Internet Key Exchange Protocol Version 2 (IKEv2)"</span>, <span class="seriesInfo">STD 79</span>, <span class="seriesInfo">RFC 7296</span>, <span class="seriesInfo">DOI 10.17487/RFC7296</span>, <time datetime="2014-10" class="refDate">October 2014</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc7296">https://www.rfc-editor.org/info/rfc7296</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC7402">[RFC7402]</dt>
+      <dd>
+<span class="refAuthor">Jokela, P.</span>, <span class="refAuthor">Moskowitz, R.</span>, and <span class="refAuthor">J. Melen</span>, <span class="refTitle">"Using the Encapsulating Security Payload (ESP) Transport Format with the Host Identity Protocol (HIP)"</span>, <span class="seriesInfo">RFC 7402</span>, <span class="seriesInfo">DOI 10.17487/RFC7402</span>, <time datetime="2015-04" class="refDate">April 2015</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc7402">https://www.rfc-editor.org/info/rfc7402</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="RFC8200">[RFC8200]</dt>
       <dd>
