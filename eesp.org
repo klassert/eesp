@@ -1267,14 +1267,14 @@ crypto offset 8 (8x4 = 32 bytes). [eesp-aad-crypt-offset-example]
 |                       Sequence number 63-32                   | egr
 |                       Sequence number 31-0                    | ity
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+  |
-|                       IV 63-32                                | Pro
-|                       IV 31-0                                 | tec
+|                           IV 63-32                            | Pro
+|                           IV 31-0                             | tec
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ ted
 |           Payload Info Header (Next header 4) Plain text)     |  |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+  |
-|               IP + UDP Headers 28 bytes Plain text            |  |
+|               IPv4 + UDP Headers 28 bytes Plain text          |  |
 +---------------------------------------------------------------+  |
-|                      Remaining Encrypted Payload Data         |  |
+|                   Remaining Encrypted Payload Data            |  |
 ~                                                               ~  |
 |                                                               |  |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+--+
