@@ -423,14 +423,15 @@ establishment.
 ** Payload Info Header
 
 The Payload Info Header is needed if the contained payload is
-not a single IPv4 or IPv6 packet (e.g., when using Transport Mode or
-IP-TFS). It is optional on tunnel mode because this information
-can be derived from the inner IPv4 or IPv6 header. This document
-specifies a full and an optimized packet format. The Payload Info
-Header is present in the Full EESP packet format, but not in the
-optimized format see [[Full and Optimized Packet Formats]].
-IPsec peers and middleboxes (if Crypt Offset is positive, see
-[[EESP Crypt Offset Option]]) MAY act upon the Payload Info Header.
+not a single IPv4 or IPv6 packet (e.g., when using Transport Mode,
+BEET Mode [[RFC7402]], or IP-TFS [[RFC9347]]). It is optional on
+tunnel mode because this information can be derived from the inner
+IPv4 or IPv6 header. This document specifies a full and an optimized
+packet format. The Payload Info Header is present in the Full EESP
+packet format, but not in the optimized format see
+[[Full and Optimized Packet Formats]]. IPsec peers and middleboxes
+(if Crypt Offset is positive, see [[EESP Crypt Offset Option]]) MAY
+act upon the Payload Info Header.
 
 #+caption: Payload Info Header
 #+name: payload-info-header
@@ -666,7 +667,7 @@ processing details are described in later sections.
 
 #+ATTR_RFC: :compact t
 - [1] M = mandatory; O = optional
-- [2] If tunnel mode -> IP datagram. If beet mode -> IP datagram. If
+- [2] If tunnel mode -> IP datagram. If BEET mode -> IP datagram. If
   transport mode -> next header and data. If IP-TFS, IP-TFS header
   and payload.
 - [3] Ciphertext if encryption has been selected
@@ -995,15 +996,14 @@ a separate document that defines the 'EESP use for Datacenters'.
 ** EESP Header Location
 
 EESP may be employed in multiple ways. To secure end-to-end
-network traffic, transport mode and payload encryption mode
-may be used. For the VPN use case, tunnel and beet mode may
-be employed.
+network traffic, transport mode may be used. For the VPN use case,
+tunnel and BEET mode may be employed.
 
 
 *** Layer 4 Encapsulation Modes
 
-Layer 4 Encapsulation Modes are transport mode and BEET mode.
-Layer 4 Encapsulation Modes
+Layer 4 Encapsulation Modes are transport mode and BEET mode
+[[RFC7402]] Layer 4 Encapsulation Modes
 distinguish from tunnel mode on the position of the EESP
 header in the packet. On Layer 4 Encapsulation Modes the
 EESP header is inserted between the original IPv4/IPv6
@@ -1348,13 +1348,6 @@ vary for different algorithm choices.  In order to provide a uniform,
 algorithm-independent approach to invocation of combined mode
 algorithms, no payload substructure is defined.
 
-
-# XXX: Do we need this?
-# For example, the SPI
-# and Sequence Number fields might be replicated within the ciphertext
-# envelope and an ICV may be appended to the EESP payload data.  None of
-# these details should be observable externally.
-
 To allow an EESP implementation to determine the MTU impact of a
 combined mode algorithm, the RFC for each algorithm used with EESP
 must specify a (simple) formula that yields encrypted payload size,
@@ -1391,7 +1384,7 @@ by using the AES-CMAC algorithm ([[RFC4494]]).
 The Sender proceeds for combined confidentiality/integrity algorithm as follows:
 
 1. Encapsulate into the EESP Payload Data field:
-    - for transport and beet mode -- just the original next layer
+    - for transport and BEET mode -- just the original next layer
       protocol information.
     - for tunnel mode -- the entire original IP datagram.
 
@@ -1412,19 +1405,13 @@ The Sender proceeds for combined confidentiality/integrity algorithm as follows:
       algorithm, as they must be included in the integrity
       check computation.  The means by which these values
       are included in this computation are a function of
-      the combined mode algorithm employed and thus not
-      specified in this standard.
+      the combined mode algorithm employed.
     - The (explicit) ICV field MAY be a part of the EESP
-      packet format when a combined mode algorithm is
-      employed.  If one is not used, an analogous field
+      packet format. If one is not used, an analogous field
       usually will be a part of the ciphertext payload.
       The location of any integrity fields, and the means
       by which the EESP header fields are included in
-      the integrity computation, MUST be defined in an RFC
-      that defines the use of the combined mode algorithm
-      with EESP. # XXX: We don't have this!!!
-
-# NOTE STK: Do we need to update RFC4106, RFC 4543, RFC 6054 etc.?
+      the integrity computation, are defined in [[AAD Construction]].
 
 *** Sequence Number Generation
 
@@ -1470,7 +1457,7 @@ replaced.
 *** Fragmentation
 
 If necessary, fragmentation is performed after EESP processing within
-an IPsec implementation.  Thus, transport and beet mode, EESP is applied only to
+an IPsec implementation.  Thus, transport and BEET mode, EESP is applied only to
 whole IP datagrams (not to IP fragments).  An IP packet to which EESP
 has been applied may itself be fragmented by routers en route, and
 such fragments must be reassembled prior to EESP processing at a
@@ -1480,8 +1467,8 @@ a "bump-in-the-stack" or "bump-in-the-wire" IPsec implementation (as
 defined in the Security Architecture document) may apply tunnel mode
 EESP to such fragments.
 
-# FIXME: beet + payload enc mode
-NOTE: For Layer 4 Encapsulation Modes -- As mentioned at the end of [[Layer 4 Encapsulation Modes]],
+NOTE: For Layer 4 Encapsulation Modes -- As mentioned at the end of
+[[Layer 4 Encapsulation Modes]],
 bump-in-the-stack and bump-in-the-wire implementations may have to
 first reassemble a packet fragmented by the local IP layer, then
 apply IPsec, and then fragment the resulting packet.
@@ -1545,13 +1532,12 @@ and (in IPv6) the cleartext Flow ID.
 
 *** Sequence Number Verification
 
-# FIXME: This section needs review.
-
 All EESP implementations MUST support the anti-replay service, though
 its use may be enabled or disabled by negotiation on a per-SA basis.
 Anti-replay is applicable to unicast as well as multicast SAs.
 
 # Note STK: This might change when we introduce the Sender ID option.
+
 However, this standard specifies
 no mechanisms for providing anti-replay for a multi-sender SA
 (unicast or multicast).  In the absence of negotiation (or manual
@@ -1629,13 +1615,6 @@ The receiver proceeds for combined mode algorithms as follows:
    Payload Data, Padding, using the key, algorithm,
    algorithm mode, and cryptographic synchronization data (if
    any), indicated by the SA.
-# FIXME: EESP has more inputs than SPI ans seq NR
-   # XXX: This is the original ESP text:
-   # The SPI from the EESP header, and
-   # the (receiver) packet counter value (adjusted as required
-   # from the processing described in Section 3.4.3) are inputs
-   # to this algorithm, as they are required for the integrity
-   # check.
    The Base Header and the Peer Header are are inputs
    to this algorithm, as they are required for the integrity
    check.
@@ -1655,7 +1634,7 @@ The receiver proceeds for combined mode algorithms as follows:
    datagram as invalid; this is an auditable event.  The log
    data SHOULD include the SPI value, Session ID value, date/time received,
    Source Address, Destination Address, the Sequence Number,
-   and (in IPv6) the cleartext Flow ID.
+   andF (in IPv6) the cleartext Flow ID.
 
 -  Process any Padding as specified in the encryption algorithm
    specification, if the algorithm has not already done so.
@@ -1670,12 +1649,11 @@ The receiver proceeds for combined mode algorithms as follows:
 
 
 The exact steps for reconstructing the original datagram
-depend on the mode and are described in the Security
-Architecture document. # XXX: What about BEET mode?
-# FIXME: What to do here?
-At a minimum, in an
-IPv6 context, the receiver SHOULD ensure that the decrypted
-data is 8-byte aligned, to facilitate processing by the
+depend on the mode. Transport and Tunnel mode are described in the
+Security Architecture document [[RFC4301]]. BEET Mode is described
+in [[RFC7402]] and IP-TFS in [[RFC9347]].
+At a minimum, in an IPv6 context, the receiver SHOULD ensure that the
+decrypted data is 8-byte aligned, to facilitate processing by the
 protocol identified in the Next Header field.
 
 
@@ -1961,6 +1939,7 @@ TBD
 ** RFC4303
 ** RFC4494
 ** RFC7296
+** RFC7402
 ** RFC8200
 ** RFC9347
 
