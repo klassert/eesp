@@ -812,10 +812,10 @@ When receiving a packet, the receiver MUST use the anti-replay window
 and counter associated with the sequence number subspace identified
 with the subspace ID field.
 
-The receiver MUST drop any packet received with a subpace ID value
+The receiver MUST drop any packet received with a subspace ID value
 greater or equal to N. Receiving such packets is an auditable
 event.  The audit log entry for this event SHOULD include the SPI value,
-subpace ID value, current date/time, Source Address, Destination Address,
+subspace ID value, current date/time, Source Address, Destination Address,
 and (in IPv6) the cleartext Flow ID.
 
 Note: Since the sender may decide to only use a subset of the
@@ -938,22 +938,22 @@ intermediate devices.
 
 *** EESP Crypt Offset Option
 This option is typically used for within one Datacenter use case
-such as [[PSP]]. When enabled full packet format, with Payload Info
+such as [[PSP]]. When enabled, full packet format with Payload Info
 Header MUST be used; for the intermediate router to have Next Header.
 
-The Crypt Offset can vary on a per packet basis. The maxinum
+The Crypt Offset can vary on a per packet basis. The maximum
 allowed Crypt Offset MUST be negotiated by IKEv2 or any other
-appropriate protocol. Packets with a Crypt Offset bigger than
+appropriate protocol. Packets with a Crypt Offset grater than
 the negotiated maximum MUST be dropped by the receiver.
-Receiving such packets is an auditable event. The audit log entry
-for this event SHOULD include the SPI value, subpace ID value,
-current date/time, Source Address, Destination Address, and
-(in IPv6) the cleartext Flow ID.
-
-The receiver SHOULD check the ICV value in this case. The action
-in case of a correct ICV value depends on local policy. However,
-it is recommented to tear down the connection as it can't be
+The receiver SHOULD cryptographically process such packets anyway.
+The action in case of a correct ICV value depends on local policy.
+However, it is recommended to tear down the connection as it can't be
 considered as secure anymore.
+
+Receiving such packets is an auditable event. The audit log entry for
+this event SHOULD include the SPI value, subspace ID value, current
+date/time, Source Address, Destination Address, and (in IPv6) the
+cleartext Flow ID.
 
 NOTE: This is for the use in Datacenters ONLY. It might be moved to
 a separate document that defines the 'EESP use for Datacenters'.
@@ -1208,13 +1208,15 @@ Header, any Optional Headers and Peer Header.
   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ Int
   |                                                               | egr
   ~                     Peer Header (variable)                    ~ ity
-  |                                                               |   |
+  |                                                               |  |
   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ Pro
   |                                                               | tec
-  ~                    Encrypted Payload Data (variable)          ~ ted
+  ~                Encrypted Payload Data (variable)              ~ ted
   |                                                               |  |
   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+--+
+  |                                                               |
   ~              Integrity Check Value-ICV (variable)             ~
+  |                                                               |
   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #+end_src
 
@@ -1226,62 +1228,65 @@ included in the AAD.
 #+caption: EESP Tunnel Mode AAD with Crypt Offset
 #+name: eesp-aad-crypt-offset
 #+begin_src
-  0                   1                   2                   3
-  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
- +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+--+
- |                                                               |  |
- |                          Base Header                          ~  |
- +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-++|
- |                 Crypt Offset Optional Header                  |  |
- +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-++| Int
- |                                                               | egr
- ~                     Peer Header (variable)                    ~ ity
- |                                                               |  |
- +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-++| Pro
- |                  Plaintext Payload Data (variable)            | tec
- +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-++| ted
- |                                                               |  |
- ~                    Encrypted Payload Data (variable)          ~  |
- |                                                               |  |
- +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+++--+
- ~              Integrity Check Value-ICV (variable)            ~
- +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-++
+   0                   1                   2                   3
+   0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+--+
+  |                                                               |  |
+  ~                          Base Header                          ~  |
+  |                                                               |  |
+  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+  |
+  |                 Crypt Offset Optional Header                  |  |
+  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ Int
+  |                                                               | egr
+  ~                     Peer Header (variable)                    ~ ity
+  |                                                               |  |
+  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ Pro
+  |                  Plaintext Payload Data (variable)            | tec
+  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ ted
+  |                                                               |  |
+  ~                    Encrypted Payload Data (variable)          ~  |
+  |                                                               |  |
+  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+--+
+  |                                                               |
+  ~              Integrity Check Value-ICV (variable)             ~
+  |                                                               |
+  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #+end_src
 
 As an example consider a Tunnel mode SA, with replay protection
 enabled and 8 bytes explicit IV carrying an IPv4 UDP packet with
 crypto offset 8 (8x4 = 32 bytes). [eesp-aad-crypt-offset-example]
 
-#+begin_src
 #+caption: EESP Tunnel Mode AAD with Crypt Offset example
 #+name: eesp-aad-crypt-offset-example
- 0                   1                   2                   3
- 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+--+
-|1|Version|Flags|   Opt Len (4) |         Session ID            |  |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+  |
-|                              SPI                              |  |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+  |
-|  Crypt Offset(2)  |Opt Len (4)|POffset (7)|CryptOff(8)| F | R |  |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ Int
-|                       Sequence number 63-32                   | egr
-|                       Sequence number 31-0                    | ity
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+  |
-|                           IV 63-32                            | Pro
-|                           IV 31-0                             | tec
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ ted
-|           Payload Info Header (Next header 4) Plain text)     |  |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+  |
-|               IPv4 + UDP Headers 28 bytes Plain text          |  |
-+---------------------------------------------------------------+  |
-|                   Remaining Encrypted Payload Data            |  |
-~                                                               ~  |
-|                                                               |  |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+--+
-|                                                               |
-~              Integrity Check Value-ICV (variable)             ~
-|                                                               |
-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+#+begin_src
+   0                   1                   2                   3
+   0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+--+
+  |1|Version|Flags|   Opt Len (4) |         Session ID            |  |
+  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+  |
+  |                              SPI                              |  |
+  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+  |
+  |  Crypt Offset(2)  |Opt Len (4)|POffset (7)|CryptOff(8)| F | R |  |
+  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ Int
+  |                       Sequence number 63-32                   | egr
+  |                       Sequence number 31-0                    | ity
+  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+  |
+  |                           IV 63-32                            | Pro
+  |                           IV 31-0                             | tec
+  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ ted
+  |           Payload Info Header (Next header 4) Plain text)     |  |
+  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+  |
+  |               IPv4 + UDP Headers 28 bytes Plain text          |  |
+  +---------------------------------------------------------------+  |
+  |                                                               |  |
+  ~                Remaining Encrypted Payload Data               ~  |
+  |                                                               |  |
+  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+--+
+  |                                                               |
+  ~              Integrity Check Value-ICV (variable)             ~
+  |                                                               |
+  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #+end_src
 
 The AAD specifications apply to all EESP cipher suites used with
