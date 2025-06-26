@@ -1255,7 +1255,7 @@ included in the AAD.
 
 As an example consider a Tunnel mode SA, with replay protection
 enabled and 8 bytes explicit IV carrying an IPv4 UDP packet with
-crypto offset 8 (8x4 = 32 bytes). [eesp-aad-crypt-offset-example]
+Crypt Offset 8 (8x4 = 32 bytes). [[eesp-aad-crypt-offset-example]]
 
 #+caption: EESP Tunnel Mode AAD with Crypt Offset example
 #+name: eesp-aad-crypt-offset-example
