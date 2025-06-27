@@ -168,12 +168,8 @@ correct cryptographic context.
 The ~Peer Header~ follows the ~Base Header~. The ~Peer Header~ is
 used to support replay protection and to store cryptographic
 synchronization data, e.g., an Initialization Vector (IV)
-for the IPsec peer. The ~Peer Header~ is private to the
+for the IPsec peer. The ~Peer Header~ is only meaningful to the
 IPsec peers.
-
-# :NOTE: Not sure if "private" is a good term above. It's not
-# encrypted (like the header below). So maybe "opaque to middleboxes"
-# or "only meaningful to the IPsec peers" would be more fitting?
 
 Unlike ESP, EESP does not have a trailer. Instead, these values have
 moved to a ~Payload Info Header~ directly following the ~Peer Header~.
@@ -1536,8 +1532,6 @@ All EESP implementations MUST support the anti-replay service, though
 its use may be enabled or disabled by negotiation on a per-SA basis.
 Anti-replay is applicable to unicast as well as multicast SAs.
 
-# Note STK: This might change when we introduce the Sender ID option.
-
 However, this standard specifies
 no mechanisms for providing anti-replay for a multi-sender SA
 (unicast or multicast).  In the absence of negotiation (or manual
@@ -1750,11 +1744,15 @@ update the source port using a mapping change.
 # This para is a bit unclear. What purpose does that mapping table
 # have exactly in relation to the routing? And what ambiguity is
 # there that it could avoid?
-Additionally, when multiple Sub SAs exist, the receiver SHOULD
+# AA Describe this as an exammple : packets of distinct sub SA
+# AA flows(layer 4 flow) should be handled by same  network queue or cpu
+# AA add text to processing Seesion ID as Sub SA
+Additionally, when multiple Sub SAs exist, the receiver can
 maintain a mapping table to track the source port associated with
-each Sub SA independently. This ensures that traffic is correctly
-routed and prevents ambiguity in handling packets associated with
-different Sub SAs when a NAT is present.
+each Sub SA independently. This ensures the packets of the same Sub SA
+therefore the same Layer 4 flows are steered to the same NIC queue or
+CPU to prevents state locking in handling packets associated with
+different Sub SAs.
 
 * Auditing
 
@@ -1824,15 +1822,6 @@ in a separate RFC, for e.g. RFC8221bis or another I.D., to facilitate
 updating the algorithm requirements independently from the protocol
 per se.  Additional algorithms, beyond those mandated for EESP, MAY
 be supported.
-
-#Because use of encryption in EESP is optional, support for the "NULL"
-#encryption algorithm also is required to maintain consistency with
-#the way ESP services are negotiated.  Support for the
-#confidentiality-only service version of EESP is optional.  If an
-#implementation offers this service, it MUST also support the
-#negotiation of the "NULL" integrity algorithm.  NOTE that although
-#integrity and encryption may each be "NULL" under the circumstances
-#noted above, they MUST NOT both be "NULL".
 
 * Security Considerations
 
