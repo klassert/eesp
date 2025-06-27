@@ -841,7 +841,7 @@ type-length-value (TLV) encoded "options" of the following format:
   field of this option, in octets.
 - Option Data :: Variable-length field. Option-Type-specific data.
 
-The overall length of all Options is limited to 128 bytes by the
+The overall length of all Options is limited to 255 bytes by the
 OptLen field in the ~Base Header~.
 
 ** EESP Option Types
