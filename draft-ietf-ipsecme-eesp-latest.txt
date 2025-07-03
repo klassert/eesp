@@ -532,12 +532,11 @@ Internet-Draft                    EESP                         July 2025
    additional Subs SA ID (see Section 2.9).  Defining such an Option is
    left for future documents.
 
-   Replay protection is optional, but enabled by default.  Replay
-   protection SHOULD be enabled whenever possible.  However, on
-   multicast or in datacenter environments where the upper layer
-   protocols ensure replay protection, it can be disabled.  Disabling
-   replay protection MUST be negotiated by IKEv2.  In this case the
-   sequence number field is omitted.
+   Replay protection is optional, but SHOULD be enabled whenever
+   possible.  However, on multicast or in datacenter environments where
+   the upper layer protocols ensure replay protection, it can be
+   disabled.  Disabling replay protection MUST be negotiated by IKEv2.
+   In this case the sequence number field is omitted.
 
    In contrast to ESP, where the receiver alone decides wether to
    disable replay protecton, it is negotiated in EESP so that sender and
@@ -554,6 +553,7 @@ Internet-Draft                    EESP                         July 2025
    data as part of an RFC specifying how the algorithm is used with
    EESP.  (Typically, the IV immediately precedes the ciphertext.  See
    Table 1) If such synchronization data is implicit, the algorithm for
+   deriving the data MUST be part of the algorithm definition RFC.  (If
 
 
 
@@ -562,7 +562,6 @@ Klassert, et al.         Expires 4 January 2026                [Page 10]
 Internet-Draft                    EESP                         July 2025
 
 
-   deriving the data MUST be part of the algorithm definition RFC.  (If
    included, cryptographic synchronization data, e.g., an Initialization
    Vector (IV), usually is not encrypted per se (see Table 1), although
    it sometimes is referred to as being part of the ciphertext.)
@@ -608,6 +607,7 @@ Internet-Draft                    EESP                         July 2025
    following the payload data and is used to align the ICV field.  The
    range of valid values is 0 to 255, where a value of zero indicates
    that no Padding bytes are present.
+
 
 
 
