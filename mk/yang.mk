@@ -9,6 +9,8 @@ PBASE := publish/$(BASE)-$(VERSION)
 VBASE := draft/$(BASE)-$(VERSION)
 LBASE := draft/$(BASE)-latest
 SHELL := /bin/bash
+REMOTE ?= origin
+
 
 # If you have docker you can avoid having to install anything by leaving this.
 ifeq ($(CIRCLECI),)
@@ -31,15 +33,15 @@ publish: git-clean-check $(VBASE).xml $(VBASE).txt $(VBASE).html
 	cp $(VBASE).xml $(VBASE).txt $(VBASE).html publish
 	git checkout -b $(PBRANCH)
 	git tag -m "yank.mk publish-$(DTYPE)-$(VERSION)" bp-$(PBRANCH)
-	# git push -f --tags
+	git push -f --tags $(REMOTE)
 	git add $(PBASE).xml $(PBASE).txt $(PBASE).html
 	git commit -m "yank.mk publish-$(DTYPE)-$(VERSION)"
-	# git push origin $(PBRANCH)
+	git push $(REMOTE) $(PBRANCH)
 	git checkout main
 	git merge --ff-only $(PBRANCH)
 	sed -i -e 's/\#+RFC_VERSION: *\([0-9]*\)/\#+RFC_VERSION: $(NEXT_VERSION)/' $(ORG)
 	git commit -am "yank.mk new version -$(NEXT_VERSION) post-publish"
-	# git push origin
+	git push $(REMOTE)
 
 #republish:
 #	sed -i -e 's/\#+RFC_VERSION: *\([0-9]*\)/\#+RFC_VERSION: $(PREV_VERSION)/' $(ORG)
