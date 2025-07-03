@@ -237,8 +237,8 @@ The fixed portion of the base header is defined as follows.
 - Security Parameter Index (SPI) :: 32 bits: The SPI is an arbitrary
   32-bit value that is used by a receiver to identify the SA to which
   an incoming packet is bound.
-  # XXX: Enhanced SPI is not explained!
-  #This combined with the 16-bit Session ID is the Enhanced SPI.
+# XXX: Enhanced SPI is not explained!
+# This combined with the 16-bit Session ID is the Enhanced SPI.
 
 The Flags field in the fixed Base Header is defined as follows:
 
@@ -317,7 +317,8 @@ based on their needs.
    |                    Sequence Number (optional)                 |
    |                                                               |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |                          IV (optional)                        |
+   |                                                               |
+   ~                          IV (optional)                        ~
    |                                                               |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #+end_src
@@ -412,7 +413,8 @@ sometimes is referred to as being part of the ciphertext.)
 Counter mode algorithms MAY use the 64-bit counter as the
 Initialization Vector (IV) in the Sequence number Field, as specified
 [[RFC8750]]. This option, Implicit Initialization Vector (IIV)
-saves 8 header bytes on each packet. Whether or not this option is
+saves the size of IV on each packet.
+Whether or not this option is
 selected is determined as part of Security Association (SA)
 establishment.
 
@@ -575,7 +577,8 @@ packet format for use with IPv4 or IPv6 Tunnel Mode when the
    |                   Sequence Number (optional)                  |
    |                                                               |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |                          IV* (optional)                       |
+   |                                                               |
+   ~                          IV* (optional)                       ~
    |                                                               |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    |  0x0  |        Reserved       | Next Header   | Pad Length    |
@@ -609,7 +612,8 @@ packet format for use with IPv4 or IPv6 Tunnel Mode when the
    |                   Sequence Number (optional)                  |
    |                                                               |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |                          IV* (optional)                       |
+   |                                                               |
+   ~                          IV* (optional)                       ~
    |                                                               |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    |                                                               |
@@ -908,7 +912,8 @@ zero-valued octets.
 
 Flow Identifier (FID) Options are used to carry characteristic
 information of the inner flow and SHOULD NOT change on per packet
-basis inside any inner flow. # to avoid packet reordering.
+basis inside any inner flow.
+# to avoid packet reordering.
 The Flow Identifier SHOULD be negotiated by IKEv2 or another
 suitable protocol. The detailed specification of FIDs MAY be provided
 in subsequent documents. The precise meaning of a FID is opaque to
@@ -934,13 +939,13 @@ intermediate devices.
   inner flow and MUST NOT change for a given inner flow within a SA.
 
 *** EESP Crypt Offset Option
-This option is typically used for within one Datacenter use case
+This option is typically used within one Datacenter use case
 such as [[PSP]]. When enabled, full packet format with Payload Info
 Header MUST be used; for the intermediate router to have Next Header.
 
 The Crypt Offset can vary on a per packet basis. The maximum
 allowed Crypt Offset MUST be negotiated by IKEv2 or any other
-appropriate protocol. Packets with a Crypt Offset grater than
+appropriate protocol. Packets with a Crypt Offset greater than
 the negotiated maximum MUST be dropped by the receiver.
 The receiver SHOULD cryptographically process such packets anyway.
 The action in case of a correct ICV value depends on local policy.
