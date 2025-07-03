@@ -5,9 +5,9 @@
 IPSECME Working Group                                        S. Klassert
 Internet-Draft                                                 A. Antony
 Intended status: Standards Track                                 secunet
-Expires: 29 December 2025                                       C. Hopps
+Expires: 4 January 2026                                         C. Hopps
                                                  LabN Consulting, L.L.C.
-                                                            27 June 2025
+                                                             3 July 2025
 
 
              Enhanced Encapsulating Security Payload (EESP)
@@ -43,7 +43,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 29 December 2025.
+   This Internet-Draft will expire on 4 January 2026.
 
 Copyright Notice
 
@@ -53,9 +53,9 @@ Copyright Notice
 
 
 
-Klassert, et al.        Expires 29 December 2025                [Page 1]
+Klassert, et al.         Expires 4 January 2026                 [Page 1]
 
-Internet-Draft                    EESP                         June 2025
+Internet-Draft                    EESP                         July 2025
 
 
    This document is subject to BCP 78 and the IETF Trust's Legal
@@ -109,14 +109,14 @@ Table of Contents
 
 
 
-Klassert, et al.        Expires 29 December 2025                [Page 2]
+Klassert, et al.         Expires 4 January 2026                 [Page 2]
 
-Internet-Draft                    EESP                         June 2025
+Internet-Draft                    EESP                         July 2025
 
 
        3.1.3.  EESP Crypt Offset Option  . . . . . . . . . . . . . .  21
-   4.  Enhanced Encapsulating Security Protocol Processing . . . . .  22
-     4.1.  EESP Header Location  . . . . . . . . . . . . . . . . . .  22
+   4.  Enhanced Encapsulating Security Protocol Processing . . . . .  23
+     4.1.  EESP Header Location  . . . . . . . . . . . . . . . . . .  23
        4.1.1.  Layer 4 Encapsulation Modes . . . . . . . . . . . . .  23
        4.1.2.  Tunnel Mode Processing  . . . . . . . . . . . . . . .  26
      4.2.  AAD Construction  . . . . . . . . . . . . . . . . . . . .  27
@@ -165,9 +165,9 @@ Internet-Draft                    EESP                         June 2025
 
 
 
-Klassert, et al.        Expires 29 December 2025                [Page 3]
+Klassert, et al.         Expires 4 January 2026                 [Page 3]
 
-Internet-Draft                    EESP                         June 2025
+Internet-Draft                    EESP                         July 2025
 
 
    also be used to perform ECMP based on the inner flows at intermediate
@@ -221,9 +221,9 @@ Internet-Draft                    EESP                         June 2025
 
 
 
-Klassert, et al.        Expires 29 December 2025                [Page 4]
+Klassert, et al.         Expires 4 January 2026                 [Page 4]
 
-Internet-Draft                    EESP                         June 2025
+Internet-Draft                    EESP                         July 2025
 
 
 1.2.  Terminology
@@ -277,9 +277,9 @@ Internet-Draft                    EESP                         June 2025
 
 
 
-Klassert, et al.        Expires 29 December 2025                [Page 5]
+Klassert, et al.         Expires 4 January 2026                 [Page 5]
 
-Internet-Draft                    EESP                         June 2025
+Internet-Draft                    EESP                         July 2025
 
 
     0                   1                   2                   3
@@ -333,9 +333,9 @@ Internet-Draft                    EESP                         June 2025
 
 
 
-Klassert, et al.        Expires 29 December 2025                [Page 6]
+Klassert, et al.         Expires 4 January 2026                 [Page 6]
 
-Internet-Draft                    EESP                         June 2025
+Internet-Draft                    EESP                         July 2025
 
 
    'Padding' is an optional field following the 'Payload Data',
@@ -389,9 +389,9 @@ Internet-Draft                    EESP                         June 2025
 
 
 
-Klassert, et al.        Expires 29 December 2025                [Page 7]
+Klassert, et al.         Expires 4 January 2026                 [Page 7]
 
-Internet-Draft                    EESP                         June 2025
+Internet-Draft                    EESP                         July 2025
 
 
       that might be used to identify the SA.  For instance, it can be
@@ -403,8 +403,6 @@ Internet-Draft                    EESP                         June 2025
    Security Parameter Index (SPI)  32 bits: The SPI is an arbitrary
       32-bit value that is used by a receiver to identify the SA to
       which an incoming packet is bound.
-
-      #This combined with the 16-bit Session ID is the Enhanced SPI.
 
    The Flags field in the fixed Base Header is defined as follows:
 
@@ -440,19 +438,17 @@ Internet-Draft                    EESP                         June 2025
    One range is used for standardized option types and the second range
    is reserved for private options.
 
-
-
-
-
-
-Klassert, et al.        Expires 29 December 2025                [Page 8]
-
-Internet-Draft                    EESP                         June 2025
-
-
    This document defines 4 initial standard option types, 'Pad1 Option',
    'PadN Option', 'Flow Identifier Option', and 'Crypt Offset Option'.
    These options are defined in section Section 3.1.
+
+
+
+
+Klassert, et al.         Expires 4 January 2026                 [Page 8]
+
+Internet-Draft                    EESP                         July 2025
+
 
    Private options use 'Option Type' values from the private option
    reserved range and can be used for any purposes that are out of scope
@@ -483,7 +479,8 @@ Internet-Draft                    EESP                         June 2025
    |                    Sequence Number (optional)                 |
    |                                                               |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |                          IV (optional)                        |
+   |                                                               |
+   ~                          IV (optional)                        ~
    |                                                               |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
@@ -501,9 +498,12 @@ Internet-Draft                    EESP                         June 2025
 
 
 
-Klassert, et al.        Expires 29 December 2025                [Page 9]
+
+
+
+Klassert, et al.         Expires 4 January 2026                 [Page 9]
 
-Internet-Draft                    EESP                         June 2025
+Internet-Draft                    EESP                         July 2025
 
 
 2.3.1.  Sequence Number
@@ -557,9 +557,9 @@ Internet-Draft                    EESP                         June 2025
 
 
 
-Klassert, et al.        Expires 29 December 2025               [Page 10]
+Klassert, et al.         Expires 4 January 2026                [Page 10]
 
-Internet-Draft                    EESP                         June 2025
+Internet-Draft                    EESP                         July 2025
 
 
    deriving the data MUST be part of the algorithm definition RFC.  (If
@@ -569,9 +569,10 @@ Internet-Draft                    EESP                         June 2025
 
    Counter mode algorithms MAY use the 64-bit counter as the
    Initialization Vector (IV) in the Sequence number Field, as specified
-   [RFC8750].  This option, Implicit Initialization Vector (IIV) saves 8
-   header bytes on each packet.  Whether or not this option is selected
-   is determined as part of Security Association (SA) establishment.
+   [RFC8750].  This option, Implicit Initialization Vector (IIV) saves
+   the size of IV on each packet.  Whether or not this option is
+   selected is determined as part of Security Association (SA)
+   establishment.
 
 2.4.  Payload Info Header
 
@@ -612,10 +613,9 @@ Internet-Draft                    EESP                         June 2025
 
 
 
-
-Klassert, et al.        Expires 29 December 2025               [Page 11]
+Klassert, et al.         Expires 4 January 2026                [Page 11]
 
-Internet-Draft                    EESP                         June 2025
+Internet-Draft                    EESP                         July 2025
 
 
 2.5.  Payload Data
@@ -669,9 +669,9 @@ Internet-Draft                    EESP                         June 2025
 
 
 
-Klassert, et al.        Expires 29 December 2025               [Page 12]
+Klassert, et al.         Expires 4 January 2026                [Page 12]
 
-Internet-Draft                    EESP                         June 2025
+Internet-Draft                    EESP                         July 2025
 
 
    If an algorithm imposes constraints on the values of the bytes used
@@ -725,9 +725,9 @@ Internet-Draft                    EESP                         June 2025
 
 
 
-Klassert, et al.        Expires 29 December 2025               [Page 13]
+Klassert, et al.         Expires 4 January 2026                [Page 13]
 
-Internet-Draft                    EESP                         June 2025
+Internet-Draft                    EESP                         July 2025
 
 
     0                   1                   2                   3
@@ -744,7 +744,8 @@ Internet-Draft                    EESP                         June 2025
    |                   Sequence Number (optional)                  |
    |                                                               |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |                          IV* (optional)                       |
+   |                                                               |
+   ~                          IV* (optional)                       ~
    |                                                               |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    |  0x0  |        Reserved       | Next Header   | Pad Length    |
@@ -780,10 +781,9 @@ Internet-Draft                    EESP                         June 2025
 
 
 
-
-Klassert, et al.        Expires 29 December 2025               [Page 14]
+Klassert, et al.         Expires 4 January 2026                [Page 14]
 
-Internet-Draft                    EESP                         June 2025
+Internet-Draft                    EESP                         July 2025
 
 
     0                   1                   2                   3
@@ -800,7 +800,8 @@ Internet-Draft                    EESP                         June 2025
    |                   Sequence Number (optional)                  |
    |                                                               |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |                          IV* (optional)                       |
+   |                                                               |
+   ~                          IV* (optional)                       ~
    |                                                               |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    |                                                               |
@@ -836,10 +837,9 @@ Internet-Draft                    EESP                         June 2025
 
 
 
-
-Klassert, et al.        Expires 29 December 2025               [Page 15]
+Klassert, et al.         Expires 4 January 2026                [Page 15]
 
-Internet-Draft                    EESP                         June 2025
+Internet-Draft                    EESP                         July 2025
 
 
    The table below refers to the fields in the preceding figures and
@@ -893,9 +893,9 @@ Internet-Draft                    EESP                         June 2025
 
 
 
-Klassert, et al.        Expires 29 December 2025               [Page 16]
+Klassert, et al.         Expires 4 January 2026                [Page 16]
 
-Internet-Draft                    EESP                         June 2025
+Internet-Draft                    EESP                         July 2025
 
 
 2.9.  Session ID as Sub SA ID
@@ -949,9 +949,9 @@ Internet-Draft                    EESP                         June 2025
 
 
 
-Klassert, et al.        Expires 29 December 2025               [Page 17]
+Klassert, et al.         Expires 4 January 2026                [Page 17]
 
-Internet-Draft                    EESP                         June 2025
+Internet-Draft                    EESP                         July 2025
 
 
    AEAD transforms such as AES-GCM [RFC4106], [RFC8750] requires that
@@ -1005,9 +1005,9 @@ Internet-Draft                    EESP                         June 2025
 
 
 
-Klassert, et al.        Expires 29 December 2025               [Page 18]
+Klassert, et al.         Expires 4 January 2026                [Page 18]
 
-Internet-Draft                    EESP                         June 2025
+Internet-Draft                    EESP                         July 2025
 
 
    When receiving a packet, the receiver MUST use the anti-replay window
@@ -1061,9 +1061,9 @@ Internet-Draft                    EESP                         June 2025
 
 
 
-Klassert, et al.        Expires 29 December 2025               [Page 19]
+Klassert, et al.         Expires 4 January 2026                [Page 19]
 
-Internet-Draft                    EESP                         June 2025
+Internet-Draft                    EESP                         July 2025
 
 
 3.1.1.  Padding Options
@@ -1117,9 +1117,9 @@ Internet-Draft                    EESP                         June 2025
 
 
 
-Klassert, et al.        Expires 29 December 2025               [Page 20]
+Klassert, et al.         Expires 4 January 2026                [Page 20]
 
-Internet-Draft                    EESP                         June 2025
+Internet-Draft                    EESP                         July 2025
 
 
    The 'PadN' option is used to insert two or more octets of padding
@@ -1131,8 +1131,9 @@ Internet-Draft                    EESP                         June 2025
 
    Flow Identifier (FID) Options are used to carry characteristic
    information of the inner flow and SHOULD NOT change on per packet
-   basis inside any inner flow. # to avoid packet reordering.  The Flow
-   Identifier SHOULD be negotiated by IKEv2 or another suitable
+   basis inside any inner flow.
+
+   The Flow Identifier SHOULD be negotiated by IKEv2 or another suitable
    protocol.  The detailed specification of FIDs MAY be provided in
    subsequent documents.  The precise meaning of a FID is opaque to
    intermediate devices.
@@ -1158,25 +1159,33 @@ Internet-Draft                    EESP                         June 2025
 
 3.1.3.  EESP Crypt Offset Option
 
-   This option is typically used for within one Datacenter use case such
-   as [PSP].  When enabled, full packet format with Payload Info Header
+   This option is typically used within one Datacenter use case such as
+   [PSP].  When enabled, full packet format with Payload Info Header
    MUST be used; for the intermediate router to have Next Header.
+
+
+
+
+
+
+
+
+
+
+
+Klassert, et al.         Expires 4 January 2026                [Page 21]
+
+Internet-Draft                    EESP                         July 2025
+
 
    The Crypt Offset can vary on a per packet basis.  The maximum allowed
    Crypt Offset MUST be negotiated by IKEv2 or any other appropriate
-   protocol.  Packets with a Crypt Offset grater than the negotiated
+   protocol.  Packets with a Crypt Offset greater than the negotiated
    maximum MUST be dropped by the receiver.  The receiver SHOULD
    cryptographically process such packets anyway.  The action in case of
    a correct ICV value depends on local policy.  However, it is
    recommended to tear down the connection as it can't be considered as
    secure anymore.
-
-
-
-Klassert, et al.        Expires 29 December 2025               [Page 21]
-
-Internet-Draft                    EESP                         June 2025
-
 
    Receiving such packets is an auditable event.  The audit log entry
    for this event SHOULD include the SPI value, subspace ID value,
@@ -1216,6 +1225,15 @@ Internet-Draft                    EESP                         June 2025
       *NOTE:* I tend to remove the Flags if we keep the Crypt Offset in
       this document, as we don't define PSP here.
 
+
+
+
+
+Klassert, et al.         Expires 4 January 2026                [Page 22]
+
+Internet-Draft                    EESP                         July 2025
+
+
 4.  Enhanced Encapsulating Security Protocol Processing
 
 4.1.  EESP Header Location
@@ -1223,16 +1241,6 @@ Internet-Draft                    EESP                         June 2025
    EESP may be employed in multiple ways.  To secure end-to-end network
    traffic, transport mode may be used.  For the VPN use case, tunnel
    and BEET mode may be employed.
-
-
-
-
-
-
-Klassert, et al.        Expires 29 December 2025               [Page 22]
-
-Internet-Draft                    EESP                         June 2025
-
 
 4.1.1.  Layer 4 Encapsulation Modes
 
@@ -1277,17 +1285,9 @@ Internet-Draft                    EESP                         June 2025
 
 
 
-
-
-
-
-
-
-
-
-Klassert, et al.        Expires 29 December 2025               [Page 23]
+Klassert, et al.         Expires 4 January 2026                [Page 23]
 
-Internet-Draft                    EESP                         June 2025
+Internet-Draft                    EESP                         July 2025
 
 
               BEFORE APPLYING EESP
@@ -1341,9 +1341,9 @@ Internet-Draft                    EESP                         June 2025
 
 
 
-Klassert, et al.        Expires 29 December 2025               [Page 24]
+Klassert, et al.         Expires 4 January 2026                [Page 24]
 
-Internet-Draft                    EESP                         June 2025
+Internet-Draft                    EESP                         July 2025
 
 
 4.1.1.2.  BEET Mode Processing
@@ -1397,9 +1397,9 @@ Internet-Draft                    EESP                         June 2025
 
 
 
-Klassert, et al.        Expires 29 December 2025               [Page 25]
+Klassert, et al.         Expires 4 January 2026                [Page 25]
 
-Internet-Draft                    EESP                         June 2025
+Internet-Draft                    EESP                         July 2025
 
 
 4.1.2.  Tunnel Mode Processing
@@ -1453,9 +1453,9 @@ Internet-Draft                    EESP                         June 2025
 
 
 
-Klassert, et al.        Expires 29 December 2025               [Page 26]
+Klassert, et al.         Expires 4 January 2026                [Page 26]
 
-Internet-Draft                    EESP                         June 2025
+Internet-Draft                    EESP                         July 2025
 
 
                         Figure 18: IPv6 Tunnel Mode
@@ -1509,9 +1509,9 @@ Internet-Draft                    EESP                         June 2025
 
 
 
-Klassert, et al.        Expires 29 December 2025               [Page 27]
+Klassert, et al.         Expires 4 January 2026                [Page 27]
 
-Internet-Draft                    EESP                         June 2025
+Internet-Draft                    EESP                         July 2025
 
 
     0                   1                   2                   3
@@ -1565,9 +1565,9 @@ Internet-Draft                    EESP                         June 2025
 
 
 
-Klassert, et al.        Expires 29 December 2025               [Page 28]
+Klassert, et al.         Expires 4 January 2026                [Page 28]
 
-Internet-Draft                    EESP                         June 2025
+Internet-Draft                    EESP                         July 2025
 
 
     0                   1                   2                   3
@@ -1621,9 +1621,9 @@ Internet-Draft                    EESP                         June 2025
 
 
 
-Klassert, et al.        Expires 29 December 2025               [Page 29]
+Klassert, et al.         Expires 4 January 2026                [Page 29]
 
-Internet-Draft                    EESP                         June 2025
+Internet-Draft                    EESP                         July 2025
 
 
    The mandatory-to-implement algorithms for use with EESP described in
@@ -1677,9 +1677,9 @@ Internet-Draft                    EESP                         June 2025
 
 
 
-Klassert, et al.        Expires 29 December 2025               [Page 30]
+Klassert, et al.         Expires 4 January 2026                [Page 30]
 
-Internet-Draft                    EESP                         June 2025
+Internet-Draft                    EESP                         July 2025
 
 
 4.4.1.  Security Association Lookup
@@ -1733,9 +1733,9 @@ Internet-Draft                    EESP                         June 2025
 
 
 
-Klassert, et al.        Expires 29 December 2025               [Page 31]
+Klassert, et al.         Expires 4 January 2026                [Page 31]
 
-Internet-Draft                    EESP                         June 2025
+Internet-Draft                    EESP                         July 2025
 
 
        *  The (explicit) ICV field MAY be a part of the EESP packet
@@ -1789,9 +1789,9 @@ Internet-Draft                    EESP                         June 2025
 
 
 
-Klassert, et al.        Expires 29 December 2025               [Page 32]
+Klassert, et al.         Expires 4 January 2026                [Page 32]
 
-Internet-Draft                    EESP                         June 2025
+Internet-Draft                    EESP                         July 2025
 
 
 4.4.5.  Fragmentation
@@ -1845,9 +1845,9 @@ Internet-Draft                    EESP                         June 2025
 
 
 
-Klassert, et al.        Expires 29 December 2025               [Page 33]
+Klassert, et al.         Expires 4 January 2026                [Page 33]
 
-Internet-Draft                    EESP                         June 2025
+Internet-Draft                    EESP                         July 2025
 
 
    NOTE: For packet reassembly, the current IPv4 spec does NOT require
@@ -1901,9 +1901,9 @@ Internet-Draft                    EESP                         June 2025
 
 
 
-Klassert, et al.        Expires 29 December 2025               [Page 34]
+Klassert, et al.         Expires 4 January 2026                [Page 34]
 
-Internet-Draft                    EESP                         June 2025
+Internet-Draft                    EESP                         July 2025
 
 
    If anti-replay service is enabled for this SA, the receive packet
@@ -1957,9 +1957,9 @@ Internet-Draft                    EESP                         June 2025
 
 
 
-Klassert, et al.        Expires 29 December 2025               [Page 35]
+Klassert, et al.         Expires 4 January 2026                [Page 35]
 
-Internet-Draft                    EESP                         June 2025
+Internet-Draft                    EESP                         July 2025
 
 
    If the received packet falls within the window and is not a
@@ -2013,9 +2013,9 @@ Internet-Draft                    EESP                         June 2025
 
 
 
-Klassert, et al.        Expires 29 December 2025               [Page 36]
+Klassert, et al.         Expires 4 January 2026                [Page 36]
 
-Internet-Draft                    EESP                         June 2025
+Internet-Draft                    EESP                         July 2025
 
 
    2.  If the integrity check performed by the combined mode algorithm
@@ -2069,9 +2069,9 @@ Internet-Draft                    EESP                         June 2025
 
 
 
-Klassert, et al.        Expires 29 December 2025               [Page 37]
+Klassert, et al.         Expires 4 January 2026                [Page 37]
 
-Internet-Draft                    EESP                         June 2025
+Internet-Draft                    EESP                         July 2025
 
 
    Where L is the total length of the key material KEYMAT_sub and the
@@ -2125,9 +2125,9 @@ Internet-Draft                    EESP                         June 2025
 
 
 
-Klassert, et al.        Expires 29 December 2025               [Page 38]
+Klassert, et al.         Expires 4 January 2026                [Page 38]
 
-Internet-Draft                    EESP                         June 2025
+Internet-Draft                    EESP                         July 2025
 
 
    When using ephemeral source ports, the receiver can only set the
@@ -2181,9 +2181,9 @@ Internet-Draft                    EESP                         June 2025
 
 
 
-Klassert, et al.        Expires 29 December 2025               [Page 39]
+Klassert, et al.         Expires 4 January 2026                [Page 39]
 
-Internet-Draft                    EESP                         June 2025
+Internet-Draft                    EESP                         July 2025
 
 
    *  The integrity check fails.  The audit log entry for this event
@@ -2237,9 +2237,9 @@ Internet-Draft                    EESP                         June 2025
 
 
 
-Klassert, et al.        Expires 29 December 2025               [Page 40]
+Klassert, et al.         Expires 4 January 2026                [Page 40]
 
-Internet-Draft                    EESP                         June 2025
+Internet-Draft                    EESP                         July 2025
 
 
    *  Decimal: TBD
@@ -2293,9 +2293,9 @@ Internet-Draft                    EESP                         June 2025
 
 
 
-Klassert, et al.        Expires 29 December 2025               [Page 41]
+Klassert, et al.         Expires 4 January 2026                [Page 41]
 
-Internet-Draft                    EESP                         June 2025
+Internet-Draft                    EESP                         July 2025
 
 
    Value     EESP Header Options Types         Reference
@@ -2349,9 +2349,9 @@ Internet-Draft                    EESP                         June 2025
 
 
 
-Klassert, et al.        Expires 29 December 2025               [Page 42]
+Klassert, et al.         Expires 4 January 2026                [Page 42]
 
-Internet-Draft                    EESP                         June 2025
+Internet-Draft                    EESP                         July 2025
 
 
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
@@ -2405,9 +2405,9 @@ Internet-Draft                    EESP                         June 2025
 
 
 
-Klassert, et al.        Expires 29 December 2025               [Page 43]
+Klassert, et al.         Expires 4 January 2026                [Page 43]
 
-Internet-Draft                    EESP                         June 2025
+Internet-Draft                    EESP                         July 2025
 
 
    [I-D.he-ipsecme-vpn-shared-ipsecsa]
@@ -2461,9 +2461,9 @@ Internet-Draft                    EESP                         June 2025
 
 
 
-Klassert, et al.        Expires 29 December 2025               [Page 44]
+Klassert, et al.         Expires 4 January 2026                [Page 44]
 
-Internet-Draft                    EESP                         June 2025
+Internet-Draft                    EESP                         July 2025
 
 
    [RFC4106]  Viega, J. and D. McGrew, "The Use of Galois/Counter Mode
@@ -2517,4 +2517,4 @@ Authors' Addresses
 
 
 
-Klassert, et al.        Expires 29 December 2025               [Page 45]
+Klassert, et al.         Expires 4 January 2026                [Page 45]
