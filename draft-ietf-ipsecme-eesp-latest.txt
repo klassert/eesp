@@ -532,11 +532,11 @@ Internet-Draft                    EESP                         July 2025
    additional Subs SA ID (see Section 2.9).  Defining such an Option is
    left for future documents.
 
-   Replay protection is optional, but SHOULD be enabled whenever
-   possible.  However, on multicast or in datacenter environments where
-   the upper layer protocols ensure replay protection, it can be
-   disabled.  Disabling replay protection MUST be negotiated by IKEv2.
-   In this case the sequence number field is omitted.
+   Replay protection SHOULD be enabled.  However, on multicast or in
+   datacenter environments where the upper layer protocols ensure replay
+   protection, it can be disabled.  Disabling replay protection MUST be
+   negotiated by IKEv2.  In this case the sequence number field is
+   omitted.
 
    In contrast to ESP, where the receiver alone decides wether to
    disable replay protecton, it is negotiated in EESP so that sender and
