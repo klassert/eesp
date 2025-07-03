@@ -357,8 +357,7 @@ Similar to the Session ID, this Sender ID can be used as an
 additional Subs SA ID (see [[Session ID as Sub SA ID]]).
 Defining such an Option is left for future documents.
 
-Replay protection is optional, but SHOULD be enabled whenever
-possible.
+Replay protection SHOULD be enabled.
 However, on multicast or in datacenter environments where
 the upper layer protocols ensure replay protection,
 it can be disabled. Disabling replay protection MUST
