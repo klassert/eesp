@@ -252,9 +252,7 @@ The Flags field in the fixed Base Header is defined as follows:
 #+end_src
 
 - Packet Format (F) :: 1 bit: Set to zero for full EESP packet Format (i.e., the EESP header includes the
-  ~Payload Info Header~), set to 1 for Optimized EESP Packet format. This bit
-  MAY be only set to 1 if the Crypt Offset is positive. It MUST be set to
-  0 otherwise.
+  ~Payload Info Header~), set to 1 for Optimized EESP Packet format.
 - Reserved (RR) :: 2 bits: Reserved for future versions, MUST be set to 00,
   and ignored by the receiver.
 
@@ -502,18 +500,22 @@ generation and consumption of padding.
 # computation applies to the Payload Data.
 
 If Padding bytes are needed but the algorithm does not
-specify the padding contents, then the following default processing
-MUST be used.  The default processing follows exactly ESP as of [[RFC4303]].
-The Padding bytes are initialized with a series of
-(unsigned, 1-byte) integer values.  The first padding byte appended
-to the plaintext is numbered 1, with subsequent padding bytes making
-up a monotonically increasing sequence: 1, 2, 3, ....  When this
-padding scheme is employed, the receiver SHOULD inspect the Padding
-field.  (This scheme was selected because of its relative simplicity,
-ease of implementation in hardware, and because it offers limited
-protection against certain forms of "cut and paste" attacks in the
-absence of other integrity measures, if the receiver checks the
-padding values upon decryption.)
+specify the padding contents, then the Padding bytes
+MUST be set to 0.
+
+# then the following default processing
+# MUST be used.
+# The default processing follows exactly ESP as of [[RFC4303]].
+# The Padding bytes are initialized with a series of
+# (unsigned, 1-byte) integer values.  The first padding byte appended
+# to the plaintext is numbered 1, with subsequent padding bytes making
+# up a monotonically increasing sequence: 1, 2, 3, ....  When this
+# padding scheme is employed, the receiver SHOULD inspect the Padding
+# field.  (This scheme was selected because of its relative simplicity,
+# ease of implementation in hardware, and because it offers limited
+# protection against certain forms of "cut and paste" attacks in the
+# absence of other integrity measures, if the receiver checks the
+# padding values upon decryption.)
 
 If an algorithm imposes constraints on
 the values of the bytes used for padding, they MUST be specified by
