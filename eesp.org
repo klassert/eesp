@@ -325,6 +325,10 @@ increase strictly monotonically, sequence numbers MUST NOT repeat and
 MUST NOT cycle for any given SA. Thus, the sender's counter and the
 receiver's counter MUST be reset (by establishing a new SA and thus a
 new key) prior to the transmission of the 2^64nd packet on an SA.
+If Sub SAs are used, the sender and receiver maintain a counter
+for each Sub SA. In this case, the sender's counter and the
+receiver's counter MUST be reset (by establishing a new SA and thus a
+new key) prior to the transmission of the 2^64nd packet on a Sub SA.
 Implementations that do replay protection SHOULD increase the
 sequence number by one for each sent packet. Even if recommended to
 increase the sequence number by one, implementations MAY employ other
@@ -552,7 +556,7 @@ packet format for use with IPv4 or IPv6 Tunnel Mode when the
     0                   1                   2                   3
     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |1|Version|Flags|    Opt Len    |        Session ID             |
+   |1|Version|  R  |    Opt Len    |        Session ID             |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    |                              SPI                              |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -587,7 +591,7 @@ packet format for use with IPv4 or IPv6 Tunnel Mode when the
     0                   1                   2                   3
     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |1|Version|Flags|    Opt Len    |        Session ID             |
+   |1|Version|  R  |    Opt Len    |        Session ID             |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    |                              SPI                              |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
