@@ -945,8 +945,8 @@ this event SHOULD include the SPI value, subspace ID value, current
 date/time, Source Address, Destination Address, and (in IPv6) the
 cleartext Flow ID.
 
-NOTE: This is for the use in Datacenters ONLY. It might be moved to
-a separate document that defines the 'EESP use for Datacenters'.
+# NOTE: This is for the use in Datacenters ONLY. It might be moved to
+# a separate document that defines the 'EESP use for Datacenters'.
 
 #+caption: Crypt Offset Option
 #+name: crypt-offset-option
@@ -954,7 +954,7 @@ a separate document that defines the 'EESP use for Datacenters'.
     0                   1                   2                   3
     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |  Option Type  | Option Length |Payl.Offset|CryptOffset| R | F |
+   |  Option Type  | Option Length |Payl.Offset|CryptOffset|   R   |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #+end_src
 
@@ -972,13 +972,13 @@ a separate document that defines the 'EESP use for Datacenters'.
   resulting value MUST NOT be larger than the size of the inner
   packet.
 
-- R[eserved] :: 2-bits: Reserved MUST be sent 0 and ignored on receipt.
+- R[eserved] :: 4-bits: Reserved MUST be sent 0 and ignored on receipt.
 
-- F[lags] :: 2-bits: Flags used for stateless crypto signaling such as the
-  S-bit and D-bit in the PSP specification.
-
- *NOTE:* I tend to remove the Flags if we keep the Crypt Offset
- in this document, as we don't define PSP here.
+# - F[lags] :: 2-bits: Flags used for stateless crypto signaling such as the
+#   S-bit and D-bit in the PSP specification.
+# 
+#  *NOTE:* I tend to remove the Flags if we keep the Crypt Offset
+#  in this document, as we don't define PSP here.
 
 * Enhanced Encapsulating Security Protocol Processing
 
@@ -987,7 +987,6 @@ a separate document that defines the 'EESP use for Datacenters'.
 EESP may be employed in multiple ways. To secure end-to-end
 network traffic, transport mode may be used. For the VPN use case,
 tunnel and BEET mode may be employed.
-
 
 *** Layer 4 Encapsulation Modes
 
