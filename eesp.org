@@ -57,7 +57,6 @@ specification of the [[PSP]] protocol that has the need of a Flow
 Identifier, called Network Identifier (VNI) there. PSP also defines a
 Crypt Offset to expose parts of the headers of the inner packet.
 EESP provides a solution for all the aforementioned use cases.
-
 This document defines a Session ID and a Crypt Offset Option
 along with a generic Flow Identifier Option.
 Future documents can define the meaning of additional Options
@@ -173,9 +172,8 @@ IPsec peers.
 
 Unlike ESP, EESP does not have a trailer. Instead, these values have
 moved to a ~Payload Info Header~ directly following the ~Peer Header~.
-With classic transport and tunnel mode, the ~Payload Info Header~
-is encrypted, and therefore private to the IPsec peers. However,
-with a positive crypt offset
+The ~Payload Info Header~ is encrypted by default, and therefore
+private to the IPsec peers. However, with a positive crypt offset
 (see [[EESP Crypt Offset Option]]), the ~Payload Info Header~
 might be left unencrypted. In this case, protocol parsing engines
 of middleboxes can act upon it (e.g., for telemetry).
@@ -408,12 +406,16 @@ establishment.
 
 The Payload Info Header is needed if the contained payload is
 not a single IPv4 or IPv6 packet (e.g., when using Transport Mode,
-BEET Mode [[RFC7402]], or IP-TFS [[RFC9347]]). It is optional on
+BEET Mode [[RFC7402]], or IP-TFS [[RFC9347]]). It is not needed on
 tunnel mode because this information can be derived from the inner
 IPv4 or IPv6 header. This document specifies a full and an optimized
-packet format. The Payload Info Header is present in the Full EESP
-packet format, but not in the optimized format see
-[[Full and Optimized Packet Formats]]. IPsec peers and middleboxes
+packet format. The Payload Info Header is present in the full
+packet format, but not in the optimized packet format (see
+[[Full and Optimized Packet Formats]]). The packet format depends on
+the used Mode. The full packet format MUST be used on all Modes
+that can't derive the 'Next Header' and 'Pad Length' from the
+following inner header. Modes that can derive these information
+MUST use the optimized packet format. IPsec peers and middleboxes
 (if Crypt Offset is positive, see [[EESP Crypt Offset Option]]) MAY
 act upon the Payload Info Header.
 
@@ -524,12 +526,12 @@ rules and processing steps for validation.
 
 ** Full and Optimized Packet Formats
 
-# :NOTE: What is "resulting" referring to?
-The resulting two packet formats are described in this section.
-The default packet format for EESP is the full packet format.
-When IPv4 or IPv6 tunnel mode is used, the ~Payload Info Header~ MAY
-be omitted. Whether this option is chosen MUST be negotiated
-by IKEv2, or any other suitable protocol.
+The two possible packet formats are described in this section.
+The packet format containing the ~Payload Info Header~ is called the
+"Full EESP packet format", while the packet format without the
+~Payload Info Header~ is the called the "Optimized EESP packet format".
+When IPv4 or IPv6 tunnel mode is used, the optimized packet format MUST be
+used, ommiting the ~Payload Info Header~.
 In this optimized mode the payload will always start with
 an IPv4 or IPv6 header. IPv4 or IPv6 packets always start with a
 Version field at the first nibble, so it is possible to identify IPv4
@@ -537,13 +539,9 @@ and IPv6 by reading the first nibble of the inner packet, and there
 is no need for a next header field. Additionally, IPv4 and IPv6 also
 have a field describing the overall size of the inner packet, so a
 pad length field is also not needed as it can be derived.
-
-The packet format containing the ~Payload Info Header~ is called the
-"Full EESP packet format", while the packet format without the
-~Payload Info Header~ is the called the "Optimized EESP packet format".
-Which of these two formats are is encoded in the ~Packet Format~ bit in
-the ~Base Header~.
-
+When transport mode, beet mode or IPTFS is used, it is not possible
+to derive these information, so the full packet format, including
+the ~Payload Info Header~ MUST be used.
 The two packet formats are shown below. [[eesp-full-packet-format]]
 shows the full packet format used as the default for modes of operation.
 [[eesp-optimized-packet-format]] illustrates the resulting optimized
@@ -660,13 +658,14 @@ processing details are described in later sections.
 - [2] If tunnel mode -> IP datagram. If BEET mode -> IP datagram. If
   transport mode -> next header and data. If IP-TFS, IP-TFS header
   and payload.
-- [3] Ciphertext if encryption has been selected
-- [4] Not present in Optimized Header otherwise mandatory
+- [3] Ciphertext if encryption has been selected.
+- [4] Not present in the Optimized Packet Format, otherwise mandatory.
 
 In the table "optional" means that the field is omitted if the option is not
 selected, i.e., it is not present in the packet as transmitted
 or as formatted for computation of an ICV. Whether or not an option
-is selected is determined as part of Security Association (SA)
+is selected depends on the used mode (Payload Info Header),
+or is determined as part of Security Association (SA)
 establishment. Thus, the format of EESP packets for a given SA is
 fixed for the duration of the SA. In contrast, "mandatory" fields
 are always present in the EESP packet format for all SAs.
@@ -998,12 +997,13 @@ Layer 4 Encapsulation Modes are transport mode and BEET mode
 distinguish from tunnel mode on the position of the EESP
 header in the packet. On Layer 4 Encapsulation Modes the
 EESP header is inserted between the original IPv4/IPv6
-header and the following Layer 4 header. In contrast to this,
+header and the following Layer 4 header. Layer 4 Encapsulation
+Modes MUST use the Full Packet Format. In contrast to this,
 in tunnel mode the full ipv4/IPv6 datagram is encapsulated.
 This means the the EESP header is placed in front of the
 original IPv4/IPv6 datagram and a new 'outer IPv4/IPv6 header'
 is added in front of the EESP header. The following sections
-illustrate the positioning of the EESP header
+illustrate the positioning of the EESP header.
 
 Note that in Layer 4 Encapsulation Modes, for "bump-in-the-stack" or "bump-in-
 the-wire" implementations, as defined in the Security Architecture
@@ -1135,7 +1135,8 @@ gateways.  Mixed inner and outer IP versions are allowed, i.e., IPv6
 over IPv4 and IPv4 over IPv6.  In tunnel mode, EESP protects the
 entire inner IP packet, including the entire inner IP header.  The
 position of EESP in tunnel mode, relative to the outer IP header, is
-the same as for EESP in transport mode.  The following diagram
+the same as for EESP in transport mode.  In tunnel mode, the
+Optimized Packet Format MUST be used. The following diagram
 illustrates EESP tunnel mode positioning for typical IPv4 and IPv6
 packets.
 
@@ -1254,7 +1255,7 @@ Crypt Offset 8 (8x4 = 32 bytes). [[eesp-aad-crypt-offset-example]]
    0                   1                   2                   3
    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+--+
-  |1|Version|Flags|   Opt Len (4) |         Session ID            |  |
+  |1|Version|  R  |   Opt Len (4) |         Session ID            |  |
   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+  |
   |                              SPI                              |  |
   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+  |
