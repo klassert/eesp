@@ -17,8 +17,8 @@ overcome limitations in the ESP protocol.
 based on the inner traffic flow), changes some previously mandatory
 fields to optional, and moves the ESP trailer into the EESP header.
 Additionally, EESP adds header options adapted from IPv6 to allow
-for future extension. New header options are defined which add Flow IDs
-and a crypt-offset to allow for exposing inner flow information for
+for future extension. New header options are defined which add a
+crypt-offset to allow for exposing inner flow information for
 middlebox use. 
     " name="description">
 <meta content="xml2rfc 3.23.0" name="generator">
@@ -1272,8 +1272,8 @@ overcome limitations in the ESP protocol.<a href="#section-abstract-1" class="pi
 based on the inner traffic flow), changes some previously mandatory
 fields to optional, and moves the ESP trailer into the EESP header.
 Additionally, EESP adds header options adapted from IPv6 to allow
-for future extension. New header options are defined which add Flow IDs
-and a crypt-offset to allow for exposing inner flow information for
+for future extension. New header options are defined which add a
+crypt-offset to allow for exposing inner flow information for
 middlebox use.<a href="#section-abstract-2" class="pilcrow">¶</a></p>
 </section>
 <div id="status-of-memo">
@@ -1564,9 +1564,9 @@ devices or endpoints.  Additionally to that, there exists a
 specification of the <span>[<a href="#PSP" class="cite xref">PSP</a>]</span> protocol that has the need of a Flow
 Identifier, called Network Identifier (VNI) there. PSP also defines a
 Crypt Offset to expose parts of the headers of the inner packet.
-EESP provides a solution for all the aforementioned use cases.<a href="#section-1-1" class="pilcrow">¶</a></p>
-<p id="section-1-2">This document defines a Session ID and a Crypt Offset Option
-along with a generic Flow Identifier Option.
+EESP provides a solution for all the aforementioned use cases.
+This document defines a Session ID that can be used as a flow identifier
+and a Crypt Offset Option.
 Future documents can define the meaning of additional Options
 for their particular use-case. With this, all existing and potential new
 use cases can be covered. For instance, it can be
@@ -1578,22 +1578,21 @@ EESP header is defined which eliminates these 2 values when using simple
 IPv4 or IPv6 tunnel mode. EESP also does not define TFC padding, IP-TFS
 as of <span>[<a href="#RFC9347" class="cite xref">RFC9347</a>]</span> SHOULD be used instead. A detailed discussion
 about the problems of the ESP protocol can be found in
-<span>[<a href="#I-D.mrossberg-ipsecme-multiple-sequence-counters" class="cite xref">I-D.mrossberg-ipsecme-multiple-sequence-counters</a>]</span>.<a href="#section-1-2" class="pilcrow">¶</a></p>
-<p id="section-1-3">EESP follows the Security Architecture for the Internet Protocol
+<span>[<a href="#I-D.mrossberg-ipsecme-multiple-sequence-counters" class="cite xref">I-D.mrossberg-ipsecme-multiple-sequence-counters</a>]</span>.<a href="#section-1-1" class="pilcrow">¶</a></p>
+<p id="section-1-2">EESP follows the Security Architecture for the Internet Protocol
 <span>[<a href="#RFC4301" class="cite xref">RFC4301</a>]</span> and uses ESP as of <span>[<a href="#RFC4303" class="cite xref">RFC4303</a>]</span> as reference. That means
 this document is seen as a modern version of ESP (with new protocol
 number), but it follows the design principles of ESP. Protocol parts that
 are not mentioned here MUST be handled exactly the way as specified
-in <span>[<a href="#RFC4303" class="cite xref">RFC4303</a>]</span>. EESP neither updates nor obsoletes <span>[<a href="#RFC4303" class="cite xref">RFC4303</a>]</span>.<a href="#section-1-3" class="pilcrow">¶</a></p>
-<p id="section-1-4">EESP focuses on modern algorithms, hence it defines the use of
+in <span>[<a href="#RFC4303" class="cite xref">RFC4303</a>]</span>. EESP neither updates nor obsoletes <span>[<a href="#RFC4303" class="cite xref">RFC4303</a>]</span>.<a href="#section-1-2" class="pilcrow">¶</a></p>
+<p id="section-1-3">EESP focuses on modern algorithms, hence it defines the use of
 combined mode algorithms only. This means that the integrity
-option is always taken.<a href="#section-1-4" class="pilcrow">¶</a></p>
-<p id="section-1-5">Though this document specifies IKEv2 as a negotiation protocol, EESP
+option is always taken.<a href="#section-1-3" class="pilcrow">¶</a></p>
+<p id="section-1-4">Though this document specifies IKEv2 as a negotiation protocol, EESP
 may use other protocols for negotiation and key derivation. The
 packet specification is portable to other keying protocol use cases,
 such as <span>[<a href="#PSP" class="cite xref">PSP</a>]</span>, and offers versioning at the packet level.
-The Flow Identifiers, Crypt Offset and the Session ID can
-be used to cover the PSP use case.<a href="#section-1-5" class="pilcrow">¶</a></p>
+The Crypt Offset and the Session ID can be used to cover the PSP use case.<a href="#section-1-4" class="pilcrow">¶</a></p>
 <section id="section-1.1">
         <h3 id="name-requirements-language">
 <a href="#section-1.1" class="section-number selfRef">1.1. </a><a href="#name-requirements-language" class="section-name selfRef">Requirements Language</a>
@@ -1679,9 +1678,8 @@ for the IPsec peer. The '<code>Peer Header</code>' is only meaningful to the
 IPsec peers.<a href="#section-2.1-4" class="pilcrow">¶</a></p>
 <p id="section-2.1-5">Unlike ESP, EESP does not have a trailer. Instead, these values have
 moved to a '<code>Payload Info Header</code>' directly following the '<code>Peer Header</code>'.
-With classic transport and tunnel mode, the '<code>Payload Info Header</code>'
-is encrypted, and therefore private to the IPsec peers. However,
-with a positive crypt offset
+The '<code>Payload Info Header</code>' is encrypted by default, and therefore
+private to the IPsec peers. However, with a positive crypt offset
 (see <a href="#sec-eesp-crypt-offset-option" class="auto internal xref">Section 3.1.2</a>), the '<code>Payload Info Header</code>'
 might be left unencrypted. In this case, protocol parsing engines
 of middleboxes can act upon it (e.g., for telemetry).<a href="#section-2.1-5" class="pilcrow">¶</a></p>
@@ -1791,8 +1789,8 @@ the processing order of the options is not restricted.<a href="#section-2.2.2-2"
 <p id="section-2.2.2-3">Option type values are allocated from one of two ranges of values.
 One range is used for standardized option types and the second
 range is reserved for private options.<a href="#section-2.2.2-3" class="pilcrow">¶</a></p>
-<p id="section-2.2.2-4">This document defines 4 initial standard option types, '<code>Pad1 Option</code>',
-'<code>PadN Option</code>', '<code>Flow Identifier Option</code>', and '<code>Crypt Offset Option</code>'.
+<p id="section-2.2.2-4">This document defines 3 initial standard option types, '<code>Pad1 Option</code>',
+'<code>PadN Option</code>', and '<code>Crypt Offset Option</code>'.
 These options are defined in section <a href="#sec-eesp-option-types" class="auto internal xref">Section 3.1</a>.<a href="#section-2.2.2-4" class="pilcrow">¶</a></p>
 <p id="section-2.2.2-5">Private options use '<code>Option Type</code>' values from the private option
 reserved range and can be used for any purposes that are out of scope
@@ -2040,8 +2038,8 @@ rules and processing steps for validation.<a href="#section-2.7-1" class="pilcro
 The packet format containing the '<code>Payload Info Header</code>' is called the
 "Full EESP packet format", while the packet format without the
 '<code>Payload Info Header</code>' is the called the "Optimized EESP packet format".
-When IPv4 or IPv6 tunnel mode is used, the '<code>Payload Info Header</code>' MUST
-be omitted.
+When IPv4 or IPv6 tunnel mode is used, the optimized packet format MUST be
+used, ommiting the '<code>Payload Info Header</code>'.
 In this optimized mode the payload will always start with
 an IPv4 or IPv6 header. IPv4 or IPv6 packets always start with a
 Version field at the first nibble, so it is possible to identify IPv4

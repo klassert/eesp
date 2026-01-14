@@ -24,9 +24,9 @@ Abstract
    based on the inner traffic flow), changes some previously mandatory
    fields to optional, and moves the ESP trailer into the EESP header.
    Additionally, EESP adds header options adapted from IPv6 to allow for
-   future extension.  New header options are defined which add Flow IDs
-   and a crypt-offset to allow for exposing inner flow information for
-   middlebox use.
+   future extension.  New header options are defined which add a crypt-
+   offset to allow for exposing inner flow information for middlebox
+   use.
 
 Status of This Memo
 
@@ -83,7 +83,7 @@ Table of Contents
 
    1.  Introduction  . . . . . . . . . . . . . . . . . . . . . . . .   3
      1.1.  Requirements Language . . . . . . . . . . . . . . . . . .   4
-     1.2.  Terminology . . . . . . . . . . . . . . . . . . . . . . .   5
+     1.2.  Terminology . . . . . . . . . . . . . . . . . . . . . . .   4
    2.  Enhanced Encapsulating Security Payload Packet Format . . . .   5
      2.1.  Top-Level EESP format . . . . . . . . . . . . . . . . . .   5
      2.2.  Base Header . . . . . . . . . . . . . . . . . . . . . . .   7
@@ -174,13 +174,12 @@ Internet-Draft                    EESP                      January 2026
    specification of the [PSP] protocol that has the need of a Flow
    Identifier, called Network Identifier (VNI) there.  PSP also defines
    a Crypt Offset to expose parts of the headers of the inner packet.
-   EESP provides a solution for all the aforementioned use cases.
-
-   This document defines a Session ID and a Crypt Offset Option along
-   with a generic Flow Identifier Option.  Future documents can define
-   the meaning of additional Options for their particular use-case.
-   With this, all existing and potential new use cases can be covered.
-   For instance, it can be used for the case of
+   EESP provides a solution for all the aforementioned use cases.  This
+   document defines a Session ID that can be used as a flow identifier
+   and a Crypt Offset Option.  Future documents can define the meaning
+   of additional Options for their particular use-case.  With this, all
+   existing and potential new use cases can be covered.  For instance,
+   it can be used for the case of
    [I-D.ponchon-ipsecme-anti-replay-subspaces] or
    [I-D.he-ipsecme-vpn-shared-ipsecsa] etc., or combinations thereof.
    EESP does not have a trailer as ESP had, instead the Next Header and
@@ -206,9 +205,8 @@ Internet-Draft                    EESP                      January 2026
    Though this document specifies IKEv2 as a negotiation protocol, EESP
    may use other protocols for negotiation and key derivation.  The
    packet specification is portable to other keying protocol use cases,
-   such as [PSP], and offers versioning at the packet level.  The Flow
-   Identifiers, Crypt Offset and the Session ID can be used to cover the
-   PSP use case.
+   such as [PSP], and offers versioning at the packet level.  The Crypt
+   Offset and the Session ID can be used to cover the PSP use case.
 
 1.1.  Requirements Language
 
@@ -216,8 +214,10 @@ Internet-Draft                    EESP                      January 2026
    "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
    document are to be interpreted as described in [RFC2119].
 
+1.2.  Terminology
 
-
+   This document uses the following terms defined in IKEv2 [RFC7296]:
+   Child SA, CREATE_CHILD_SA, IKE_AUTH exchange, USE_TRANSPORT_MODE
 
 
 
@@ -225,11 +225,6 @@ Klassert, et al.          Expires 18 July 2026                  [Page 4]
 
 Internet-Draft                    EESP                      January 2026
 
-
-1.2.  Terminology
-
-   This document uses the following terms defined in IKEv2 [RFC7296]:
-   Child SA, CREATE_CHILD_SA, IKE_AUTH exchange, USE_TRANSPORT_MODE
 
    This document uses the following terms defined in [PSP]: PSP (a
    recursive acronym for PSP Security Protocol), Virtual Network
@@ -259,6 +254,11 @@ Internet-Draft                    EESP                      January 2026
    its [Protocol] (IPv4) or Next Header (IPv6, Extension) field.
    Figure 1 illustrates the top-level format of an EESP packet.  The
    EESP header is split into multiple parts.
+
+
+
+
+
 
 
 
@@ -319,17 +319,17 @@ Internet-Draft                    EESP                      January 2026
 
    Unlike ESP, EESP does not have a trailer.  Instead, these values have
    moved to a 'Payload Info Header' directly following the 'Peer
-   Header'.  With classic transport and tunnel mode, the 'Payload Info
-   Header' is encrypted, and therefore private to the IPsec peers.
-   However, with a positive crypt offset (see Section 3.1.2), the
-   'Payload Info Header' might be left unencrypted.  In this case,
-   protocol parsing engines of middleboxes can act upon it (e.g., for
-   telemetry).
+   Header'.  The 'Payload Info Header' is encrypted by default, and
+   therefore private to the IPsec peers.  However, with a positive crypt
+   offset (see Section 3.1.2), the 'Payload Info Header' might be left
+   unencrypted.  In this case, protocol parsing engines of middleboxes
+   can act upon it (e.g., for telemetry).
 
    The 'Payload Data' follows these 3 header parts, and has a structure
    that depends on the choice of encryption algorithm and mode.
 
-
+   'Padding' is an optional field following the 'Payload Data',
+   primarily for alignment when using a block cipher.
 
 
 
@@ -337,9 +337,6 @@ Klassert, et al.          Expires 18 July 2026                  [Page 6]
 
 Internet-Draft                    EESP                      January 2026
 
-
-   'Padding' is an optional field following the 'Payload Data',
-   primarily for alignment when using a block cipher.
 
    Finally, the packet ends with an 'Integrity Check Value' (ICV) (see
    Section 4.4.2).  The length of this ICV depends on the cryptographic
@@ -386,6 +383,9 @@ Internet-Draft                    EESP                      January 2026
 
    Opt Len  8 bits: Length in bytes of the 'Options' field.
 
+   Session ID  16 bits: The Session ID covers additional information
+
+
 
 
 
@@ -394,7 +394,6 @@ Klassert, et al.          Expires 18 July 2026                  [Page 7]
 Internet-Draft                    EESP                      January 2026
 
 
-   Session ID  16 bits: The Session ID covers additional information
       that might be used to identify the SA.  For instance, it can be
       used to encode a Sub SA ID.  The meaning of that field is opaque
       and MAY be negotiated by IKEv2.  This document defines the use of
@@ -422,9 +421,9 @@ Internet-Draft                    EESP                      January 2026
    One range is used for standardized option types and the second range
    is reserved for private options.
 
-   This document defines 4 initial standard option types, 'Pad1 Option',
-   'PadN Option', 'Flow Identifier Option', and 'Crypt Offset Option'.
-   These options are defined in section Section 3.1.
+   This document defines 3 initial standard option types, 'Pad1 Option',
+   'PadN Option', and 'Crypt Offset Option'.  These options are defined
+   in section Section 3.1.
 
    Private options use 'Option Type' values from the private option
    reserved range and can be used for any purposes that are out of scope
@@ -437,6 +436,7 @@ Internet-Draft                    EESP                      January 2026
    When options are present, padding options (i.e., 'Pad1' and 'PadN')
    MUST be used to align the fields following the 'Options' field.  This
    alignment is dictated by the packet format, see Section 2.5.
+
 
 
 
@@ -680,22 +680,22 @@ Internet-Draft                    EESP                      January 2026
    packet format containing the 'Payload Info Header' is called the
    "Full EESP packet format", while the packet format without the
    'Payload Info Header' is the called the "Optimized EESP packet
-   format".  When IPv4 or IPv6 tunnel mode is used, the 'Payload Info
-   Header' MUST be omitted.  In this optimized mode the payload will
-   always start with an IPv4 or IPv6 header.  IPv4 or IPv6 packets
-   always start with a Version field at the first nibble, so it is
-   possible to identify IPv4 and IPv6 by reading the first nibble of the
-   inner packet, and there is no need for a next header field.
-   Additionally, IPv4 and IPv6 also have a field describing the overall
-   size of the inner packet, so a pad length field is also not needed as
-   it can be derived.  When transport mode, beet mode or IPTFS is used,
-   it is not possible to derive these information, so the full packet
-   format, including the 'Payload Info Header' MUST be used.  The two
-   packet formats are shown below.  Figure 5 shows the full packet
-   format used as the default for modes of operation.  Figure 6
-   illustrates the resulting optimized packet format for use with IPv4
-   or IPv6 Tunnel Mode when the 'Payload Info Header' is elided.
-
+   format".  When IPv4 or IPv6 tunnel mode is used, the optimized packet
+   format MUST be used, ommiting the 'Payload Info Header'.  In this
+   optimized mode the payload will always start with an IPv4 or IPv6
+   header.  IPv4 or IPv6 packets always start with a Version field at
+   the first nibble, so it is possible to identify IPv4 and IPv6 by
+   reading the first nibble of the inner packet, and there is no need
+   for a next header field.  Additionally, IPv4 and IPv6 also have a
+   field describing the overall size of the inner packet, so a pad
+   length field is also not needed as it can be derived.  When transport
+   mode, beet mode or IPTFS is used, it is not possible to derive these
+   information, so the full packet format, including the 'Payload Info
+   Header' MUST be used.  The two packet formats are shown below.
+   Figure 5 shows the full packet format used as the default for modes
+   of operation.  Figure 6 illustrates the resulting optimized packet
+   format for use with IPv4 or IPv6 Tunnel Mode when the 'Payload Info
+   Header' is elided.
 
 
 
