@@ -34,8 +34,8 @@ EESP adds Session IDs (e.g., to support CPU pinning and QoS support
 based on the inner traffic flow), changes some previously mandatory
 fields to optional, and moves the ESP trailer into the EESP header.
 Additionally, EESP adds header options adapted from IPv6 to allow
-for future extension. New header options are defined which add Flow IDs
-and a crypt-offset to allow for exposing inner flow information for
+for future extension. New header options are defined which add a
+crypt-offset to allow for exposing inner flow information for
 middlebox use.
 
 #+end_abstract
@@ -57,8 +57,8 @@ specification of the [[PSP]] protocol that has the need of a Flow
 Identifier, called Network Identifier (VNI) there. PSP also defines a
 Crypt Offset to expose parts of the headers of the inner packet.
 EESP provides a solution for all the aforementioned use cases.
-This document defines a Session ID and a Crypt Offset Option
-along with a generic Flow Identifier Option.
+This document defines a Session ID that can be used as a flow identifier
+and a Crypt Offset Option.
 Future documents can define the meaning of additional Options
 for their particular use-case. With this, all existing and potential new
 use cases can be covered. For instance, it can be
@@ -87,8 +87,7 @@ Though this document specifies IKEv2 as a negotiation protocol, EESP
 may use other protocols for negotiation and key derivation. The
 packet specification is portable to other keying protocol use cases,
 such as [[PSP]], and offers versioning at the packet level.
-The Flow Identifiers, Crypt Offset and the Session ID can
-be used to cover the PSP use case.
+The Crypt Offset and the Session ID can be used to cover the PSP use case.
 
 ** Requirements Language
 
@@ -260,8 +259,8 @@ Option type values are allocated from one of two ranges of values.
 One range is used for standardized option types and the second
 range is reserved for private options.
 
-This document defines 4 initial standard option types, ~Pad1 Option~,
-~PadN Option~, ~Flow Identifier Option~, and ~Crypt Offset Option~.
+This document defines 3 initial standard option types, ~Pad1 Option~,
+~PadN Option~, and ~Crypt Offset Option~.
 These options are defined in section [[EESP Option Types]].
 
 Private options use ~Option Type~ values from the private option
@@ -897,35 +896,35 @@ zero-valued octets.
 
 # Note STK: Pad Options are missing
 
-*** EESP Flow Identifier Option
-
-Flow Identifier (FID) Options are used to carry characteristic
-information of the inner flow and SHOULD NOT change on per packet
-basis inside any inner flow.
-# to avoid packet reordering.
-The Flow Identifier SHOULD be negotiated by IKEv2 or another
-suitable protocol. The detailed specification of FIDs MAY be provided
-in subsequent documents. The precise meaning of a FID is opaque to
-intermediate devices.
-
-#+caption: Flow Identifier Option
-#+name: fid-option
-#+begin_src
-    0                   1                   2                   3
-    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
-   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-   |  Option Type  | Option Length |                               |
-   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+                               |
-   |                                                               |
-   ~                    Flow Identifier (FID)                      ~
-   |                                                               |
-   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#+end_src
-
-- Option Type :: 8 bits: See [[EESP Header Options]]
-- Option Length :: 8 bits: See [[EESP Header Options]]
-- FID :: Variable length, carries characteristic information of a
-  inner flow and MUST NOT change for a given inner flow within a SA.
+# *** EESP Flow Identifier Option
+# 
+# Flow Identifier (FID) Options are used to carry characteristic
+# information of the inner flow and SHOULD NOT change on per packet
+# basis inside any inner flow.
+# # to avoid packet reordering.
+# The Flow Identifier SHOULD be negotiated by IKEv2 or another
+# suitable protocol. The detailed specification of FIDs MAY be provided
+# in subsequent documents. The precise meaning of a FID is opaque to
+# intermediate devices.
+# 
+# #+caption: Flow Identifier Option
+# #+name: fid-option
+# #+begin_src
+#     0                   1                   2                   3
+#     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+#    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+#    |  Option Type  | Option Length |                               |
+#    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+                               |
+#    |                                                               |
+#    ~                    Flow Identifier (FID)                      ~
+#    |                                                               |
+#    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+# #+end_src
+# 
+# - Option Type :: 8 bits: See [[EESP Header Options]]
+# - Option Length :: 8 bits: See [[EESP Header Options]]
+# - FID :: Variable length, carries characteristic information of a
+#   inner flow and MUST NOT change for a given inner flow within a SA.
 
 *** EESP Crypt Offset Option
 This option is typically used within one Datacenter use case
