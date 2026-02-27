@@ -689,39 +689,39 @@ Internet-Draft                    EESP                     February 2026
    for a next header field.  Additionally, IPv4 and IPv6 also have a
    field describing the overall size of the inner packet, so a pad
    length field is also not needed as it can be derived.  When transport
-   mode, beet mode or IPTFS is used, it is not possible to derive these
+   mode, BEET mode, or IP-TFS is used, it is not possible to derive this
    information, so the full packet format, including the 'Payload Info
-   Header' MUST be used.  The two packet formats are shown below.
-   Figure 5 shows the full packet format used as the default for modes
-   of operation.  Figure 6 illustrates the resulting optimized packet
-   format for use with IPv4 or IPv6 Tunnel Mode when the 'Payload Info
-   Header' is elided.
+   Header' MUST be used.
 
+   The selection of the packet format is determined by the encapsulation
+   mode and by whether the values carried in the 'Payload Info Header'
+   can be inferred from the decrypted payload.  Table Table 1 summarizes
+   which modes use which format.  In this table, "Full" means that the
+   'Payload Info Header' is present, and "Optimized" means that the
+   'Payload Info Header' is absent (elided).
 
+    +=======================+===============+========================+
+    | Mode                  | Packet format | Notes                  |
+    +=======================+===============+========================+
+    | IPv4/IPv6 tunnel mode | Optimized     | Inner starts with      |
+    |                       |               | IPv4/IPv6 header.      |
+    +-----------------------+---------------+------------------------+
+    | Transport mode        | Full          | Next Header/Pad Length |
+    |                       |               | cannot be inferred.    |
+    +-----------------------+---------------+------------------------+
+    | BEET mode             | Full          | Next Header/Pad Length |
+    |                       |               | cannot be inferred.    |
+    +-----------------------+---------------+------------------------+
+    | IP-TFS                | Full          | Payload starts with    |
+    |                       |               | the IP-TFS header.     |
+    +-----------------------+---------------+------------------------+
 
+              Table 1: EESP packet format selection by mode
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+   The two packet formats are shown below.  Figure 5 shows the full
+   packet format used as the default for modes of operation.  Figure 6
+   illustrates the resulting optimized packet format for use with IPv4
+   or IPv6 Tunnel Mode when the 'Payload Info Header' is elided.
 
 
 
@@ -826,7 +826,7 @@ Internet-Draft                    EESP                     February 2026
    Unlike ESP, the IV is not considered to be a part of the payload data
    in EESP.
 
-   The explicit IV shown in Table 1 depends on the used algorithm and
+   The explicit IV shown in Table 2 depends on the used algorithm and
    may be omitted.  Because algorithms, modes and options are fixed when
    an SA is established, the detailed format of EESP packets for a given
    SA (including the 'Payload Data' substructure) is fixed for all
@@ -872,7 +872,7 @@ Internet-Draft                    EESP                     February 2026
    | ICV         |  variable  |     M     |         |        | plain  |
    +-------------+------------+-----------+---------+--------+--------+
 
-         Table 1: High level layout for fields of an EESP packet
+         Table 2: High level layout for fields of an EESP packet
 
    *  [1] M = mandatory; O = optional
    *  [2] If tunnel mode -> IP datagram.  If BEET mode -> IP datagram.

@@ -2048,17 +2048,60 @@ and IPv6 by reading the first nibble of the inner packet, and there
 is no need for a next header field. Additionally, IPv4 and IPv6 also
 have a field describing the overall size of the inner packet, so a
 pad length field is also not needed as it can be derived.
-When transport mode, beet mode or IPTFS is used, it is not possible
-to derive these information, so the full packet format, including
-the '<code>Payload Info Header</code>' MUST be used.
-The two packet formats are shown below. <a href="#eesp-full-packet-format" class="auto internal xref">Figure 5</a>
+When transport mode, BEET mode, or IP-TFS is used, it is not possible
+to derive this information, so the full packet format, including the
+'<code>Payload Info Header</code>' MUST be used.<a href="#section-2.8-1" class="pilcrow">¶</a></p>
+<p id="section-2.8-2">The selection of the packet format is determined by the encapsulation
+mode and by whether the values carried in the '<code>Payload Info Header</code>'
+can be inferred from the decrypted payload. Table <a href="#eesp-format-by-mode" class="auto internal xref">Table 1</a>
+summarizes which modes use which format. In this table, "Full" means
+that the '<code>Payload Info Header</code>' is present, and "Optimized" means that
+the '<code>Payload Info Header</code>' is absent (elided).<a href="#section-2.8-2" class="pilcrow">¶</a></p>
+<span id="name-eesp-packet-format-selectio"></span><div id="eesp-format-by-mode">
+<table class="center" id="table-1">
+          <caption>
+<a href="#table-1" class="selfRef">Table 1</a>:
+<a href="#name-eesp-packet-format-selectio" class="selfRef">EESP packet format selection by mode</a>
+          </caption>
+<thead>
+            <tr>
+              <th class="text-left" rowspan="1" colspan="1">Mode</th>
+              <th class="text-left" rowspan="1" colspan="1">Packet format</th>
+              <th class="text-left" rowspan="1" colspan="1">Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">IPv4/IPv6 tunnel mode</td>
+              <td class="text-left" rowspan="1" colspan="1">Optimized</td>
+              <td class="text-left" rowspan="1" colspan="1">Inner starts with IPv4/IPv6 header.</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">Transport mode</td>
+              <td class="text-left" rowspan="1" colspan="1">Full</td>
+              <td class="text-left" rowspan="1" colspan="1">Next Header/Pad Length cannot be inferred.</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">BEET mode</td>
+              <td class="text-left" rowspan="1" colspan="1">Full</td>
+              <td class="text-left" rowspan="1" colspan="1">Next Header/Pad Length cannot be inferred.</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">IP-TFS</td>
+              <td class="text-left" rowspan="1" colspan="1">Full</td>
+              <td class="text-left" rowspan="1" colspan="1">Payload starts with the IP-TFS header.</td>
+            </tr>
+          </tbody>
+        </table>
+</div>
+<p id="section-2.8-4">The two packet formats are shown below. <a href="#eesp-full-packet-format" class="auto internal xref">Figure 5</a>
 shows the full packet format used as the default for modes of operation.
 <a href="#eesp-optimized-packet-format" class="auto internal xref">Figure 6</a> illustrates the resulting optimized
 packet format for use with IPv4 or IPv6 Tunnel Mode when the
-'<code>Payload Info Header</code>' is elided.<a href="#section-2.8-1" class="pilcrow">¶</a></p>
+'<code>Payload Info Header</code>' is elided.<a href="#section-2.8-4" class="pilcrow">¶</a></p>
 <span id="name-full-eesp-packet-format"></span><div id="eesp-full-packet-format">
 <figure id="figure-5">
-          <div class="sourcecode" id="section-2.8-2.1">
+          <div class="sourcecode" id="section-2.8-5.1">
 <pre>
  0                   1                   2                   3
  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
@@ -2097,7 +2140,7 @@ packet format for use with IPv4 or IPv6 Tunnel Mode when the
 </div>
 <span id="name-optimized-eesp-packet-forma"></span><div id="eesp-optimized-packet-format">
 <figure id="figure-6">
-          <div class="sourcecode" id="section-2.8-3.1">
+          <div class="sourcecode" id="section-2.8-6.1">
 <pre>
 
  0                   1                   2                   3
@@ -2137,23 +2180,23 @@ packet format for use with IPv4 or IPv6 Tunnel Mode when the
 <a href="#name-optimized-eesp-packet-forma" class="selfRef">Optimized EESP packet format</a>
           </figcaption></figure>
 </div>
-<p id="section-2.8-4">[*] If included, cryptographic synchronization data, e.g., an
+<p id="section-2.8-7">[*] If included, cryptographic synchronization data, e.g., an
 '<code>Initialization Vector</code>' (IV), usually is not encrypted per se, although
 it often is referred to as being part of the cipher-text. Unlike ESP,
-the IV is not considered to be a part of the payload data in EESP.<a href="#section-2.8-4" class="pilcrow">¶</a></p>
-<p id="section-2.8-5">The explicit IV shown in <a href="#eesp-packet-separate-algos" class="auto internal xref">Table 1</a> depends on the
+the IV is not considered to be a part of the payload data in EESP.<a href="#section-2.8-7" class="pilcrow">¶</a></p>
+<p id="section-2.8-8">The explicit IV shown in <a href="#eesp-packet-separate-algos" class="auto internal xref">Table 2</a> depends on the
 used algorithm and may be omitted.  Because algorithms,
 modes and options are fixed when an SA is established, the detailed
 format of EESP packets for a given SA (including the '<code>Payload Data</code>'
-substructure) is fixed for all traffic on the SA.<a href="#section-2.8-5" class="pilcrow">¶</a></p>
-<p id="section-2.8-6">The table below refers to the fields in the preceding figures and
+substructure) is fixed for all traffic on the SA.<a href="#section-2.8-8" class="pilcrow">¶</a></p>
+<p id="section-2.8-9">The table below refers to the fields in the preceding figures and
 illustrate how several categories of algorithmic options, each with a
 different processing model, affect the fields noted above.  The
-processing details are described in later sections.<a href="#section-2.8-6" class="pilcrow">¶</a></p>
+processing details are described in later sections.<a href="#section-2.8-9" class="pilcrow">¶</a></p>
 <span id="name-high-level-layout-for-field"></span><div id="eesp-packet-separate-algos">
-<table class="center" id="table-1">
+<table class="center" id="table-2">
           <caption>
-<a href="#table-1" class="selfRef">Table 1</a>:
+<a href="#table-2" class="selfRef">Table 2</a>:
 <a href="#name-high-level-layout-for-field" class="selfRef">High level layout for fields of an EESP packet</a>
           </caption>
 <thead>
@@ -2235,29 +2278,29 @@ processing details are described in later sections.<a href="#section-2.8-6" clas
         </table>
 </div>
 <ul class="compact">
-<li class="compact" id="section-2.8-8.1">
-            <p id="section-2.8-8.1.1">[1] M = mandatory; O = optional<a href="#section-2.8-8.1.1" class="pilcrow">¶</a></p>
+<li class="compact" id="section-2.8-11.1">
+            <p id="section-2.8-11.1.1">[1] M = mandatory; O = optional<a href="#section-2.8-11.1.1" class="pilcrow">¶</a></p>
 </li>
-          <li class="compact" id="section-2.8-8.2">
-            <p id="section-2.8-8.2.1">[2] If tunnel mode -&gt; IP datagram. If BEET mode -&gt; IP datagram. If
+          <li class="compact" id="section-2.8-11.2">
+            <p id="section-2.8-11.2.1">[2] If tunnel mode -&gt; IP datagram. If BEET mode -&gt; IP datagram. If
 transport mode -&gt; next header and data. If IP-TFS, IP-TFS header
-and payload.<a href="#section-2.8-8.2.1" class="pilcrow">¶</a></p>
+and payload.<a href="#section-2.8-11.2.1" class="pilcrow">¶</a></p>
 </li>
-          <li class="compact" id="section-2.8-8.3">
-            <p id="section-2.8-8.3.1">[3] Ciphertext if encryption has been selected.<a href="#section-2.8-8.3.1" class="pilcrow">¶</a></p>
+          <li class="compact" id="section-2.8-11.3">
+            <p id="section-2.8-11.3.1">[3] Ciphertext if encryption has been selected.<a href="#section-2.8-11.3.1" class="pilcrow">¶</a></p>
 </li>
-          <li class="compact" id="section-2.8-8.4">
-            <p id="section-2.8-8.4.1">[4] Not present in the Optimized Packet Format, otherwise mandatory.<a href="#section-2.8-8.4.1" class="pilcrow">¶</a></p>
+          <li class="compact" id="section-2.8-11.4">
+            <p id="section-2.8-11.4.1">[4] Not present in the Optimized Packet Format, otherwise mandatory.<a href="#section-2.8-11.4.1" class="pilcrow">¶</a></p>
 </li>
         </ul>
-<p id="section-2.8-9">In the table "optional" means that the field is omitted if the option is not
+<p id="section-2.8-12">In the table "optional" means that the field is omitted if the option is not
 selected, i.e., it is not present in the packet as transmitted
 or as formatted for computation of an ICV. Whether or not an option
 is selected depends on the used mode (Payload Info Header),
 or is determined as part of Security Association (SA)
 establishment. Thus, the format of EESP packets for a given SA is
 fixed for the duration of the SA. In contrast, "mandatory" fields
-are always present in the EESP packet format for all SAs.<a href="#section-2.8-9" class="pilcrow">¶</a></p>
+are always present in the EESP packet format for all SAs.<a href="#section-2.8-12" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="sec-session-id-as-sub-sa-id">
