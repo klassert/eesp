@@ -47,14 +47,14 @@ Due to the absence of a version number in the packet header of the ESP
 protocol, ESP can't be updated in a transparent way. Any updates
 to ESP must be negotiated by IKEv2 and are therefore indiscernible to
 intermediate devices such as routers and firewalls. In the recent
-past, several attempts were taken to introduce a Flow Identifier for
+past, several attempts were taken to introduce an inner-flow identifier for
 certain use cases. Examples are
 [[I-D.ponchon-ipsecme-anti-replay-subspaces]] and
-[[I-D.he-ipsecme-vpn-shared-ipsecsa]]. Such a Flow Identifier could
+[[I-D.he-ipsecme-vpn-shared-ipsecsa]]. Such an identifier could
 also be used to perform ECMP based on the inner flows at intermediate
 devices or endpoints.  Additionally to that, there exists a
-specification of the [[PSP]] protocol that has the need of a Flow
-Identifier, called Network Identifier (VNI) there. PSP also defines a
+specification of the [[PSP]] protocol that has the need of an inner-flow
+identifier, called Virtual Network Identifier (VNI) there. PSP also defines a
 Crypt Offset to expose parts of the headers of the inner packet.
 EESP provides a solution for all the aforementioned use cases.
 This document defines a Session ID that can be used as a flow identifier
@@ -232,7 +232,7 @@ The fixed portion of the base header is defined as follows.
   For instance, it can be used to encode a Sub SA ID. The meaning of
   that field is opaque and MAY be
   negotiated by IKEv2. This document defines the use of the Session ID
-  as a Subs SA ID. Other use cases are not covered in this document.
+  as a Sub SA ID. Other use cases are not covered in this document.
 - Security Parameter Index (SPI) :: 32 bits: The SPI is an arbitrary
   32-bit value that is used by a receiver to identify the SA to which
   an incoming packet is bound.
@@ -281,10 +281,10 @@ The ~Peer Header~ follows the ~Base Header~ and ~Options~ field.
 The Peer Header is private to the IPsec peers, middleboxes MUST
 NOT act upon the Peer Header fields. Peer Header fields are
 optional and MUST be
-negotiated by IKEv2 or any other appropriate protocol, therefore
-is is not parsable by middelboxes. This document defines two
-Peer Header fileds, a ~Sequence Number~ and an
-~Initialization Vector~, the format is shown below.
+negotiated by IKEv2 or any other appropriate protocol; therefore
+it is not parsable by middleboxes. This document defines two Peer
+Header fields, a ~Sequence Number~ and an ~Initialization Vector~; the
+format is shown below.
 Future documents can define additional Peer Header fields
 based on their needs.
 
@@ -338,7 +338,7 @@ in the context of multiple senders. However, EESP is capable to
 handle packet counters among multiple senders. This can be done by
 defining a new Base Header Option that covers a ~Sender ID~.
 Similar to the Session ID, this Sender ID can be used as an
-additional Subs SA ID (see [[Session ID as Sub SA ID]]).
+additional Sub SA ID (see [[Session ID as Sub SA ID]]).
 Defining such an Option is left for future documents.
 
 Replay protection SHOULD be enabled.
@@ -348,7 +348,7 @@ it can be disabled. Disabling replay protection MUST
 be negotiated by IKEv2. In this case the sequence number
 field is omitted.
 
-In contrast to ESP, where the receiver alone decides wether to
+In contrast to ESP, where the receiver alone decides whether to
 disable replay protecton, it is negotiated in EESP so
 that sender and receiver can agree on it.
 
@@ -405,7 +405,12 @@ establishment.
 
 The Payload Info Header is needed if the contained payload is
 not a single IPv4 or IPv6 packet (e.g., when using Transport Mode,
-BEET Mode [[RFC7402]], or IP-TFS [[RFC9347]]). It is not needed on
+BEET Mode [[RFC7402]],
+
+# FIXME: Replace this, and all other mentionings of RFC7402,
+# with the new BEET mode RFC if published faster than this...
+
+or IP-TFS [[RFC9347]]). It is not needed on
 tunnel mode because this information can be derived from the inner
 IPv4 or IPv6 header. This document specifies a full and an optimized
 packet format. The Payload Info Header is present in the full
@@ -838,9 +843,9 @@ OptLen field in the ~Base Header~.
 
 ** EESP Option Types
 
-This document defines two padding options ~Pad1~ and ~PadN~, a ~Flow
-Identifier Option~, and a ~Crypt Offset Option~. Future documents can
-define additional options. Appendix A of [[RFC8200]] contains applicable
+This document defines two padding options ~Pad1~ and ~PadN~, and a
+~Crypt Offset Option~. Future documents can define additional options.
+Appendix A of [[RFC8200]] contains applicable
 formatting guidelines for designing new options.
 
 *** Padding Options
@@ -893,38 +898,6 @@ The ~PadN~ option is used to insert two or more octets of padding
 into the ~Options~ field. For N octets of padding, the Opt Data Len
 field contains the value N-2, and the ~Option Data~ consists of N-2
 zero-valued octets.
-
-# Note STK: Pad Options are missing
-
-# *** EESP Flow Identifier Option
-# 
-# Flow Identifier (FID) Options are used to carry characteristic
-# information of the inner flow and SHOULD NOT change on per packet
-# basis inside any inner flow.
-# # to avoid packet reordering.
-# The Flow Identifier SHOULD be negotiated by IKEv2 or another
-# suitable protocol. The detailed specification of FIDs MAY be provided
-# in subsequent documents. The precise meaning of a FID is opaque to
-# intermediate devices.
-# 
-# #+caption: Flow Identifier Option
-# #+name: fid-option
-# #+begin_src
-#     0                   1                   2                   3
-#     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
-#    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#    |  Option Type  | Option Length |                               |
-#    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+                               |
-#    |                                                               |
-#    ~                    Flow Identifier (FID)                      ~
-#    |                                                               |
-#    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-# #+end_src
-# 
-# - Option Type :: 8 bits: See [[EESP Header Options]]
-# - Option Length :: 8 bits: See [[EESP Header Options]]
-# - FID :: Variable length, carries characteristic information of a
-#   inner flow and MUST NOT change for a given inner flow within a SA.
 
 *** EESP Crypt Offset Option
 This option is typically used within one Datacenter use case
@@ -1083,9 +1056,14 @@ as it is done for transport mode. The original IP or IPv6 header
 is replaced by a new one. The new header SHOULD be negotiated by IKEv2
 or any other suitable protocol.
 
-# FIXME: Some more text here...
+In BEET mode, the EESP header is inserted between the (new) IP header
+and the next layer protocol header, as shown below, and the Full Packet
+Format MUST be used. The original IP header is replaced by a new one
+as specified in [[RFC7402]]. Any information required to reconstruct
+the original header is protected by EESP and processed according to
+[[RFC7402]].
 
-#+caption: IPv6 BEET Mode
+#+caption: IPv4 BEET Mode
 #+name: ipv4-beet-mode
 #+begin_src
                   BEFORE APPLYING EESP
@@ -1142,13 +1120,13 @@ packets.
 #+caption: IPv4 Tunnel Mode
 #+name: ipv4-tunnel-mode
 #+begin_src
-                 BEFORE APPLYING ESP
+                 BEFORE APPLYING EESP
             ----------------------------
       IPv4  |orig IP hdr  |     |      |
             |(any options)| TCP | Data |
             ----------------------------
 
-                 AFTER APPLYING ESP
+                 AFTER APPLYING EESP
 
             ----------------------------------------------------------
       IPv4  | new IP hdr* | EESP | orig IP hdr*  |     |      | EESP |
@@ -1162,13 +1140,13 @@ packets.
 #+caption: IPv6 Tunnel Mode
 #+name: ipv6-tunnel-mode
 #+begin_src
-                      BEFORE APPLYING ESP
+                      BEFORE APPLYING EESP
             ---------------------------------------
       IPv6  |             | ext hdrs |     |      |
             | orig IP hdr |if present| TCP | Data |
             ---------------------------------------
 
-                     AFTER APPLYING ESP
+                     AFTER APPLYING EESP
 
             --------------------------------------------------------------
       IPv6  | new* |new ext | EESP | orig*| orig ext |     |      | EESP |
@@ -1603,7 +1581,7 @@ The receiver proceeds for combined mode algorithms as follows:
    Payload Data, Padding, using the key, algorithm,
    algorithm mode, and cryptographic synchronization data (if
    any), indicated by the SA.
-   The Base Header and the Peer Header are are inputs
+   The Base Header and the Peer Header are inputs
    to this algorithm, as they are required for the integrity
    check.
 
@@ -1622,7 +1600,7 @@ The receiver proceeds for combined mode algorithms as follows:
    datagram as invalid; this is an auditable event.  The log
    data SHOULD include the SPI value, Session ID value, date/time received,
    Source Address, Destination Address, the Sequence Number,
-   andF (in IPv6) the cleartext Flow ID.
+   and (in IPv6) the cleartext Flow ID.
 
 -  Process any Padding as specified in the encryption algorithm
    specification, if the algorithm has not already done so.
@@ -1632,7 +1610,7 @@ The receiver proceeds for combined mode algorithms as follows:
    without further processing.
 
 -  Extract the original IP datagram (tunnel mode) or
-   transport-layer frame (layer 4 payload encapsulation modes) from the ESP Payload
+   transport-layer frame (layer 4 payload encapsulation modes) from the EESP Payload
    Data field.
 
 
@@ -1838,8 +1816,8 @@ This document requests IANA allocate an IP protocol number from
 
 ** EESP Versions Registry
 
-This document requests IANA to create a registry called "EESP_VERSIONS"
-Type Registry" under a new category named "EESP_VERSIONS Parameters".
+This document requests IANA to create a registry called "EESP_VERSIONS Type Registry" under a new category
+named "EESP_VERSIONS Parameters".
 
 - Name: EESP Versions Registry
 - Description: EESP Base Header Version
@@ -1854,7 +1832,7 @@ The initial content for this registry is as follows:
     -------   ------------------------------    ---------------
         0      V0                              [this document]
       1-13     Unassigned                      [this document]
-     13-15     Private Use                     [this document]
+     14-15     Private Use                     [this document]
 #+end_src
 
 
@@ -1877,8 +1855,7 @@ The initial content for this registry is as follows:
           0   Pad1                              [this document]
           1   PadN                              [this document]
           2   Crypt Offset                      [this document]
-          3   FID                               [this document]
-      4-223   Unassigned                        [this document]
+      3-223   Unassigned                        [this document]
     224-255   Private                           [this document]
 #+end_src
 
