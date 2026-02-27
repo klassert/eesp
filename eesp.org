@@ -543,9 +543,29 @@ and IPv6 by reading the first nibble of the inner packet, and there
 is no need for a next header field. Additionally, IPv4 and IPv6 also
 have a field describing the overall size of the inner packet, so a
 pad length field is also not needed as it can be derived.
-When transport mode, beet mode or IPTFS is used, it is not possible
-to derive these information, so the full packet format, including
-the ~Payload Info Header~ MUST be used.
+When transport mode, BEET mode, or IP-TFS is used, it is not possible
+to derive this information, so the full packet format, including the
+~Payload Info Header~ MUST be used.
+
+The selection of the packet format is determined by the encapsulation
+mode and by whether the values carried in the ~Payload Info Header~
+can be inferred from the decrypted payload. Table [[eesp-format-by-mode]]
+summarizes which modes use which format. In this table, "Full" means
+that the ~Payload Info Header~ is present, and "Optimized" means that
+the ~Payload Info Header~ is absent (elided).
+
+#+caption: EESP packet format selection by mode
+#+name: eesp-format-by-mode
+|------------------------+--------------------------------------+-------------------------------------------|
+| Mode                   | Packet format                         | Notes                                     |
+| <l>                    | <l>                                  | <l>                                       |
+|------------------------+--------------------------------------+-------------------------------------------|
+| IPv4/IPv6 tunnel mode  | Optimized | Inner starts with IPv4/IPv6 header. |
+| Transport mode         | Full | Next Header/Pad Length cannot be inferred.|
+| BEET mode              | Full | Next Header/Pad Length cannot be inferred.|
+| IP-TFS                 | Full | Payload starts with the IP-TFS header.    |
+|------------------------+--------------------------------------+-------------------------------------------|
+
 The two packet formats are shown below. [[eesp-full-packet-format]]
 shows the full packet format used as the default for modes of operation.
 [[eesp-optimized-packet-format]] illustrates the resulting optimized
