@@ -1510,23 +1510,6 @@ middlebox use.<a href="#section-abstract-2" class="pilcrow">¶</a></p>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9">
             <p id="section-toc.1-1.9.1"><a href="#section-9" class="auto internal xref">9</a>.  <a href="#name-security-considerations" class="internal xref">Security Considerations</a></p>
-<ul class="compact toc ulBare ulEmpty">
-<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9.2.1">
-                <p id="section-toc.1-1.9.2.1.1"><a href="#section-9.1" class="auto internal xref">9.1</a>.  <a href="#name-ddos-when-using-sub-sas" class="internal xref">DDoS when using Sub-SAs</a></p>
-</li>
-              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9.2.2">
-                <p id="section-toc.1-1.9.2.2.1"><a href="#section-9.2" class="auto internal xref">9.2</a>.  <a href="#name-using-crypt-offset" class="internal xref">Using Crypt Offset</a></p>
-</li>
-              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9.2.3">
-                <p id="section-toc.1-1.9.2.3.1"><a href="#section-9.3" class="auto internal xref">9.3</a>.  <a href="#name-optional-disabling-of-repla" class="internal xref">Optional Disabling of Replay Protection</a></p>
-</li>
-              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9.2.4">
-                <p id="section-toc.1-1.9.2.4.1"><a href="#section-9.4" class="auto internal xref">9.4</a>.  <a href="#name-too-many-optional-headers" class="internal xref">Too Many Optional Headers</a></p>
-</li>
-              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9.2.5">
-                <p id="section-toc.1-1.9.2.5.1"><a href="#section-9.5" class="auto internal xref">9.5</a>.  <a href="#name-new-sub-sa-key-derivation-f" class="internal xref">New Sub SA Key Derivation Function</a></p>
-</li>
-            </ul>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.10">
             <p id="section-toc.1-1.10.1"><a href="#section-10" class="auto internal xref">10</a>. <a href="#name-iana-considerations" class="internal xref">IANA Considerations</a></p>
@@ -3537,62 +3520,7 @@ be supported.<a href="#section-8-2" class="pilcrow">¶</a></p>
 <p id="section-9-1">Security is central to the design of this protocol, and thus security
 considerations permeate the specification.  Additional security-
 relevant aspects of using the IPsec protocol are discussed in the
-Security Architecture document <span>[<a href="#RFC4301" class="cite xref">RFC4301</a>]</span>.<a href="#section-9-1" class="pilcrow">¶</a></p>
-<section id="section-9.1">
-        <h3 id="name-ddos-when-using-sub-sas">
-<a href="#section-9.1" class="section-number selfRef">9.1. </a><a href="#name-ddos-when-using-sub-sas" class="section-name selfRef">DDoS when using Sub-SAs</a>
-        </h3>
-<p id="section-9.1-1">Creation of excessive Sub-SAs may exhaust resources on constrained peers.
-Implementations using IKEv2 SHOULD negotiate a “Max Sub-SA IDs” limit and
-MUST enforce local limits on the number of active Sub-SAs.<a href="#section-9.1-1" class="pilcrow">¶</a></p>
-</section>
-<section id="section-9.2">
-        <h3 id="name-using-crypt-offset">
-<a href="#section-9.2" class="section-number selfRef">9.2. </a><a href="#name-using-crypt-offset" class="section-name selfRef">Using Crypt Offset</a>
-        </h3>
-<p id="section-9.2-1">The Crypt Offset feature exposes portions of the next-header information in
-cleartext, reducing confidentiality and introducing inherent security risk.
-Its use is intended only within a single administrative domain where both
-peers are under common operational control.<a href="#section-9.2-1" class="pilcrow">¶</a></p>
-<p id="section-9.2-2">The following recommendations apply:<a href="#section-9.2-2" class="pilcrow">¶</a></p>
-<p id="section-9.2-3">This mechanism is not intended for use across administrative domains or
-on the open Internet.<a href="#section-9.2-3" class="pilcrow">¶</a></p>
-<p id="section-9.2-4">The receiver SHOULD validate the Crypt Offset against local policy and
-log any violations as auditable event. Even for stateless implementations
-(e.g., similar to <span>[<a href="#PSP" class="cite xref">PSP</a>]</span>), local maximum Offset values SHOULD be enforced.<a href="#section-9.2-4" class="pilcrow">¶</a></p>
-</section>
-<section id="section-9.3">
-        <h3 id="name-optional-disabling-of-repla">
-<a href="#section-9.3" class="section-number selfRef">9.3. </a><a href="#name-optional-disabling-of-repla" class="section-name selfRef">Optional Disabling of Replay Protection</a>
-        </h3>
-<p id="section-9.3-1">Disabling replay protection may allow an attacker to force unnecessary
-cryptographic processing, even if higher-layer protocols reject
-replayed data. This is a deployment-specific trade-off and SHOULD be
-enabled only when appropriate for the operational environment.
-Alternativey use localy synchronized clock to filter older packets, when
-the IV is current time.<a href="#section-9.3-1" class="pilcrow">¶</a></p>
-</section>
-<section id="section-9.4">
-        <h3 id="name-too-many-optional-headers">
-<a href="#section-9.4" class="section-number selfRef">9.4. </a><a href="#name-too-many-optional-headers" class="section-name selfRef">Too Many Optional Headers</a>
-        </h3>
-<p id="section-9.4-1">EESP optional headers resemble IPv6 Extension Headers. Excessive use of
-optional headers may lead to resource exhaustion on intermediate
-routers or the receiving peer. Implementations SHOULD avoid attaching
-an excessive number of optional headers to a single packet.<a href="#section-9.4-1" class="pilcrow">¶</a></p>
-</section>
-<section id="section-9.5">
-        <h3 id="name-new-sub-sa-key-derivation-f">
-<a href="#section-9.5" class="section-number selfRef">9.5. </a><a href="#name-new-sub-sa-key-derivation-f" class="section-name selfRef">New Sub SA Key Derivation Function</a>
-        </h3>
-<p id="section-9.5-1">This draft introduces a new key derivation procedure for Sub-SAs
-(<a href="#sec-key-derivation-for-sub-sas" class="auto internal xref">Section 5</a>). Any new cryptographic construction
-requires review to ensure that the Sub-SA Key Derivation Function (SSKDF)
-provides appropriate secrecy, independence between Sub-SAs, and resistance
-to key-recovery or cross-SA attacks. A dedicated cryptographic review of
-the SSKDF is therefore RECOMMENDED, and like requested by IETF
-cryptographic working groups or CFRG.<a href="#section-9.5-1" class="pilcrow">¶</a></p>
-</section>
+Security Architecture document.<a href="#section-9-1" class="pilcrow">¶</a></p>
 </section>
 <section id="section-10">
       <h2 id="name-iana-considerations">

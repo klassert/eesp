@@ -81,9 +81,9 @@ Internet-Draft                    EESP                        March 2026
 
 Table of Contents
 
-   1.  Introduction  . . . . . . . . . . . . . . . . . . . . . . . .   4
-     1.1.  Requirements Language . . . . . . . . . . . . . . . . . .   5
-     1.2.  Terminology . . . . . . . . . . . . . . . . . . . . . . .   5
+   1.  Introduction  . . . . . . . . . . . . . . . . . . . . . . . .   3
+     1.1.  Requirements Language . . . . . . . . . . . . . . . . . .   4
+     1.2.  Terminology . . . . . . . . . . . . . . . . . . . . . . .   4
    2.  Enhanced Encapsulating Security Payload Packet Format . . . .   5
      2.1.  Top-Level EESP format . . . . . . . . . . . . . . . . . .   5
      2.2.  Base Header . . . . . . . . . . . . . . . . . . . . . . .   7
@@ -140,35 +140,16 @@ Internet-Draft                    EESP                        March 2026
    7.  Auditing  . . . . . . . . . . . . . . . . . . . . . . . . . .  38
    8.  Conformance Requirements  . . . . . . . . . . . . . . . . . .  39
    9.  Security Considerations . . . . . . . . . . . . . . . . . . .  39
-     9.1.  DDoS when using Sub-SAs . . . . . . . . . . . . . . . . .  39
-     9.2.  Using Crypt Offset  . . . . . . . . . . . . . . . . . . .  40
-     9.3.  Optional Disabling of Replay Protection . . . . . . . . .  40
-     9.4.  Too Many Optional Headers . . . . . . . . . . . . . . . .  40
-     9.5.  New Sub SA Key Derivation Function  . . . . . . . . . . .  40
-   10. IANA Considerations . . . . . . . . . . . . . . . . . . . . .  40
-     10.1.  EESP IP Protocol Number  . . . . . . . . . . . . . . . .  41
-     10.2.  EESP Versions Registry . . . . . . . . . . . . . . . . .  41
-     10.3.  EESP Options Registry  . . . . . . . . . . . . . . . . .  41
-   11. Implementation Status . . . . . . . . . . . . . . . . . . . .  42
-   12. Acknowledgments . . . . . . . . . . . . . . . . . . . . . . .  42
-   13. Normative References  . . . . . . . . . . . . . . . . . . . .  42
-   14. Informative References  . . . . . . . . . . . . . . . . . . .  43
-   Appendix A.  Additional Stuff . . . . . . . . . . . . . . . . . .  45
-   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  45
-
-
-
-
-
-
-
-
-
-
-Klassert, et al.        Expires 3 September 2026                [Page 3]
-
-Internet-Draft                    EESP                        March 2026
-
+   10. IANA Considerations . . . . . . . . . . . . . . . . . . . . .  39
+     10.1.  EESP IP Protocol Number  . . . . . . . . . . . . . . . .  39
+     10.2.  EESP Versions Registry . . . . . . . . . . . . . . . . .  40
+     10.3.  EESP Options Registry  . . . . . . . . . . . . . . . . .  40
+   11. Implementation Status . . . . . . . . . . . . . . . . . . . .  41
+   12. Acknowledgments . . . . . . . . . . . . . . . . . . . . . . .  41
+   13. Normative References  . . . . . . . . . . . . . . . . . . . .  41
+   14. Informative References  . . . . . . . . . . . . . . . . . . .  42
+   Appendix A.  Additional Stuff . . . . . . . . . . . . . . . . . .  44
+   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  44
 
 1.  Introduction
 
@@ -181,6 +162,14 @@ Internet-Draft                    EESP                        March 2026
    [I-D.ponchon-ipsecme-anti-replay-subspaces] and
    [I-D.he-ipsecme-vpn-shared-ipsecsa].  Such an identifier could also
    be used to perform ECMP based on the inner flows at intermediate
+
+
+
+Klassert, et al.        Expires 3 September 2026                [Page 3]
+
+Internet-Draft                    EESP                        March 2026
+
+
    devices or endpoints.  Additionally to that, there exists a
    specification of the [PSP] protocol that has the need of an inner-
    flow identifier, called Virtual Network Identifier (VNI) there.  PSP
@@ -219,13 +208,6 @@ Internet-Draft                    EESP                        March 2026
    such as [PSP], and offers versioning at the packet level.  The Crypt
    Offset and the Session ID can be used to cover the PSP use case.
 
-
-
-Klassert, et al.        Expires 3 September 2026                [Page 4]
-
-Internet-Draft                    EESP                        March 2026
-
-
 1.1.  Requirements Language
 
    The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
@@ -236,6 +218,13 @@ Internet-Draft                    EESP                        March 2026
 
    This document uses the following terms defined in IKEv2 [RFC7296]:
    Child SA, CREATE_CHILD_SA, IKE_AUTH exchange, USE_TRANSPORT_MODE
+
+
+
+Klassert, et al.        Expires 3 September 2026                [Page 4]
+
+Internet-Draft                    EESP                        March 2026
+
 
    This document uses the following terms defined in [PSP]: PSP (a
    recursive acronym for PSP Security Protocol), Virtual Network
@@ -265,6 +254,17 @@ Internet-Draft                    EESP                        March 2026
    its [Protocol] (IPv4) or Next Header (IPv6, Extension) field.
    Figure 1 illustrates the top-level format of an EESP packet.  The
    EESP header is split into multiple parts.
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2170,14 +2170,14 @@ Internet-Draft                    EESP                        March 2026
    Security is central to the design of this protocol, and thus security
    considerations permeate the specification.  Additional security-
    relevant aspects of using the IPsec protocol are discussed in the
-   Security Architecture document [RFC4301].
+   Security Architecture document.
 
-9.1.  DDoS when using Sub-SAs
+10.  IANA Considerations
 
-   Creation of excessive Sub-SAs may exhaust resources on constrained
-   peers.  Implementations using IKEv2 SHOULD negotiate a “Max Sub-SA
-   IDs” limit and MUST enforce local limits on the number of active Sub-
-   SAs.
+10.1.  EESP IP Protocol Number
+
+   This document requests IANA allocate an IP protocol number from
+   "Protocol Numbers - Assigned Internet Protocol Numbers" registry
 
 
 
@@ -2185,67 +2185,6 @@ Klassert, et al.        Expires 3 September 2026               [Page 39]
 
 Internet-Draft                    EESP                        March 2026
 
-
-9.2.  Using Crypt Offset
-
-   The Crypt Offset feature exposes portions of the next-header
-   information in cleartext, reducing confidentiality and introducing
-   inherent security risk.  Its use is intended only within a single
-   administrative domain where both peers are under common operational
-   control.
-
-   The following recommendations apply:
-
-   This mechanism is not intended for use across administrative domains
-   or on the open Internet.
-
-   The receiver SHOULD validate the Crypt Offset against local policy
-   and log any violations as auditable event.  Even for stateless
-   implementations (e.g., similar to [PSP]), local maximum Offset values
-   SHOULD be enforced.
-
-9.3.  Optional Disabling of Replay Protection
-
-   Disabling replay protection may allow an attacker to force
-   unnecessary cryptographic processing, even if higher-layer protocols
-   reject replayed data.  This is a deployment-specific trade-off and
-   SHOULD be enabled only when appropriate for the operational
-   environment.  Alternativey use localy synchronized clock to filter
-   older packets, when the IV is current time.
-
-9.4.  Too Many Optional Headers
-
-   EESP optional headers resemble IPv6 Extension Headers.  Excessive use
-   of optional headers may lead to resource exhaustion on intermediate
-   routers or the receiving peer.  Implementations SHOULD avoid
-   attaching an excessive number of optional headers to a single packet.
-
-9.5.  New Sub SA Key Derivation Function
-
-   This draft introduces a new key derivation procedure for Sub-SAs
-   (Section 5).  Any new cryptographic construction requires review to
-   ensure that the Sub-SA Key Derivation Function (SSKDF) provides
-   appropriate secrecy, independence between Sub-SAs, and resistance to
-   key-recovery or cross-SA attacks.  A dedicated cryptographic review
-   of the SSKDF is therefore RECOMMENDED, and like requested by IETF
-   cryptographic working groups or CFRG.
-
-10.  IANA Considerations
-
-
-
-
-
-
-Klassert, et al.        Expires 3 September 2026               [Page 40]
-
-Internet-Draft                    EESP                        March 2026
-
-
-10.1.  EESP IP Protocol Number
-
-   This document requests IANA allocate an IP protocol number from
-   "Protocol Numbers - Assigned Internet Protocol Numbers" registry
 
    *  Decimal: TBD
 
@@ -2293,7 +2232,12 @@ Internet-Draft                    EESP                        March 2026
 
 
 
-Klassert, et al.        Expires 3 September 2026               [Page 41]
+
+
+
+
+
+Klassert, et al.        Expires 3 September 2026               [Page 40]
 
 Internet-Draft                    EESP                        March 2026
 
@@ -2349,7 +2293,7 @@ Internet-Draft                    EESP                        March 2026
 
 
 
-Klassert, et al.        Expires 3 September 2026               [Page 42]
+Klassert, et al.        Expires 3 September 2026               [Page 41]
 
 Internet-Draft                    EESP                        March 2026
 
@@ -2405,7 +2349,7 @@ Internet-Draft                    EESP                        March 2026
 
 
 
-Klassert, et al.        Expires 3 September 2026               [Page 43]
+Klassert, et al.        Expires 3 September 2026               [Page 42]
 
 Internet-Draft                    EESP                        March 2026
 
@@ -2461,7 +2405,7 @@ Internet-Draft                    EESP                        March 2026
 
 
 
-Klassert, et al.        Expires 3 September 2026               [Page 44]
+Klassert, et al.        Expires 3 September 2026               [Page 43]
 
 Internet-Draft                    EESP                        March 2026
 
@@ -2517,4 +2461,4 @@ Authors' Addresses
 
 
 
-Klassert, et al.        Expires 3 September 2026               [Page 45]
+Klassert, et al.        Expires 3 September 2026               [Page 44]
