@@ -556,15 +556,15 @@ the ~Payload Info Header~ is absent (elided).
 
 #+caption: EESP packet format selection by mode
 #+name: eesp-format-by-mode
-|------------------------+--------------------------------------+-------------------------------------------|
-| Mode                   | Packet format                         | Notes                                     |
-| <l>                    | <l>                                  | <l>                                       |
-|------------------------+--------------------------------------+-------------------------------------------|
-| IPv4/IPv6 tunnel mode  | Optimized | Inner starts with IPv4/IPv6 header. |
+|------------------------+--------------------------------------+-----------|
+| Mode                   | Packet format                        | Notes     |
+| <l>                    | <l>                                  | <l>       |
+|------------------------+--------------------------------------+-----------|
+| IPv4/IPv6 tunnel mode  | Optimized | Inner starts with IPv4/IPv6 header.  |
 | Transport mode         | Full | Next Header/Pad Length cannot be inferred.|
 | BEET mode              | Full | Next Header/Pad Length cannot be inferred.|
 | IP-TFS                 | Full | Payload starts with the IP-TFS header.    |
-|------------------------+--------------------------------------+-------------------------------------------|
+|------------------------+--------------------------------------+-----------|
 
 The two packet formats are shown below. [[eesp-full-packet-format]]
 shows the full packet format used as the default for modes of operation.
@@ -969,7 +969,7 @@ cleartext Flow ID.
 
 # - F[lags] :: 2-bits: Flags used for stateless crypto signaling such as the
 #   S-bit and D-bit in the PSP specification.
-# 
+#
 #  *NOTE:* I tend to remove the Flags if we keep the Crypt Offset
 #  in this document, as we don't define PSP here.
 
