@@ -1908,6 +1908,19 @@ Authors are requested to add a note to the RFC Editor at the top of
 this section, advising the Editor to remove the entire section before
 publication, as well as the reference to [[RFC7942]].
 
+** Linux XFRM
+
+- Organization :: Linux kernel XFRM
+
+- Name :: [[https://git.kernel.org/pub/scm/linux/kernel/git/klassert/linux-stk.git/log/?h=ipsec-next-eesp-v3][XFRM-EESP-v3]]
+
+- Description :: An initial Kernel IPsec implementation of the EESP.
+
+- Level of maturity :: Alpha
+
+- Licensing :: GPLv2
+
+
 * Acknowledgments
 
 TBD
